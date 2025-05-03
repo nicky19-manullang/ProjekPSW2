@@ -1,0 +1,127 @@
+/* Container utama */
+.jenis-container {
+  padding: 30px;
+  background-color: #f9f9f9;
+  min-height: 100vh;
+}
+
+/* Header */
+.jenis-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.jenis-header h1 {
+  font-size: 28px;
+  color: #333;
+}
+
+/* Tombol Tambah Baru */
+.add-new-button {
+  background-color: #1623b9;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 0px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.add-new-button:hover {
+  background-color: #45a049;
+}
+
+/* Tabel */
+.table-responsive {
+  overflow-x: auto;
+}
+
+.styled-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 16px;
+  background-color: #ffffff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.styled-table th,
+.styled-table td {
+  padding: 12px 15px;
+  text-align: left;
+}
+
+.styled-table thead {
+  background-color: #342cd3;
+  color: #ffffff;
+}
+
+.styled-table tbody tr {
+  border-bottom: 1px solid #dddddd;
+}
+
+.styled-table tbody tr.even-row {
+  background-color: #f3f3f3;
+}
+
+.styled-table tbody tr:hover {
+  background-color: #f1f1f1;
+}
+
+/* Aksi (Edit + Delete) */
+.actions-column {
+  display: flex;
+  gap: 10px;
+}
+
+.edit-icon, .delete-icon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  transition: color 0.3s;
+}
+
+.edit-icon {
+  color: #4CAF50;
+}
+
+.edit-icon:hover {
+  color: #388E3C;
+}
+
+.delete-icon {
+  color: #f44336;
+}
+
+.delete-icon:hover {
+  color: #d32f2f;
+}
+
+/* Responsive Tabel */
+@media (max-width: 768px) {
+  .styled-table thead {
+    display: none;
+  }
+
+  .styled-table tbody tr {
+    display: block;
+    margin-bottom: 20px;
+  }
+
+  .styled-table tbody td {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+  }
+
+  .styled-table tbody td::before {
+    content: attr(data-label);
+    font-weight: bold;
+  }
+}

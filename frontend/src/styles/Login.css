@@ -1,0 +1,104 @@
+/* Latar belakang biru dan kotak transparan */
+.login-page {
+  height: 100vh;
+  background-color: #1797c1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Kotak transparan dekoratif */
+.login-page::before,
+.login-page::after {
+  content: '';
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  z-index: 0;
+}
+
+.login-page::before {
+  top: 20%;
+  left: 20%;
+}
+
+.login-page::after {
+  bottom: 20%;
+  right: 20%;
+}
+
+/* Box login */
+.login-box {
+  position: relative;
+  background-color: #fff;
+  padding: 40px 30px;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+  z-index: 1;
+}
+
+/* Logo */
+.login-logo {
+  width: 90px;
+  margin-bottom: 15px;
+}
+
+/* Judul */
+.login-heading {
+  margin-bottom: 30px;
+  color: #222;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+/* Form login */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  text-align: left;
+}
+
+.login-form label {
+  font-weight: 500;
+  color: #222;
+  font-size: 14px;
+}
+
+/* Input styling */
+.login-form input {
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  transition: 0.2s;
+}
+
+.login-form input:focus {
+  border-color: #1797c1;
+}
+
+/* Tombol login */
+.login-form button {
+  background-color: #1797c1;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.login-form button:hover {
+  background-color: #127ba1;
+}
