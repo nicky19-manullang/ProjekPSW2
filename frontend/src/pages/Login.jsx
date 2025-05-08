@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { FaUser, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 import "../styles/Login.css";
 
 export default function Login() {
@@ -7,16 +8,19 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [showPass, setShowPass] = useState(false);
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    
     if (!username || !password) {
       setError("Username dan password harus diisi!");
       return;
     }
+
     if (username === "admin" && password === "123456") {
-      setError("");
-      window.location.href = "/dashboard";
+      localStorage.setItem("loggedIn", "true");
+      navigate("/dashboard", { replace: true }); // Pakai navigate dan replace history
     } else {
       setError("Username atau password salah!");
     }
@@ -67,7 +71,7 @@ export default function Login() {
             </span>
           </div>
           
-          <button type="submit">LOGIN</button>
+          <button className="but" type="submit">LOGIN</button>
         </form>
       </div>
     </div>

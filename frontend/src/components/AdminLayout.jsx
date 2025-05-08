@@ -1,94 +1,106 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import "../styles/Admin.css";// nanti lo bisa taruh style khusus di sini
 
 export default function AdminLayout({ children }) {
-  const [sidebarOpen, setSidebarOpen] = useState(false); // Status sidebar
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const navigate = useNavigate();
+  const [openPemohon, setOpenPemohon] = useState(false);
+  const [openSewa, setOpenSewa] = useState(false);
+  const [openWaktu, setOpenWaktu] = useState(false);
+
 
   const handleLogout = () => {
-    // Menghapus status login dari localStorage
     localStorage.removeItem("loggedIn");
-    
-    // Mengarahkan pengguna kembali ke halaman login
     navigate("/login");
   };
 
   const toggleSidebar = () => {
-    setSidebarOpen(!sidebarOpen); // Toggle status sidebar
+    setSidebarOpen(!sidebarOpen);
   };
+  
 
   return (
-    <div className="wrapper">
-      {/* Navbar */}
-      <nav className="main-header navbar navbar-expand navbar-white navbar-light">
-        <ul className="navbar-nav">
-          <li className="nav-item">
-            <a 
-              className="nav-link" 
-              data-widget="pushmenu" 
-              href="#" 
-              role="button"
-              onClick={toggleSidebar} 
-            >
-              <i className="fas fa-bars"></i>
-            </a>
-          </li>
-          <li className="nav-item d-none d-sm-inline-block">
-            <a href="/" className="nav-link">Home</a>
-          </li>
-        </ul>
-
-        {/* Tombol Logout */}
-        <ul className="navbar-nav ml-auto">
-          <li className="nav-item">
-            <button className="btn btn-danger" onClick={handleLogout}>
-              Logout
-            </button>
-          </li>
-        </ul>
-      </nav>
-
+    <div className="tt-wrapper d-flex">
       {/* Sidebar */}
-      <aside className={`main-sidebar sidebar-dark-primary elevation-4 ${sidebarOpen ? '' : 'sidebar-mini'}`}>
-        {/*<a href="/" className="brand-link">
-          <span className="brand-text font-weight-light"><p><b>TAPA</b>TUPA</p></span>
-        </a>*/}
-        <h3 style={{ color: 'white', textAlign: 'center' }}>
-          <b>TAPA</b>TUPA
-        </h3>
-
-        <div className={`sidebar ${sidebarOpen ? '' : 'sidebar-collapse'}`}>
-          <nav className="mt-2">
-            <ul className="nav nav-pills nav-sidebar flex-column" data-widget="treeview">
-              <li className="nav-item">
-                <a href="/dashboard" className="nav-link">
-                  <i className="nav-icon fas fa-tachometer-alt"></i>
-                  <p>Dashboard</p>
-                </a>
-              </li>
-              <li className="nav-item">
-                <a href="/dashboard" className="nav-link">
-                  <i className="nav-icon fas fa-chart-line"></i>
-                  <p>Manajemen Tanah</p>
-                </a>
-              </li>
-              <li className="nav-item">
-                <a href="/jenis-index" className="nav-link">
-                <i className="nav-icon fas fa-file-alt"></i> 
-                <p>JenisStatus</p>
-                </a>
-              </li>
-
-              {/* Navigasi lainnya */}
-            </ul>
-          </nav>
+      <aside className={`tt-sidebar ${sidebarOpen ? 'open' : 'collapsed'}`}>
+        <div className="tt-sidebar-header">
+          <img src="/images/logo.jpg" alt="Logo" className="tt-logo" />
+          <h5 className="tt-title">T A P A T U P A</h5>
         </div>
+        <nav className="tt-nav">
+  <ul>
+    <li><a href="/dashboard"><i className="fas fa-home"></i> Dashboard</a></li>
+
+    {/* Pemohon */}
+    <li>
+      <div className="tt-dropdown-toggle" onClick={() => setOpenPemohon(!openPemohon)}>
+        <i className="fas fa-users"></i> Pemohon
+        <i className={`fas fa-chevron-${openPemohon ? 'down' : 'right'} tt-arrow`}></i>
+      </div>
+      {openPemohon && (
+        <ul className="tt-dropdown">
+          <li><a href="/pemohon">Data Pemohon</a></li>
+          <li><a href="/pemohon/tambah">Tambah Pemohon</a></li>
+        </ul>
+      )}
+    </li>
+
+    {/* Manajemen Sewa */}
+    <li>
+      <div className="tt-dropdown-toggle" onClick={() => setOpenSewa(!openSewa)}>
+        <i className="fas fa-clipboard-list"></i> Manajemen Sewa
+        <i className={`fas fa-chevron-${openSewa ? 'down' : 'right'} tt-arrow`}></i>
+      </div>
+      {openSewa && (
+        <ul className="tt-dropdown">
+          <li><a href="/sewa">Data Sewa</a></li>
+          <li><a href="/sewa/tambah">Tambah Sewa</a></li>
+        </ul>
+      )}
+    </li>
+
+    {/* Waktu Permohonan */}
+    <li>
+      <div className="tt-dropdown-toggle" onClick={() => setOpenWaktu(!openWaktu)}>
+        <i className="fas fa-clock"></i> Waktu Permohonan
+        <i className={`fas fa-chevron-${openWaktu ? 'down' : 'right'} tt-arrow`}></i>
+      </div>
+      {openWaktu && (
+        <ul className="tt-dropdown">
+          <li><a href="/waktu">Lihat Waktu</a></li>
+          <li><a href="/waktu/tambah">Tambah Waktu</a></li>
+        </ul>
+      )}
+    </li>
+
+    {/* Lainnya */}
+    <li><a href="/status"><i className="fas fa-edit"></i> Manajemen Status</a></li>
+    <li><a href="/objek"><i className="fas fa-map"></i> Objek</a></li>
+  </ul>
+</nav>
+
       </aside>
 
-      {/* Main Content Area */}
-      <div className="content-wrapper">
-        {/* Content goes here */}
-        {children}
+      {/* Content Area */}
+      <div className="tt-content">
+        <div className="tt-navbar">
+          <button className="tt-toggle" onClick={toggleSidebar}>
+            <i className="fas fa-bars"></i>
+          </button>
+          <h4 className="tt-page-title"><i className="fas fa-home"></i> Dashboard</h4>
+          <div className="tt-admin">
+            <i className="fas fa-user"></i> Admin Tapatupa
+          </div>
+        </div>
+        <div className="tt-main-content">
+          {children}
+        </div>
+        <footer className="tt-footer">
+          <div className="tt-footer-content">
+            <p>&copy; 2024 Tapatupa. All rights reserved.</p>
+          </div>
+        </footer>
       </div>
     </div>
   );

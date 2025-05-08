@@ -106,7 +106,7 @@ input {
 }
 
 /* BUTTON */
-button {
+.but {
   width: 100%;
   padding: 0.8rem;
   background: #1797c1;
