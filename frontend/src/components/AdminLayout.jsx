@@ -1,179 +1,256 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-// import "../styles/Admin.css";// nanti lo bisa taruh style khusus di sini
+import { useNavigate, Link } from 'react-router-dom';
 
 export default function AdminLayout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [activeMenu, setActiveMenu] = useState(null);
   const navigate = useNavigate();
-  const [openPemohon, setOpenPemohon] = useState(false);
-  const [openSewa, setOpenSewa] = useState(false);
-  const [openWaktu, setOpenWaktu] = useState(false);
-  const [openStatus, setOpenStatus] = useState (false);
-  const [openObjek, setOpenObjek] = useState(false);
 
+  const menus = [
+    {
+      title: "Dashboard",
+      icon: "fa-home",
+      path: "/dashboard"
+    },
+    {
+      title: "Pemohon",
+      icon: "fa-users",
+      submenus: [
+        { title: "User", path: "/user-index" },
+        { title: "Retribusi", path: "/wajib-retribusi-index" }
+      ]
+    },
+    {
+      title: "Management Sewa",
+      icon: "fa-clipboard-list",
+      submenus: [
+        { title: "Jenis Permohonan", path: "/jenis-sewa" },
+        { title: "Peruntukan Sewa", path: "/peruntukan-sewa" },
+        { title: "Permohonan Sewa", path: "/permohonan-sewa" }
+      ]
+    },
+    {
+      title: "Waktu Permohonan",
+      icon: "fa-clock",
+      submenus: [
+        { title: "Jangka Waktu Sewa", path: "/jangka-waktu" },
+        { title: "Jenis Jangka Waktu", path: "/jenis-jangka-waktu" }
+      ]
+    },
+    {
+      title: "Management Status",
+      icon: "fa-edit",
+      submenus: [
+        { title: "Status", path: "/status" },
+        { title: "Jenis Status", path: "/jenis-index" }
+      ]
+    },
+    {
+      title: "Objek",
+      icon: "fa-map",
+      submenus: [
+        { title: "Jenis Objek", path: "/jenis-objek" },
+        { title: "Lokasi Objek", path: "/lokasi-objek" },
+        { title: "Tarif Objek", path: "/tarif-objek" },
+        { title: "Objek Retribusi", path: "/objek-retribusi" }
+      ]
+    }
+  ];
+
+  const toggleMenu = (menuTitle) => {
+    setActiveMenu(activeMenu === menuTitle ? null : menuTitle);
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("loggedIn");
     navigate("/login");
   };
 
-  const toggleSidebar = () => {
-    setSidebarOpen(!sidebarOpen);
-  };
-  
-
   return (
-    <div className="tt-wrapper d-flex" style={{ backgroundColor: '#f8f9fa' }}>
+    <div style={{
+      display: 'flex',
+      minHeight: '100vh',
+      backgroundColor: '#f8f9fa',
+      fontFamily: "'Poppins', sans-serif"
+    }}>
       {/* Sidebar */}
-      <aside className={`tt-sidebar ${sidebarOpen ? 'open' : 'collapsed'}`} style={{ 
+      <aside style={{
+        width: sidebarOpen ? '250px' : '80px',
         backgroundColor: '#4682B4',
         color: 'white',
-        boxShadow: '2px 0 10px rgba(0,0,0,0.1)',
-        transition: 'all 0.3s ease'
+        transition: 'all 0.3s ease',
+        boxShadow: '4px 0 15px rgba(0,0,0,0.1)',
+        position: 'fixed',
+        height: '100vh',
+        zIndex: 100
       }}>
-        <div className="tt-sidebar-header" style={{ padding: '20px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-          <img src="/images/logo.jpg" alt="Logo" className="tt-logo" style={{ width: '50px', height: '50px', borderRadius: '10px' }} />
-          <h5 className="tt-title" style={{ margin: '10px 0', fontSize: '1.2rem', fontWeight: '600' }}>T A P A T U P A</h5>
+        <div style={{
+          padding: '20px',
+          borderBottom: '1px solid rgba(255,255,255,0.1)',
+          textAlign: 'center'
+        }}>
+          <img 
+            src="/images/logo.jpg" 
+            alt="Logo" 
+            style={{ 
+              width: '40px', 
+              height: '40px', 
+              borderRadius: '50%',
+              marginBottom: '10px'
+            }} 
+          />
+          {sidebarOpen && <h5 style={{ margin: 0, fontWeight: '600' }}>T A P A T U P A</h5>}
         </div>
-        <nav className="tt-nav" style={{ padding: '10px' }}>
+
+        <nav style={{ padding: '10px' }}>
           <ul style={{ listStyle: 'none', padding: 0 }}>
-            <li><a href="/dashboard" style={{ color: 'white', textDecoration: 'none', padding: '12px', borderRadius: '8px', display: 'flex', alignItems: 'center', margin: '5px 0', transition: 'all 0.2s ease', ':hover': { backgroundColor: 'rgba(255,255,255,0.1)' } }}><i className="fas fa-home"></i><span style={{ marginLeft: '10px' }}>Dashboard</span></a></li>
+            {menus.map((menu, index) => (
+              <li key={index}>
+                {menu.submenus ? (
+                  <>
+                    <div 
+                      onClick={() => toggleMenu(menu.title)}
+                      style={{
+                        padding: '12px',
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        margin: '5px 0',
+                        backgroundColor: activeMenu === menu.title ? 'rgba(255,255,255,0.15)' : 'transparent',
+                        transition: 'all 0.2s'
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center' }}>
+                        <i className={`fas ${menu.icon}`} style={{ width: '24px' }}></i>
+                        {sidebarOpen && <span style={{ marginLeft: '10px' }}>{menu.title}</span>}
+                      </div>
+                      {sidebarOpen && (
+                        <i className={`fas fa-chevron-${activeMenu === menu.title ? 'down' : 'right'}`}></i>
+                      )}
+                    </div>
 
-            {/* Pemohon */}
-            <li>
-              <div className="tt-dropdown-toggle" onClick={() => setOpenPemohon(!openPemohon)} style={{ padding: '12px', cursor: 'pointer', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', ':hover': { backgroundColor: 'rgba(255,255,255,0.1)' } }}>
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <i className="fas fa-users"></i>
-                  <span style={{ marginLeft: '10px' }}>Pemohon</span>
-                </div>
-                <i className={`fas fa-chevron-${openPemohon ? 'down' : 'right'} tt-arrow`}></i>
-              </div>
-              {openPemohon && (
-                <ul className="tt-dropdown" style={{ padding: '5px 0 5px 20px' }}>
-                  <li><a href="/User-index" style={{ color: 'white', textDecoration: 'none', padding: '8px', display: 'block', borderRadius: '6px', ':hover': { backgroundColor: 'rgba(255,255,255,0.1)' } }}>User</a></li>
-                  <li><a href="/Wajib-retribusi-index" style={{ color: 'white', textDecoration: 'none', padding: '8px', display: 'block', borderRadius: '6px', ':hover': { backgroundColor: 'rgba(255,255,255,0.1)' } }}>Wajib Retribusi</a></li>
-                </ul>
-              )}
-            </li>
-
-            {/* Manajemen Sewa */}
-            <li>
-              <div className="tt-dropdown-toggle" onClick={() => setOpenSewa(!openSewa)} style={{ padding: '12px', cursor: 'pointer', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', ':hover': { backgroundColor: 'rgba(255,255,255,0.1)' } }}>
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <i className="fas fa-clipboard-list"></i>
-                  <span style={{ marginLeft: '10px' }}>Manajemen Sewa</span>
-                </div>
-                <i className={`fas fa-chevron-${openSewa ? 'down' : 'right'} tt-arrow`}></i>
-              </div>
-              {openSewa && (
-                <ul className="tt-dropdown" style={{ padding: '5px 0 5px 20px' }}>
-                  <li><a href="/sewa" style={{ color: 'white', textDecoration: 'none', padding: '8px', display: 'block', borderRadius: '6px', ':hover': { backgroundColor: 'rgba(255,255,255,0.1)' } }}>Jenis Sewa</a></li>
-                  <li><a href="/sewa/tambah" style={{ color: 'white', textDecoration: 'none', padding: '8px', display: 'block', borderRadius: '6px', ':hover': { backgroundColor: 'rgba(255,255,255,0.1)' } }}>Peruntukan Sewa</a></li>
-                  <li><a href="/sewa/tambah" style={{ color: 'white', textDecoration: 'none', padding: '8px', display: 'block', borderRadius: '6px', ':hover': { backgroundColor: 'rgba(255,255,255,0.1)' } }}>Permohonan Sewa</a></li>
-                </ul>
-              )}
-            </li>
-
-            {/* Waktu Permohonan */}
-            <li>
-              <div className="tt-dropdown-toggle" onClick={() => setOpenWaktu(!openWaktu)} style={{ padding: '12px', cursor: 'pointer', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', ':hover': { backgroundColor: 'rgba(255,255,255,0.1)' } }}>
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <i className="fas fa-clock"></i>
-                  <span style={{ marginLeft: '10px' }}>Waktu Permohonan</span>
-                </div>
-                <i className={`fas fa-chevron-${openWaktu ? 'down' : 'right'} tt-arrow`}></i>
-              </div>
-              {openWaktu && (
-                <ul className="tt-dropdown" style={{ padding: '5px 0 5px 20px' }}>
-                  <li><a href="/waktu" style={{ color: 'white', textDecoration: 'none', padding: '8px', display: 'block', borderRadius: '6px', ':hover': { backgroundColor: 'rgba(255,255,255,0.1)' } }}>Jangka Waktu Sewa</a></li>
-                  <li><a href="/waktu/tambah" style={{ color: 'white', textDecoration: 'none', padding: '8px', display: 'block', borderRadius: '6px', ':hover': { backgroundColor: 'rgba(255,255,255,0.1)' } }}>Jenis Jangka Waktu</a></li>
-                </ul>
-              )}
-            </li>
-
-            {/* Status */}
-            <li>
-              <div className="tt-dropdown-toggle" onClick={() => setOpenStatus(!openStatus)} style={{ padding: '12px', cursor: 'pointer', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', ':hover': { backgroundColor: 'rgba(255,255,255,0.1)' } }}>
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <i className="fas fa-edit"></i>
-                  <span style={{ marginLeft: '10px' }}>Manajemen Status</span>
-                </div>
-                <i className={`fas fa-chevron-${openStatus ? 'down' : 'right'} tt-arrow`}></i>
-              </div>
-              {openStatus && (
-                <ul className="tt-dropdown" style={{ padding: '5px 0 5px 20px' }}>
-                  <li><a href="/status" style={{ color: 'white', textDecoration: 'none', padding: '8px', display: 'block', borderRadius: '6px', ':hover': { backgroundColor: 'rgba(255,255,255,0.1)' } }}>Status</a></li>
-                  <li><a href="/jenis-index" style={{ color: 'white', textDecoration: 'none', padding: '8px', display: 'block', borderRadius: '6px', ':hover': { backgroundColor: 'rgba(255,255,255,0.1)' } }}>Jenis Status</a></li>
-                </ul>
-              )}
-            </li>
-
-            {/* Objek */}
-            <li>
-              <div className="tt-dropdown-toggle" onClick={() => setOpenObjek(!openObjek)} style={{ padding: '12px', cursor: 'pointer', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', ':hover': { backgroundColor: 'rgba(255,255,255,0.1)' } }}>
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <i className="fas fa-map"></i>
-                  <span style={{ marginLeft: '10px' }}>Objek</span>
-                </div>
-                <i className={`fas fa-chevron-${openObjek ? 'down' : 'right'} tt-arrow`}></i>
-              </div>
-              {openObjek && (
-                <ul className="tt-dropdown" style={{ padding: '5px 0 5px 20px' }}>
-                  <li><a href="/objek" style={{ color: 'white', textDecoration: 'none', padding: '8px', display: 'block', borderRadius: '6px', ':hover': { backgroundColor: 'rgba(255,255,255,0.1)' } }}>Jenis Objek</a></li>
-                  <li><a href="/objek/tambah" style={{ color: 'white', textDecoration: 'none', padding: '8px', display: 'block', borderRadius: '6px', ':hover': { backgroundColor: 'rgba(255,255,255,0.1)' } }}>Lokasi Objek</a></li>
-                  <li><a href="/objek" style={{ color: 'white', textDecoration: 'none', padding: '8px', display: 'block', borderRadius: '6px', ':hover': { backgroundColor: 'rgba(255,255,255,0.1)' } }}>Tarif Objek</a></li>
-                  <li><a href="/objek/tambah" style={{ color: 'white', textDecoration: 'none', padding: '8px', display: 'block', borderRadius: '6px', ':hover': { backgroundColor: 'rgba(255,255,255,0.1)' } }}>Objek Retribusi</a></li>
-                </ul>
-              )}
-            </li>
+                    {sidebarOpen && activeMenu === menu.title && (
+                      <ul style={{ 
+                        paddingLeft: '34px',
+                        animation: 'fadeIn 0.3s ease'
+                      }}>
+                        {menu.submenus.map((submenu, subIndex) => (
+                          <li key={subIndex}>
+                            <Link
+                              to={submenu.path}
+                              style={{
+                                display: 'block',
+                                padding: '8px 0',
+                                color: 'white',
+                                textDecoration: 'none',
+                                transition: 'all 0.2s'
+                              }}
+                            >
+                              {submenu.title}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </>
+                ) : (
+                  <Link
+                    to={menu.path}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      padding: '12px',
+                      borderRadius: '8px',
+                      color: 'white',
+                      textDecoration: 'none',
+                      margin: '5px 0',
+                      transition: 'all 0.2s'
+                    }}
+                  >
+                    <i className={`fas ${menu.icon}`} style={{ width: '24px' }}></i>
+                    {sidebarOpen && <span style={{ marginLeft: '10px' }}>{menu.title}</span>}
+                  </Link>
+                )}
+              </li>
+            ))}
           </ul>
         </nav>
       </aside>
 
-      {/* Content Area */}
-      <div className="tt-content" style={{ flex: 1, backgroundColor: 'white' }}>
-        <div className="tt-navbar" style={{ 
+      {/* Main Content */}
+      <div style={{ 
+        marginLeft: sidebarOpen ? '250px' : '80px',
+        flex: 1,
+        transition: 'all 0.3s ease'
+      }}>
+        {/* Navbar */}
+        <div style={{
           padding: '15px 30px',
           backgroundColor: 'white',
-          boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+          boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between'
+          justifyContent: 'space-between',
+          position: 'sticky',
+          top: 0,
+          zIndex: 90
         }}>
-          <button className="tt-toggle" onClick={toggleSidebar} style={{
-            border: 'none',
-            backgroundColor: '#4682B4',
-            color: 'white',
-            width: '40px',
-            height: '40px',
-            borderRadius: '8px',
-            cursor: 'pointer'
-          }}>
+          <button 
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            style={{
+              width: '40px',
+              height: '40px',
+              borderRadius: '8px',
+              backgroundColor: '#4682B4',
+              color: 'white',
+              border: 'none',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
             <i className="fas fa-bars"></i>
           </button>
-          <h4 className="tt-page-title" style={{ margin: 0, color: '#000000' }}><i className="fas fa-home"></i> Dashboard</h4>
-          <div className="tt-admin" style={{ 
+
+          <div style={{ 
             display: 'flex',
             alignItems: 'center',
-            padding: '8px 15px',
-            backgroundColor: '#4682B4',
-            color: 'white',
-            borderRadius: '8px'
+            gap: '15px'
           }}>
-            <i className="fas fa-user" style={{ marginRight: '8px' }}></i> Admin Tapatupa
+            <div style={{
+              backgroundColor: '#4682B4',
+              color: 'white',
+              padding: '8px 15px',
+              borderRadius: '20px',
+              fontWeight: '500'
+            }}>
+              <i className="fas fa-user" style={{ marginRight: '8px' }}></i>
+              Admin Tapatupa
+            </div>
           </div>
         </div>
-        <div className="tt-main-content" style={{ padding: '30px', minHeight: 'calc(100vh - 140px)' }}>
-          {children}
-        </div>
-        <footer className="tt-footer" style={{ 
-          borderTop: '1px solid #eee',
-          padding: '15px 30px',
+
+        {/* Page Content */}
+        <main style={{ 
+          padding: '30px',
+          minHeight: 'calc(100vh - 140px)',
           backgroundColor: 'white'
         }}>
-          <div className="tt-footer-content" style={{ textAlign: 'center', color: '#666' }}>
-            <p style={{ margin: 0 }}>&copy; 2024 Tapatupa. All rights reserved.</p>
-          </div>
+          {children}
+        </main>
+
+        {/* Footer */}
+        <footer style={{ 
+          padding: '15px 30px',
+          backgroundColor: 'white',
+          borderTop: '1px solid #eee',
+          textAlign: 'center',
+          color: '#64748b'
+        }}>
+          <p style={{ margin: 0 }}>&copy; 2025 Tapatupa. All rights reserved.</p>
         </footer>
       </div>
     </div>
