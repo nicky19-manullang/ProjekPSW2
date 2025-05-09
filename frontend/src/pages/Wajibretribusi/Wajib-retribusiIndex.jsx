@@ -60,7 +60,7 @@ function UserIndex() {
           fontSize: "24px",
           fontWeight: "600",
           color: "#1e293b"
-        }}>User ID</h1>
+        }}>Wajib Retribusi</h1>
         <button 
           onClick={() => navigate("/User-create")}
           style={{
@@ -73,7 +73,7 @@ function UserIndex() {
             fontWeight: "500"
           }}
         >
-          Tambah User
+          Tambah Wajib Retribusi
         </button>
       </div>
 
@@ -87,17 +87,23 @@ function UserIndex() {
         {/* Table Header */}
         <div style={{
           display: "grid",
-          gridTemplateColumns: "repeat(6, 1fr)",
+          gridTemplateColumns: "repeat(12, 1fr)",
           padding: "15px 20px",
           backgroundColor: "#4361ee",
           color: "white",
           fontWeight: "500"
         }}>
           <div>No</div>
-          <div>Username</div>
-          <div>Password</div>
+          <div>ID Jenis Retribusi</div>
+          <div>Nama</div>
+          <div>Pekerjaan</div>
           <div>Email</div>
-          <div>Token</div>
+          <div>No. HP</div>
+          <div>No. WA</div>
+          <div>NIK</div>
+          <div>Alamat</div>
+          <div>File Foto</div>
+          <div>ID Wajib Retribusi</div>
           <div>Aksi</div>
         </div>
 
@@ -108,7 +114,7 @@ function UserIndex() {
               key={user.id}
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(6, 1fr)",
+                gridTemplateColumns: "repeat(12, 1fr)",
                 padding: "12px 20px",
                 borderBottom: "1px solid #e2e8f0",
                 alignItems: "center",
@@ -116,10 +122,16 @@ function UserIndex() {
               }}
             >
               <div>{indexOfFirstItem + index + 1}</div>
-              <div style={{ fontWeight: "500" }}>{user.username}</div>
-              <div style={{ color: "#64748b" }}>{user.password}</div>
+              <div>{user.jenis_retribusi_id}</div>
+              <div style={{ fontWeight: "500" }}>{user.nama}</div>
+              <div>{user.pekerjaan}</div>
               <div>{user.email}</div>
-              <div>{user.token}</div>
+              <div>{user.no_hp}</div>
+              <div>{user.no_wa}</div>
+              <div>{user.nik}</div>
+              <div>{user.alamat}</div>
+              <div>{user.file_foto}</div>
+              <div>{user.wajib_retribusi_id}</div>
               <div style={{ display: "flex", gap: "10px" }}>
                 <button 
                   onClick={() => navigate(`/users/edit/${user.id}`)}
@@ -152,7 +164,7 @@ function UserIndex() {
             textAlign: "center",
             color: "#64748b"
           }}>
-            Tidak ada data user
+            Tidak ada data wajib retribusi
           </div>
         )}
 
@@ -165,7 +177,7 @@ function UserIndex() {
           borderTop: "1px solid #e2e8f0"
         }}>
           <div style={{ color: "#64748b" }}>
-            Menampilkan {currentUsers.length} dari {users.length} user
+            Menampilkan {currentUsers.length} dari {users.length} wajib retribusi
           </div>
           <div style={{ display: "flex", gap: "10px" }}>
             <button 
