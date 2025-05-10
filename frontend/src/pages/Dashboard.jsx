@@ -1,6 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 
 export default function Dashboard() {
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const handleSearch = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
   return (
     <section className="content">
       <div className="container py-5">
@@ -14,7 +20,9 @@ export default function Dashboard() {
             type="text"
             placeholder="Ex. Permohonan Sewa"
             className="form-control"
-            style={{ maxWidth: "400px" }}
+            style={{ maxWidth: "400px", maxHeight: "1000px" }}
+            value={searchQuery}
+            onChange={handleSearch}
           />
         </div>
 
@@ -24,9 +32,9 @@ export default function Dashboard() {
         <div className="row">
           {/* Card Item */}
           <div className="col-md-4 mb-4">
-            <div className="card text-white bg-primary h-100">
+            <div className="card bg-light h-100" style={{ transition: 'all 0.3s' }}>
               <img
-                src="/img/pemohon.png"
+                src="/images/pemohon.png"
                 className="card-img-top p-3"
                 alt="Pemohon"
               />
@@ -37,9 +45,9 @@ export default function Dashboard() {
           </div>
 
           <div className="col-md-4 mb-4">
-            <div className="card bg-light h-100">
+            <div className="card bg-light h-100" style={{ transition: 'all 0.3s' }}>
               <img
-                src="/img/sewa.png"
+                src="/images/manajemen-sewa.png"
                 className="card-img-top p-3"
                 alt="Manajemen Sewa"
               />
@@ -50,9 +58,9 @@ export default function Dashboard() {
           </div>
 
           <div className="col-md-4 mb-4">
-            <div className="card bg-light h-100">
+            <div className="card bg-light h-100" style={{ transition: 'all 0.3s' }}>
               <img
-                src="/img/waktu.png"
+                src="/images/waktu-permohonan.png"
                 className="card-img-top p-3"
                 alt="Waktu Permohonan"
               />
@@ -64,9 +72,9 @@ export default function Dashboard() {
 
           {/* Tambahan kategori */}
           <div className="col-md-4 mb-4">
-            <div className="card bg-light h-100">
+            <div className="card bg-light h-100" style={{ transition: 'all 0.3s' }}>
               <img
-                src="/img/status.png"
+                src="/images/manajemen-status.png"
                 className="card-img-top p-3"
                 alt="Manajemen Status"
               />
@@ -77,9 +85,9 @@ export default function Dashboard() {
           </div>
 
           <div className="col-md-4 mb-4">
-            <div className="card bg-light h-100">
+            <div className="card bg-light h-100" style={{ transition: 'all 0.3s' }}>
               <img
-                src="/img/objek.png"
+                src="/images/objek.png"
                 className="card-img-top p-3"
                 alt="Objek"
               />
@@ -95,6 +103,16 @@ export default function Dashboard() {
           <button className="btn btn-primary">Next</button>
         </div>
       </div>
+
+      <style jsx>{`
+        .card:hover {
+          background-color: #007bff !important;
+          color: white !important;
+        }
+        .card:hover .card-title {
+          color: white !important;
+        }
+      `}</style>
     </section>
   );
 }

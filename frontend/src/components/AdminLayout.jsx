@@ -17,42 +17,42 @@ export default function AdminLayout({ children }) {
       icon: "fa-users",
       submenus: [
         { title: "User", path: "/user-index" },
-        { title: "Retribusi", path: "/wajib-retribusi-index" }
+        { title: "Wajib Retribusi", path: "/wajib-retribusi-index" }
       ]
     },
     {
       title: "Management Sewa",
       icon: "fa-clipboard-list",
       submenus: [
-        { title: "Jenis Permohonan", path: "/jenis-sewa" },
-        { title: "Peruntukan Sewa", path: "/peruntukan-sewa" },
-        { title: "Permohonan Sewa", path: "/permohonan-sewa" }
+        { title: "Jenis Permohonan", path: "/Jenispermohonan-Index" },
+        { title: "Peruntukan Sewa", path: "/Peruntukansewa-index" },
+        { title: "Permohonan Sewa", path: "/Permohonansewa-index" }
       ]
     },
     {
       title: "Waktu Permohonan",
       icon: "fa-clock",
       submenus: [
-        { title: "Jangka Waktu Sewa", path: "/jangka-waktu" },
-        { title: "Jenis Jangka Waktu", path: "/jenis-jangka-waktu" }
+        { title: "Jangka Waktu Sewa", path: "/Jangkawaktusewa-index" },
+        { title: "Jenis Jangka Waktu", path: "/Jenisjangkawaktu-index" }
       ]
     },
     {
       title: "Management Status",
       icon: "fa-edit",
       submenus: [
-        { title: "Status", path: "/status" },
-        { title: "Jenis Status", path: "/jenis-index" }
+        { title: "Status", path: "/Status-index" },
+        { title: "Jenis Status", path: "/Jenisstatus-index" }
       ]
     },
     {
       title: "Objek",
       icon: "fa-map",
       submenus: [
-        { title: "Jenis Objek", path: "/jenis-objek" },
-        { title: "Lokasi Objek", path: "/lokasi-objek" },
-        { title: "Tarif Objek", path: "/tarif-objek" },
-        { title: "Objek Retribusi", path: "/objek-retribusi" }
+        { title: "Jenis Objek", path: "/Jenisobjek-index" },
+        { title: "Lokasi Objek", path: "/Lokasiobjek-index" },
+        { title: "Tarif Objek", path: "/Tarifobjek-index" },
+        { title: "Objek Retribusi", path: "/Objek-retribusi-index" }
       ]
     }
   ];

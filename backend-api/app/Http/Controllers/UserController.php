@@ -18,9 +18,11 @@ class UserController extends Controller
     {
         // Validasi data yang diterima dari request
         $validatedData = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
+            'username' => 'required|string|max:255',
             'password' => 'required|string|min:8|confirmed',
+            'email' => 'required|string|email|max:255|unique:users',
+            'token' => 'required|string|max:255',
+            'keterangan' => 'required|string|max:255'
         ]);
 
         // Membuat data baru User di database
@@ -39,9 +41,11 @@ class UserController extends Controller
     {
         // Validasi data yang diterima dari request
         $validatedData = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+            'username' => 'required|string|max:255',
             'password' => 'nullable|string|min:8|confirmed',
+            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+            'token' => 'required|string|max:255',
+            'keterangan' => 'required|string|max:255'
         ]);
 
         // Mengupdate data User di database
