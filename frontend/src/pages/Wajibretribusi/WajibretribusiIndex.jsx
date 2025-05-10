@@ -6,7 +6,7 @@ import { FaEdit, FaTrash, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
 const Api_URL = "http://127.0.0.1:8000/api/users";
 
-function UserIndex() {
+function WajibretribusiIndex() {
   const [users, setUsers] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -62,7 +62,7 @@ function UserIndex() {
           color: "#1e293b"
         }}>Wajib Retribusi</h1>
         <button 
-          onClick={() => navigate("/User-create")}
+          onClick={() => navigate("/Wajib-retribusi-create")}
           style={{
             backgroundColor: "#4361ee",
             color: "white",
@@ -216,4 +216,4 @@ function UserIndex() {
   );
 }
 
-export default UserIndex;
+export default WajibretribusiIndex;

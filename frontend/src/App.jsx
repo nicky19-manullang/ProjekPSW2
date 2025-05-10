@@ -8,9 +8,9 @@ import UserIndex from './pages/User/UserIndex';
 import UserCreate from './pages/User/UserCreate'; 
 import UserEdit from './pages/User/UserEdit';
 
-import WajibretribusiIndex from './pages/Wajibretribusi/Wajib-retribusiIndex'; 
-import WajibretribusiCreate from './pages/Wajibretribusi/Wajib-retribusiCreate'; 
-import WajibretribusiEdit from './pages/Wajibretribusi/Wajib-retribusiEdit';
+import WajibretribusiIndex from './pages/Wajibretribusi/WajibretribusiIndex'; 
+import WajibretribusiCreate from './pages/Wajibretribusi/WajibretribusiCreate'; 
+import WajibretribusiEdit from './pages/Wajibretribusi/WajibretribusiEdit';
 // MANAGEMENT SEWA
 import JenispermohonanIndex from './pages/Jenispermohonan/JenispermohonanIndex'; 
 import JenispermohonanCreate from './pages/Jenispermohonan/JenispermohonanCreate'; 
