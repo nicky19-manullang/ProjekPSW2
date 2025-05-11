@@ -18,7 +18,14 @@ use App\Http\Controllers\LokasiObjekRetribusiController;
 Route::apiResource('jenis-status', JenisStatusController::class);
 Route::apiResource('jenis-permohonan', JenisPermohonanController::class);
 Route::apiResource('wajib-retribusi', WajibRetribusiController::class);
-Route::apiResource('users', UserController::class);
+Route::prefix('v1')->group(function () {
+    // User CRUD endpoints
+    Route::get('/users', [UserController::class, 'index']);
+    Route::post('/users', [UserController::class, 'store']);
+    Route::get('/users/{id}', [UserController::class, 'show']);
+    Route::put('/users/{id}', [UserController::class, 'update']);
+    Route::delete('/users/{id}', [UserController::class, 'destroy']);
+});
 Route::apiResource('permohonan-sewa', PermohonanSewaController::class);
 Route::apiResource('peruntukan-sewa', PeruntukanSewaController::class);
 Route::apiResource('status', StatusController::class);

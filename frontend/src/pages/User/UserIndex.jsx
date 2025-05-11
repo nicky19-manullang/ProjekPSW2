@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { FaEdit, FaTrash, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
-const Api_URL = "http://127.0.0.1:8000/api/users";
+const Api_URL = "http://localhost:8000/api/v1/users"; 
 
 function UserIndex() {
   const [users, setUsers] = useState([]);
@@ -17,21 +17,28 @@ function UserIndex() {
   }, []);
 
   const fetchUsers = async () => {
-    try {
-      const response = await axios.get(Api_URL);
-      setUsers(response.data);
-    } catch (error) {
-      console.error('Error fetching users:', error);
-    }
-  };
+  try {
+    const response = await axios.get(`${Api_URL}?page=${currentPage}`);
+    setUsers(response.data.data); // Data dari Laravel paginate()
+    setTotalPages(response.data.last_page);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
 
   const handleDelete = async (id) => {
     if (window.confirm("Hapus user ini?")) {
       try {
         await axios.delete(`${Api_URL}/${id}`);
         fetchUsers();
+        alert("User berhasil dihapus!");
       } catch (error) {
         console.error('Error deleting user:', error);
+        if (error.response) {
+          alert(`Gagal menghapus user: ${error.response.data.message}`);
+        } else {
+          alert("Terjadi kesalahan saat menghapus user");
+        }
       }
     }
   };
@@ -87,7 +94,7 @@ function UserIndex() {
         {/* Table Header */}
         <div style={{
           display: "grid",
-          gridTemplateColumns: "repeat(6, 1fr)",
+          gridTemplateColumns: "repeat(7, 1fr)",
           padding: "15px 20px",
           backgroundColor: "#4361ee",
           color: "white",
@@ -98,6 +105,7 @@ function UserIndex() {
           <div>Password</div>
           <div>Email</div>
           <div>Token</div>
+          <div>Keterangan</div>
           <div>Aksi</div>
         </div>
 
@@ -108,7 +116,7 @@ function UserIndex() {
               key={user.id}
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(6, 1fr)",
+                gridTemplateColumns: "repeat(7, 1fr)",
                 padding: "12px 20px",
                 borderBottom: "1px solid #e2e8f0",
                 alignItems: "center",
@@ -120,6 +128,7 @@ function UserIndex() {
               <div style={{ color: "#64748b" }}>{user.password}</div>
               <div>{user.email}</div>
               <div>{user.token}</div>
+              <div>{user.keterangan}</div>
               <div style={{ display: "flex", gap: "10px" }}>
                 <button 
                   onClick={() => navigate(`/users/edit/${user.id}`)}
@@ -129,6 +138,7 @@ function UserIndex() {
                     border: "none",
                     cursor: "pointer"
                   }}
+                  title="Edit data pengguna"
                 >
                   <FaEdit />
                 </button>
@@ -140,6 +150,7 @@ function UserIndex() {
                     border: "none",
                     cursor: "pointer"
                   }}
+                  title="Hapus data pengguna"
                 >
                   <FaTrash />
                 </button>
@@ -178,6 +189,7 @@ function UserIndex() {
                 cursor: "pointer",
                 backgroundColor: currentPage === 1 ? "#f1f5f9" : "white"
               }}
+              title="Halaman sebelumnya"
             >
               <FaChevronLeft />
             </button>
@@ -194,6 +206,7 @@ function UserIndex() {
                 cursor: "pointer",
                 backgroundColor: currentPage === totalPages ? "#f1f5f9" : "white"
               }}
+              title="Halaman selanjutnya"
             >
               <FaChevronRight />
             </button>

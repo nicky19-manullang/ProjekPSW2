@@ -16,7 +16,11 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['http://localhost:5173'],
+    'allowed_origins' => [
+    'http://localhost:5173',  // Vite/React default
+    'http://localhost:3000',  // Create-React-App default
+    'http://127.0.0.1:8000'   // Laravel backend
+],
 
     'allowed_origins_patterns' => [],
 
@@ -26,5 +30,5 @@ return [
 
     'max_age' => 0,
 
-    'supports_credentials' => false,
+    'supports_credentials' => true,
 ];

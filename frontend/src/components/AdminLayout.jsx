@@ -16,7 +16,7 @@ export default function AdminLayout({ children }) {
       title: "Pemohon",
       icon: "fa-users",
       submenus: [
-        { title: "User", path: "/user-index" },
+        { title: "User", path: "/users-index" },
         { title: "Wajib Retribusi", path: "/wajib-retribusi-index" }
       ]
     },

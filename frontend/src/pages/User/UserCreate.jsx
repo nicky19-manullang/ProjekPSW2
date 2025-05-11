@@ -2,14 +2,14 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-const Api_URL = "http://127.0.0.1:8000/api/wajib-retribusi";
-
-function WajibretribusiCreate() {
+const Api_URL = "http://localhost:8000/api/v1/users"; 
+function UserCreate() {
   const [formData, setFormData] = useState({
     username: "",
     password: "",
     email: "",
-    token: ""
+    token: "",
+    keterangan: ""
   });
   const navigate = useNavigate();
 
@@ -19,20 +19,21 @@ function WajibretribusiCreate() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const formDataToSend = new FormData();
-      for (const key in formData) {
-        formDataToSend.append(key, formData[key]);
+  e.preventDefault();
+  try {
+    // Kirim sebagai JSON, bukan FormData
+    await axios.post(Api_URL, formData, {
+      headers: {
+        'Content-Type': 'application/json' // Wajib ditambah!
       }
-      await axios.post(Api_URL, formDataToSend);
-      alert("Data User berhasil ditambahkan!");
-      navigate("/wajib-retribusi");
-    } catch (error) {
-      console.error('Error adding user:', error);
-      alert("Gagal menambahkan data!");
-    }
-  };
+    });
+    alert("Data User berhasil ditambahkan!");
+    navigate("/users-index");
+  } catch (error) {
+    console.error('Error adding user:', error.response?.data); // Log error detail
+    alert(`Gagal menambahkan data! ${error.response?.data?.message}`);
+  }
+};
 
   return (
     <div style={{
@@ -163,6 +164,32 @@ function WajibretribusiCreate() {
             />
           </div>
 
+          <div style={{ marginBottom: "25px" }}>
+            <label style={{
+              display: "block",
+              marginBottom: "10px",
+              fontWeight: "500",
+              color: "#334155",
+              fontSize: "16px"
+            }}>Keterangan</label>
+            <textarea
+              name="keterangan"
+              value={formData.keterangan}
+              onChange={handleChange}
+              required
+              style={{
+                width: "100%",
+                padding: "12px 18px",
+                border: "1px solid #e2e8f0",
+                borderRadius: "8px",
+                fontSize: "16px",
+                minHeight: "100px",
+                resize: "vertical"
+              }}
+              placeholder="Masukkan Keterangan"
+            />
+          </div>
+
           <div style={{ 
             display: "flex",
             justifyContent: "flex-end",
@@ -170,7 +197,7 @@ function WajibretribusiCreate() {
           }}>
             <button
               type="button"
-              onClick={() => navigate("/wajib-retribusi")}
+              onClick={() => navigate("/users-index")}
               style={{
                 padding: "12px 24px",
                 backgroundColor: "#f1f5f9",
@@ -207,4 +234,4 @@ function WajibretribusiCreate() {
   );
 }
 
-export default WajibretribusiCreate;
+export default UserCreate;

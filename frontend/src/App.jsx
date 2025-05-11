@@ -86,13 +86,13 @@ function App() {
       <Route path="/Jenispermohonan-edit/:id" element={isLoggedIn ? (<AdminLayout><JenispermohonanEdit /></AdminLayout>) : (<Navigate to="/login" replace />)} />
 
       {/* User Index page */}
-      <Route path="/User-index" element={isLoggedIn ? (<AdminLayout><UserIndex /></AdminLayout>) : (<Navigate to="/login" replace />)} />
+      <Route path="/users-index" element={isLoggedIn ? (<AdminLayout><UserIndex /></AdminLayout>) : (<Navigate to="/login" replace />)} />
 
       {/* User Create page */}
       <Route path="/User-create" element={isLoggedIn ? (<AdminLayout><UserCreate /></AdminLayout>) : (<Navigate to="/login" replace />)} />
 
       {/* User Edit page */}
-      <Route path="/User-edit/:id" element={isLoggedIn ? (<AdminLayout><UserEdit /></AdminLayout>) : (<Navigate to="/login" replace />)} />
+      <Route path="/users/edit/:id" element={isLoggedIn ? (<AdminLayout><UserEdit /></AdminLayout>) : (<Navigate to="/login" replace />)} />
 
       {/* Wajib-retribusi Index page */}
       <Route path="/Wajib-retribusi-index" element={isLoggedIn ? (<AdminLayout><WajibretribusiIndex /></AdminLayout>) : (<Navigate to="/login" replace />)} />
