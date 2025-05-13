@@ -102,19 +102,19 @@ class UserController extends Controller
         ], 500);
     }
 }
-    public function destroy(User $user)
-    {
-        try {
-            $user->delete();
-            return response()->json([
-                'status' => 'success',
-                'message' => 'User deleted successfully'
-            ], 200);
-        } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Failed to delete user'
-            ], 500);
-        }
+  public function destroy($id)
+{
+    try {
+        User::findOrFail($id)->delete();
+        return response()->json([
+            'status' => 'success',
+            'message' => 'User deleted successfully'
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Failed to delete user'
+        ], 500);
     }
+}
 }

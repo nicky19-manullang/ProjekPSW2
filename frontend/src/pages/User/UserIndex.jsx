@@ -154,6 +154,7 @@ function UserIndex() {
                 >
                   <FaTrash />
                 </button>
+                
               </div>
             </div>
           ))

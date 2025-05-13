@@ -95,7 +95,7 @@ function App() {
       <Route path="/users/edit/:id" element={isLoggedIn ? (<AdminLayout><UserEdit /></AdminLayout>) : (<Navigate to="/login" replace />)} />
 
       {/* Wajib-retribusi Index page */}
-      <Route path="/Wajib-retribusi-index" element={isLoggedIn ? (<AdminLayout><WajibretribusiIndex /></AdminLayout>) : (<Navigate to="/login" replace />)} />
+      <Route path="/wajib-retribusi-index" element={isLoggedIn ? (<AdminLayout><WajibretribusiIndex /></AdminLayout>) : (<Navigate to="/login" replace />)} />
 
       {/* Wajib-retribusi Create page */}
       <Route path="/Wajib-retribusi-create" element={isLoggedIn ? (<AdminLayout><WajibretribusiCreate /></AdminLayout>) : (<Navigate to="/login" replace />)} />

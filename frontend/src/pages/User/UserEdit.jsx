@@ -3,7 +3,11 @@ import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { FaChevronLeft } from "react-icons/fa";
 
+<<<<<<< Updated upstream
 const Api_URL = "http://localhost:8000/api/v1/users";
+=======
+const Api_URL = "http://localhost:8000/api/v1/users"; 
+>>>>>>> Stashed changes
 
 function UserEdit() {
   const { id } = useParams();
@@ -34,16 +38,24 @@ function UserEdit() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      await axios.put(`${Api_URL}/${id}`, formData);
-      alert("Data berhasil diupdate!");
-      navigate("/users");
-    } catch (error) {
-      console.error('Error updating data:', error);
-      alert("Gagal update data!");
-    }
-  };
+  e.preventDefault();
+  try {
+    const response = await axios.put(`${Api_URL}/${id}`, formData, {
+      headers: {
+        'Content-Type': 'application/json' // << PASTIKAN HEADER ADA
+      }
+    });
+    alert("Data berhasil diupdate!");
+    navigate("/users-index");
+  } catch (error) {
+    console.error('Full error:', {
+      request: error.config,
+      response: error.response?.data,
+      status: error.response?.status
+    });
+    alert(`Gagal update! ${error.response?.data?.message || error.message}`);
+  }
+};
 
   return (
     <div style={{ 
@@ -209,7 +221,7 @@ function UserEdit() {
           }}>
             <button
               type="button"
-              onClick={() => navigate("/users")}
+              onClick={() => navigate("/users-index")}
               style={{
                 padding: "10px 20px",
                 backgroundColor: "#f1f5f9",

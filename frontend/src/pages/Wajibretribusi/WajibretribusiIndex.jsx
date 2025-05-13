@@ -1,37 +1,37 @@
-// UserIndex.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { FaEdit, FaTrash, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
-const Api_URL = "http://127.0.0.1:8000/api/wajib-retribusi";
+
+const Api_URL = "http://127.0.0.1:8000/api/v1/wajib-retribusi";
 
 function WajibretribusiIndex() {
-  const [users, setUsers] = useState([]);
+  const [data, setData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchUsers();
+    fetchData();
   }, []);
 
-  const fetchUsers = async () => {
+  const fetchData = async () => {
     try {
       const response = await axios.get(Api_URL);
-      setUsers(response.data);
+      setData(response.data.data); // Pastikan response.data.data sesuai struktur Laravel
     } catch (error) {
-      console.error('Error fetching users:', error);
+      console.error('Error fetching data:', error);
     }
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm("Hapus user ini?")) {
+    if (window.confirm("Hapus data ini?")) {
       try {
         await axios.delete(`${Api_URL}/${id}`);
-        fetchUsers();
+        fetchData();
       } catch (error) {
-        console.error('Error deleting user:', error);
+        console.error('Error deleting data:', error);
       }
     }
   };
@@ -39,62 +39,28 @@ function WajibretribusiIndex() {
   // Pagination logic
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentUsers = users.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(users.length / itemsPerPage);
+  const currentItems = data.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(data.length / itemsPerPage);
 
   return (
-    <div style={{ 
-      fontFamily: "'Poppins', sans-serif",
-      padding: "20px",
-      backgroundColor: "#f8fafc",
-      minHeight: "100vh"
-    }}>
+    <div style={{ fontFamily: "'Poppins', sans-serif", padding: "20px", backgroundColor: "#f8fafc", minHeight: "100vh" }}>
       {/* Header */}
-      <div style={{ 
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        marginBottom: "20px"
-      }}>
-        <h1 style={{ 
-          fontSize: "24px",
-          fontWeight: "600",
-          color: "#1e293b"
-        }}>Wajib Retribusi</h1>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+        <h1 style={{ fontSize: "24px", fontWeight: "600", color: "#1e293b" }}>Wajib Retribusi</h1>
         <button 
-          onClick={() => navigate("/Wajib-retribusi-create")}
-          style={{
-            backgroundColor: "#4361ee",
-            color: "white",
-            padding: "8px 16px",
-            borderRadius: "6px",
-            border: "none",
-            cursor: "pointer",
-            fontWeight: "500"
-          }}
+          onClick={() => navigate("/wajib-retribusi-create")}
+          style={{ backgroundColor: "#4361ee", color: "white", padding: "8px 16px", borderRadius: "6px", border: "none", cursor: "pointer", fontWeight: "500" }}
         >
-          Tambah Wajib Retribusi
+          Tambah Data
         </button>
       </div>
 
       {/* Table */}
-      <div style={{ 
-        backgroundColor: "white",
-        borderRadius: "10px",
-        boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
-        overflow: "hidden"
-      }}>
+      <div style={{ backgroundColor: "white", borderRadius: "10px", boxShadow: "0 2px 10px rgba(0,0,0,0.05)", overflow: "hidden" }}>
         {/* Table Header */}
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(12, 1fr)",
-          padding: "15px 20px",
-          backgroundColor: "#4361ee",
-          color: "white",
-          fontWeight: "500"
-        }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(12, 1fr)", padding: "15px 20px", backgroundColor: "#4361ee", color: "white", fontWeight: "500" }}>
           <div>No</div>
-          <div>ID Jenis Retribusi</div>
+          <div>ID Jenis</div>
           <div>Nama</div>
           <div>Pekerjaan</div>
           <div>Email</div>
@@ -103,15 +69,15 @@ function WajibretribusiIndex() {
           <div>NIK</div>
           <div>Alamat</div>
           <div>File Foto</div>
-          <div>ID Wajib Retribusi</div>
+          <div>ID Wajib</div>
           <div>Aksi</div>
         </div>
 
         {/* Table Body */}
-        {currentUsers.length > 0 ? (
-          currentUsers.map((user, index) => (
+        {currentItems.length > 0 ? (
+          currentItems.map((item, index) => (
             <div 
-              key={user.id}
+              key={item.id}
               style={{
                 display: "grid",
                 gridTemplateColumns: "repeat(12, 1fr)",
@@ -122,36 +88,26 @@ function WajibretribusiIndex() {
               }}
             >
               <div>{indexOfFirstItem + index + 1}</div>
-              <div>{user.jenis_retribusi_id}</div>
-              <div style={{ fontWeight: "500" }}>{user.nama}</div>
-              <div>{user.pekerjaan}</div>
-              <div>{user.email}</div>
-              <div>{user.no_hp}</div>
-              <div>{user.no_wa}</div>
-              <div>{user.nik}</div>
-              <div>{user.alamat}</div>
-              <div>{user.file_foto}</div>
-              <div>{user.wajib_retribusi_id}</div>
+              <div>{item.id_jenis_retribusi}</div>
+              <div>{item.nama}</div>
+              <div>{item.pekerjaan}</div>
+              <div>{item.email}</div>
+              <div>{item.no_hp}</div>
+              <div>{item.no_wa}</div>
+              <div>{item.nik}</div>
+              <div>{item.alamat}</div>
+              <div>{item.file_foto ? "✅" : "❌"}</div>
+              <div>{item.id_wajib_retribusi}</div>
               <div style={{ display: "flex", gap: "10px" }}>
                 <button 
-                  onClick={() => navigate(`/users/edit/${user.id}`)}
-                  style={{
-                    color: "#3b82f6",
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer"
-                  }}
+                  onClick={() => navigate(`/wajib-retribusi-edit/${item.id}`)}
+                  style={{ color: "#3b82f6", background: "none", border: "none", cursor: "pointer" }}
                 >
                   <FaEdit />
                 </button>
                 <button 
-                  onClick={() => handleDelete(user.id)}
-                  style={{
-                    color: "#ef4444",
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer"
-                  }}
+                  onClick={() => handleDelete(item.id)}
+                  style={{ color: "#ef4444", background: "none", border: "none", cursor: "pointer" }}
                 >
                   <FaTrash />
                 </button>
@@ -159,37 +115,21 @@ function WajibretribusiIndex() {
             </div>
           ))
         ) : (
-          <div style={{ 
-            padding: "20px",
-            textAlign: "center",
-            color: "#64748b"
-          }}>
-            Tidak ada data wajib retribusi
+          <div style={{ padding: "20px", textAlign: "center", color: "#64748b" }}>
+            Tidak ada data
           </div>
         )}
 
         {/* Pagination */}
-        <div style={{ 
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          padding: "15px 20px",
-          borderTop: "1px solid #e2e8f0"
-        }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "15px 20px", borderTop: "1px solid #e2e8f0" }}>
           <div style={{ color: "#64748b" }}>
-            Menampilkan {currentUsers.length} dari {users.length} wajib retribusi
+            Menampilkan {currentItems.length} dari {data.length} data
           </div>
           <div style={{ display: "flex", gap: "10px" }}>
             <button 
               onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
-              style={{
-                padding: "5px 10px",
-                border: "1px solid #e2e8f0",
-                borderRadius: "4px",
-                cursor: "pointer",
-                backgroundColor: currentPage === 1 ? "#f1f5f9" : "white"
-              }}
+              style={{ padding: "5px 10px", border: "1px solid #e2e8f0", borderRadius: "4px", cursor: "pointer", backgroundColor: currentPage === 1 ? "#f1f5f9" : "white" }}
             >
               <FaChevronLeft />
             </button>
@@ -199,13 +139,7 @@ function WajibretribusiIndex() {
             <button 
               onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
               disabled={currentPage === totalPages}
-              style={{
-                padding: "5px 10px",
-                border: "1px solid #e2e8f0",
-                borderRadius: "4px",
-                cursor: "pointer",
-                backgroundColor: currentPage === totalPages ? "#f1f5f9" : "white"
-              }}
+              style={{ padding: "5px 10px", border: "1px solid #e2e8f0", borderRadius: "4px", cursor: "pointer", backgroundColor: currentPage === totalPages ? "#f1f5f9" : "white" }}
             >
               <FaChevronRight />
             </button>

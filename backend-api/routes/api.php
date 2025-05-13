@@ -17,7 +17,15 @@ use App\Http\Controllers\LokasiObjekRetribusiController;
 
 Route::apiResource('jenis-status', JenisStatusController::class);
 Route::apiResource('jenis-permohonan', JenisPermohonanController::class);
-Route::apiResource('wajib-retribusi', WajibRetribusiController::class);
+// Group untuk API versioning (optional)
+Route::prefix('v1')->group(function () {
+    // User CRUD endpoints
+    Route::get('/wajib-retribusi', [WajibRetribusiController::class, 'index']);
+    Route::post('/wajib-retribusi', [WajibRetribusiController::class, 'store']);
+    Route::get('/wajib-retribusi/{id}', [WajibRetribusiController::class, 'show']);
+    Route::put('/wajib-retribusi/{id}', [WajibRetribusiController::class, 'update']);
+    Route::delete('/wajib-retribusi/{id}', [WajibRetribusiController::class, 'destroy']);
+});
 Route::prefix('v1')->group(function () {
     // User CRUD endpoints
     Route::get('/users', [UserController::class, 'index']);
