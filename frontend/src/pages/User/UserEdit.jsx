@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { FaChevronLeft } from "react-icons/fa";
 
-const Api_URL = "http://127.0.0.1:8000/api/users";
+const Api_URL = "http://localhost:8000/api/v1/users";
 
 function UserEdit() {
   const { id } = useParams();

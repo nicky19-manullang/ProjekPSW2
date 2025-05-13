@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { FaEdit, FaTrash, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
-const Api_URL = "http://127.0.0.1:8000/api/users";
+const Api_URL = "http://127.0.0.1:8000/api/lokasi-objek-retribusi";
 
 function WajibretribusiIndex() {
   const [users, setUsers] = useState([]);

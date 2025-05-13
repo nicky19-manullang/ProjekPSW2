@@ -5,7 +5,7 @@ import axios from "axios";
 import "../../styles/Jenis2.css";
 
 
-const Api_URL = "http://127.0.0.1:8000/api/jenis-status";
+const Api_URL = "http://127.0.0.1:8000/api/jenis-objek-retribusi";
 
 function JenisEdit() {
   const [jenisStatus, setJenisStatus] = useState("");

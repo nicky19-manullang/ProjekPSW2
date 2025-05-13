@@ -215,11 +215,7 @@ export default function AdminLayout({ children }) {
             <i className="fas fa-bars"></i>
           </button>
 
-          <div style={{ 
-            display: 'flex',
-            alignItems: 'center',
-            gap: '15px'
-          }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
             <div style={{
               backgroundColor: '#4682B4',
               color: 'white',
@@ -230,6 +226,23 @@ export default function AdminLayout({ children }) {
               <i className="fas fa-user" style={{ marginRight: '8px' }}></i>
               Admin Tapatupa
             </div>
+
+            {/* Tombol Logout */}
+            <button 
+              onClick={handleLogout}
+              style={{
+                backgroundColor: '#e74c3c',
+                color: 'white',
+                border: 'none',
+                padding: '8px 15px',
+                borderRadius: '20px',
+                fontWeight: '500',
+                cursor: 'pointer'
+              }}
+            >
+              <i className="fas fa-sign-out-alt" style={{ marginRight: '8px' }}></i>
+              Logout
+            </button>
           </div>
         </div>
 
