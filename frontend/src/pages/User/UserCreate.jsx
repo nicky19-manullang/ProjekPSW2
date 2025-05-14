@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-const Api_URL = "http://localhost:8000/api/v1/users"; 
+const Api_URL = "http://localhost:8000/api/v1/jenis-permohonan"; 
 function UserCreate() {
   const [formData, setFormData] = useState({
     username: "",

@@ -37,7 +37,7 @@ function WajibretribusiCreate() {
       }
       await axios.post(Api_URL, formDataToSend);
       alert("Data berhasil ditambahkan!");
-      navigate("/wajib-retribusi-index");
+      navigate("/wajib-retribusi");
     } catch (error) {
       console.error('Error:', error.response?.data);
       alert(`Gagal: ${error.response?.data?.message || error.message}`);
@@ -64,127 +64,125 @@ function WajibretribusiCreate() {
               style={{ width: "100%", padding: "12px 18px", border: "1px solid #e2e8f0", borderRadius: "8px", fontSize: "16px" }}
             />
           </div>
+            {/* Nama */}
+            <div style={{ marginBottom: "25px" }}>
+              <label style={{ display: "block", marginBottom: "10px", fontWeight: "500", color: "#334155", fontSize: "16px" }}>Nama</label>
+              <input
+                type="text"
+                name="nama"
+                value={formData.nama}
+                onChange={handleChange}
+                required
+                style={{ width: "100%", padding: "12px 18px", border: "1px solid #e2e8f0", borderRadius: "8px", fontSize: "16px" }}
+              />
+            </div>
 
-          {/* Nama */}
-          <div style={{ marginBottom: "25px" }}>
-            <label style={{ display: "block", marginBottom: "10px", fontWeight: "500", color: "#334155", fontSize: "16px" }}>Nama</label>
-            <input
-              type="text"
-              name="nama"
-              value={formData.nama}
-              onChange={handleChange}
-              required
-              style={{ width: "100%", padding: "12px 18px", border: "1px solid #e2e8f0", borderRadius: "8px", fontSize: "16px" }}
-            />
-          </div>
+            {/* Pekerjaan */}
+            <div style={{ marginBottom: "25px" }}>
+              <label style={{ display: "block", marginBottom: "10px", fontWeight: "500", color: "#334155", fontSize: "16px" }}>Pekerjaan</label>
+              <input
+                type="text"
+                name="pekerjaan"
+                value={formData.pekerjaan}
+                onChange={handleChange}
+                required
+                style={{ width: "100%", padding: "12px 18px", border: "1px solid #e2e8f0", borderRadius: "8px", fontSize: "16px" }}
+              />
+            </div>
 
-          {/* Pekerjaan */}
-          <div style={{ marginBottom: "25px" }}>
-            <label style={{ display: "block", marginBottom: "10px", fontWeight: "500", color: "#334155", fontSize: "16px" }}>Pekerjaan</label>
-            <input
-              type="text"
-              name="pekerjaan"
-              value={formData.pekerjaan}
-              onChange={handleChange}
-              required
-              style={{ width: "100%", padding: "12px 18px", border: "1px solid #e2e8f0", borderRadius: "8px", fontSize: "16px" }}
-            />
-          </div>
+            {/* Email */}
+            <div style={{ marginBottom: "25px" }}>
+              <label style={{ display: "block", marginBottom: "10px", fontWeight: "500", color: "#334155", fontSize: "16px" }}>Email</label>
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+                style={{ width: "100%", padding: "12px 18px", border: "1px solid #e2e8f0", borderRadius: "8px", fontSize: "16px" }}
+              />
+            </div>
 
-          {/* Email */}
-          <div style={{ marginBottom: "25px" }}>
-            <label style={{ display: "block", marginBottom: "10px", fontWeight: "500", color: "#334155", fontSize: "16px" }}>Email</label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              style={{ width: "100%", padding: "12px 18px", border: "1px solid #e2e8f0", borderRadius: "8px", fontSize: "16px" }}
-            />
-          </div>
+            {/* No HP */}
+            <div style={{ marginBottom: "25px" }}>
+              <label style={{ display: "block", marginBottom: "10px", fontWeight: "500", color: "#334155", fontSize: "16px" }}>No HP</label>
+              <input
+                type="text"
+                name="no_hp"
+                value={formData.no_hp}
+                onChange={handleChange}
+                required
+                style={{ width: "100%", padding: "12px 18px", border: "1px solid #e2e8f0", borderRadius: "8px", fontSize: "16px" }}
+              />
+            </div>
 
-          {/* No HP */}
-          <div style={{ marginBottom: "25px" }}>
-            <label style={{ display: "block", marginBottom: "10px", fontWeight: "500", color: "#334155", fontSize: "16px" }}>No HP</label>
-            <input
-              type="text"
-              name="no_hp"
-              value={formData.no_hp}
-              onChange={handleChange}
-              required
-              style={{ width: "100%", padding: "12px 18px", border: "1px solid #e2e8f0", borderRadius: "8px", fontSize: "16px" }}
-            />
-          </div>
+            {/* No WA */}
+            <div style={{ marginBottom: "25px" }}>
+              <label style={{ display: "block", marginBottom: "10px", fontWeight: "500", color: "#334155", fontSize: "16px" }}>No WA</label>
+              <input
+                type="text"
+                name="no_wa"
+                value={formData.no_wa}
+                onChange={handleChange}
+                required
+                style={{ width: "100%", padding: "12px 18px", border: "1px solid #e2e8f0", borderRadius: "8px", fontSize: "16px" }}
+              />
+            </div>
 
-          {/* No WA */}
-          <div style={{ marginBottom: "25px" }}>
-            <label style={{ display: "block", marginBottom: "10px", fontWeight: "500", color: "#334155", fontSize: "16px" }}>No WA</label>
-            <input
-              type="text"
-              name="no_wa"
-              value={formData.no_wa}
-              onChange={handleChange}
-              required
-              style={{ width: "100%", padding: "12px 18px", border: "1px solid #e2e8f0", borderRadius: "8px", fontSize: "16px" }}
-            />
-          </div>
+            {/* NIK */}
+            <div style={{ marginBottom: "25px" }}>
+              <label style={{ display: "block", marginBottom: "10px", fontWeight: "500", color: "#334155", fontSize: "16px" }}>NIK</label>
+              <input
+                type="text"
+                name="nik"
+                value={formData.nik}
+                onChange={handleChange}
+                required
+                style={{ width: "100%", padding: "12px 18px", border: "1px solid #e2e8f0", borderRadius: "8px", fontSize: "16px" }}
+              />
+            </div>
 
-          {/* NIK */}
-          <div style={{ marginBottom: "25px" }}>
-            <label style={{ display: "block", marginBottom: "10px", fontWeight: "500", color: "#334155", fontSize: "16px" }}>NIK</label>
-            <input
-              type="text"
-              name="nik"
-              value={formData.nik}
-              onChange={handleChange}
-              required
-              style={{ width: "100%", padding: "12px 18px", border: "1px solid #e2e8f0", borderRadius: "8px", fontSize: "16px" }}
-            />
-          </div>
+            {/* Alamat */}
+            <div style={{ marginBottom: "25px" }}>
+              <label style={{ display: "block", marginBottom: "10px", fontWeight: "500", color: "#334155", fontSize: "16px" }}>Alamat</label>
+              <textarea
+                name="alamat"
+                value={formData.alamat}
+                onChange={handleChange}
+                required
+                style={{ width: "100%", padding: "12px 18px", border: "1px solid #e2e8f0", borderRadius: "8px", fontSize: "16px" }}
+              />
+            </div>
 
-          {/* Alamat */}
-          <div style={{ marginBottom: "25px" }}>
-            <label style={{ display: "block", marginBottom: "10px", fontWeight: "500", color: "#334155", fontSize: "16px" }}>Alamat</label>
-            <textarea
-              name="alamat"
-              value={formData.alamat}
-              onChange={handleChange}
-              required
-              style={{ width: "100%", padding: "12px 18px", border: "1px solid #e2e8f0", borderRadius: "8px", fontSize: "16px" }}
-            />
-          </div>
+            {/* File Foto */}
+            <div style={{ marginBottom: "25px" }}>
+              <label style={{ display: "block", marginBottom: "10px", fontWeight: "500", color: "#334155", fontSize: "16px" }}>File Foto</label>
+              <input
+                type="file"
+                name="file_foto"
+                onChange={handleFileChange}
+                style={{ width: "100%", padding: "12px 18px", border: "1px solid #e2e8f0", borderRadius: "8px", fontSize: "16px" }}
+                accept="image/*"
+              />
+            </div>
 
-          {/* ID Wajib Retribusi */}
-          <div style={{ marginBottom: "25px" }}>
-            <label style={{ display: "block", marginBottom: "10px", fontWeight: "500", color: "#334155", fontSize: "16px" }}>ID Wajib Retribusi</label>
-            <input
-              type="text"
-              name="id_wajib_retribusi"
-              value={formData.id_wajib_retribusi}
-              onChange={handleChange}
-              required
-              style={{ width: "100%", padding: "12px 18px", border: "1px solid #e2e8f0", borderRadius: "8px", fontSize: "16px" }}
-            />
-          </div>
-
-          {/* File Foto */}
-          <div style={{ marginBottom: "25px" }}>
-            <label style={{ display: "block", marginBottom: "10px", fontWeight: "500", color: "#334155", fontSize: "16px" }}>File Foto</label>
-            <input
-              type="file"
-              name="file_foto"
-              onChange={handleFileChange}
-              style={{ width: "100%", padding: "12px 18px", border: "1px solid #e2e8f0", borderRadius: "8px", fontSize: "16px" }}
-              accept="image/*"
-            />
-          </div>
-
+            {/* ID Wajib Retribusi */}
+            <div style={{ marginBottom: "25px" }}>
+              <label style={{ display: "block", marginBottom: "10px", fontWeight: "500", color: "#334155", fontSize: "16px" }}>ID Wajib Retribusi</label>
+              <input
+                type="text"
+                name="id_wajib_retribusi"
+                value={formData.id_wajib_retribusi}
+                onChange={handleChange}
+                required
+                style={{ width: "100%", padding: "12px 18px", border: "1px solid #e2e8f0", borderRadius: "8px", fontSize: "16px" }}
+              />
+            </div>
           {/* Buttons */}
           <div style={{ display: "flex", justifyContent: "flex-end", gap: "20px" }}>
             <button
               type="button"
-              onClick={() => navigate("/wajib-retribusi-index")}
+              onClick={() => navigate("/wajib-retribusi")}
               style={{ padding: "12px 24px", backgroundColor: "#f1f5f9", color: "#64748b", border: "none", borderRadius: "8px", cursor: "pointer", fontWeight: "500", fontSize: "16px" }}
             >
               Batal

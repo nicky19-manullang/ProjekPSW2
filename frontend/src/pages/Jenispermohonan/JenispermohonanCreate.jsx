@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-const Api_URL = "http://127.0.0.1:8000/api/jenis-permohonan";
+const Api_URL = "http://127.0.0.1:8000/api/v1/jenis-permohonan";
 
 function JenispermohonanCreate() {
   const [formData, setFormData] = useState({
@@ -19,16 +19,21 @@ function JenispermohonanCreate() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      await axios.post(Api_URL, formData);
-      alert("Jenis Permohonan berhasil ditambahkan!");
-      navigate("/jenis-permohonan");
-    } catch (error) {
-      console.error('Error adding jenis permohonan:', error);
-      alert("Gagal menambahkan data!");
-    }
-  };
+  e.preventDefault();
+  try {
+    // Kirim sebagai JSON, bukan FormData
+    await axios.post(Api_URL, formData, {
+      headers: {
+        'Content-Type': 'application/json' // Wajib ditambah!
+      }
+    });
+    alert("Data User berhasil ditambahkan!");
+    navigate("/Jenispermohonan-index");
+  } catch (error) {
+    console.error('Error adding user:', error.response?.data); // Log error detail
+    alert(`Gagal menambahkan data! ${error.response?.data?.message}`);
+  }
+};
 
   return (
     <div style={{

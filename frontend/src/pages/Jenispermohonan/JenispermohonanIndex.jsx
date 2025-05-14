@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { FaEdit, FaTrash, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
-const Api_URL = "http://127.0.0.1:8000/api/jenis-permohonan";
+const Api_URL = "http://127.0.0.1:8000/api/v1/jenis-permohonan";
 
 function JenispermohonanIndex() {
   const [data, setData] = useState([]);
@@ -123,7 +123,7 @@ function JenispermohonanIndex() {
               <div>{item.keterangan}</div>
               <div style={{ display: "flex", justifyContent: "center", gap: "10px" }}>
                 <button 
-                  onClick={() => navigate(`/jenis-permohonan/edit/${item.id}`)}
+                  onClick={() => navigate(`/Jenispermohonan-edit/:id${item.id}`)}
                   style={{
                     color: "#3b82f6",
                     background: "none",

@@ -3,9 +3,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { FaChevronLeft } from "react-icons/fa";
 
-const Api_URL = "http://127.0.0.1:8000/api/jenis-permohonan";
+const Api_URL = "http://127.0.0.1:8000/api/v1/jenis-permohonan";
 
-function EditJenisPermohonan() {
+function JenisPermohonanEdit() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -32,16 +32,24 @@ function EditJenisPermohonan() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      await axios.put(`${Api_URL}/${id}`, formData);
-      alert("Data berhasil diupdate!");
-      navigate("/jenis-permohonan");
-    } catch (error) {
-      console.error('Error updating data:', error);
-      alert("Gagal update data!");
-    }
+   const handleSubmit = async (e) => {
+  e.preventDefault();
+  try {
+    const response = await axios.put(`${Api_URL}/${id}`, formData, {
+      headers: {
+        'Content-Type': 'application/json' // << PASTIKAN HEADER ADA
+      }
+    });
+    alert("Data berhasil diupdate!");
+    navigate("/users-index");
+  } catch (error) {
+    console.error('Full error:', {
+      request: error.config,
+      response: error.response?.data,
+      status: error.response?.status
+    });
+    alert(`Gagal update! ${error.response?.data?.message || error.message}`);
+  }
   };
 
   return (
@@ -203,4 +211,4 @@ function EditJenisPermohonan() {
   );
 }
 
-export default EditJenisPermohonan;
+export default JenisPermohonanEdit;

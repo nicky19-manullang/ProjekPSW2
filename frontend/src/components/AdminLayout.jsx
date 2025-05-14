@@ -24,7 +24,7 @@ export default function AdminLayout({ children }) {
       title: "Management Sewa",
       icon: "fa-clipboard-list",
       submenus: [
-        { title: "Jenis Permohonan", path: "/Jenispermohonan-Index" },
+        { title: "Jenis Permohonan", path: "/Jenispermohonan-index" },
         { title: "Peruntukan Sewa", path: "/Peruntukansewa-index" },
         { title: "Permohonan Sewa", path: "/Permohonansewa-index" }
       ]

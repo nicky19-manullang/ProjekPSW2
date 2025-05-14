@@ -16,10 +16,15 @@ use App\Http\Controllers\LokasiObjekRetribusiController;
 
 
 Route::apiResource('jenis-status', JenisStatusController::class);
-Route::apiResource('jenis-permohonan', JenisPermohonanController::class);
-// Group untuk API versioning (optional)
 Route::prefix('v1')->group(function () {
-    // User CRUD endpoints
+    Route::get('/jenis-permohonan', [JenisPermohonanController::class, 'index']);
+    Route::post('/jenis-permohonan', [JenisPermohonanController::class, 'store']);
+    Route::get('/jenis-permohonan/{id}', [JenisPermohonanController::class, 'show']);
+    Route::put('/jenis-permohonan/{id}', [JenisPermohonanController::class, 'update']);
+    Route::delete('/jenis-permohonan/{id}', [JenisPermohonanController::class, 'destroy']);
+});
+
+Route::prefix('v1')->group(function () {
     Route::get('/wajib-retribusi', [WajibRetribusiController::class, 'index']);
     Route::post('/wajib-retribusi', [WajibRetribusiController::class, 'store']);
     Route::get('/wajib-retribusi/{id}', [WajibRetribusiController::class, 'show']);
@@ -27,13 +32,13 @@ Route::prefix('v1')->group(function () {
     Route::delete('/wajib-retribusi/{id}', [WajibRetribusiController::class, 'destroy']);
 });
 Route::prefix('v1')->group(function () {
-    // User CRUD endpoints
     Route::get('/users', [UserController::class, 'index']);
     Route::post('/users', [UserController::class, 'store']);
     Route::get('/users/{id}', [UserController::class, 'show']);
     Route::put('/users/{id}', [UserController::class, 'update']);
     Route::delete('/users/{id}', [UserController::class, 'destroy']);
 });
+
 Route::apiResource('permohonan-sewa', PermohonanSewaController::class);
 Route::apiResource('peruntukan-sewa', PeruntukanSewaController::class);
 Route::apiResource('status', StatusController::class);

@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { FaEdit, FaTrash, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
-
 const Api_URL = "http://127.0.0.1:8000/api/v1/wajib-retribusi";
 
 function WajibretribusiIndex() {
