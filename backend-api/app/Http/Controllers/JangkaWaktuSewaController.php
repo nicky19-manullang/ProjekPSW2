@@ -1,20 +1,19 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Models\JangkaWaktuSewa; 
 
+use App\Models\JangkaWaktuSewa;
 use Illuminate\Http\Request;
 
 class JangkaWaktuSewaController extends Controller
 {
+    // Menampilkan semua data jangka waktu sewa
     public function index()
     {
-        return JangkaWaktuSewa::all();
+        return response()->json(JangkaWaktuSewa::all(), 200);
     }
-    public function create()
-    {
-        //
-    }
+
+    // Menyimpan data jangka waktu sewa baru
     public function store(Request $request)
     {
         // Validasi data yang diterima dari request
@@ -26,17 +25,19 @@ class JangkaWaktuSewaController extends Controller
         ]);
 
         // Membuat data baru jangka waktu sewa di database
-        return JangkaWaktuSewa::create($validatedData);
+        $jangkaWaktuSewa = JangkaWaktuSewa::create($validatedData);
+
+        // Mengembalikan data yang baru dibuat beserta status HTTP 201
+        return response()->json($jangkaWaktuSewa, 201);
     }
+
+    // Menampilkan data jangka waktu sewa berdasarkan ID
     public function show(JangkaWaktuSewa $jangkaWaktuSewa)
     {
-        // Menampilkan data jangka waktu sewa berdasarkan ID
-        return $jangkaWaktuSewa;
+        return response()->json($jangkaWaktuSewa, 200);
     }
-    public function edit(JangkaWaktuSewa $jangkaWaktuSewa)
-    {
-        //
-    }
+
+    // Mengupdate data jangka waktu sewa yang ada
     public function update(Request $request, JangkaWaktuSewa $jangkaWaktuSewa)
     {
         // Validasi data yang diterima dari request
@@ -50,13 +51,17 @@ class JangkaWaktuSewaController extends Controller
         // Mengupdate data jangka waktu sewa di database
         $jangkaWaktuSewa->update($validatedData);
 
-        return $jangkaWaktuSewa;
+        // Mengembalikan data yang sudah diperbarui beserta status HTTP 200
+        return response()->json($jangkaWaktuSewa, 200);
     }
+
+    // Menghapus data jangka waktu sewa dari database
     public function destroy(JangkaWaktuSewa $jangkaWaktuSewa)
     {
-        // Menghapus data jangka waktu sewa dari database
+        // Menghapus data
         $jangkaWaktuSewa->delete();
 
-        return response()->json(['message' => 'Jangka Waktu Sewa deleted successfully']);
+        // Mengembalikan respons sukses dengan status HTTP 200
+        return response()->json(['message' => 'Jangka Waktu Sewa deleted successfully'], 200);
     }
 }

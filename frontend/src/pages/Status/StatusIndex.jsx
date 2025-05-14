@@ -5,7 +5,7 @@ import { FaEdit, FaTrash, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
 const Api_URL = "http://127.0.0.1:8000/api/status";
 
-function PermohonansewaIndex() {
+function StatusIndex() {
   const [data, setData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -35,33 +35,17 @@ function PermohonansewaIndex() {
     }
   };
 
-  // Pagination logic
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = data.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(data.length / itemsPerPage);
 
   return (
-    <div style={{ 
-      fontFamily: "'Poppins', sans-serif",
-      padding: "20px",
-      backgroundColor: "#f8fafc",
-      minHeight: "100vh"
-    }}>
-      {/* Header */}
-      <div style={{ 
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        marginBottom: "20px"
-      }}>
-        <h1 style={{ 
-          fontSize: "24px",
-          fontWeight: "600",
-          color: "#1e293b"
-        }}>Data Status</h1>
+    <div style={{ fontFamily: "'Poppins', sans-serif", padding: "20px", backgroundColor: "#f8fafc", minHeight: "100vh" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+        <h1 style={{ fontSize: "24px", fontWeight: "600", color: "#1e293b" }}>Data Status</h1>
         <button 
-          onClick={() => navigate("/Jenispermohonan-create")}
+          onClick={() => navigate("/status-create")}
           style={{
             backgroundColor: "#4361ee",
             color: "white",
@@ -76,14 +60,7 @@ function PermohonansewaIndex() {
         </button>
       </div>
 
-      {/* Table */}
-      <div style={{ 
-        backgroundColor: "white",
-        borderRadius: "10px",
-        boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
-        overflow: "hidden"
-      }}>
-        {/* Table Header */}
+      <div style={{ backgroundColor: "white", borderRadius: "10px", boxShadow: "0 2px 10px rgba(0,0,0,0.05)", overflow: "hidden" }}>
         <div style={{
           display: "grid",
           gridTemplateColumns: "0.5fr 1fr 1fr 1fr 1fr 0.5fr",
@@ -101,7 +78,6 @@ function PermohonansewaIndex() {
           <div>Aksi</div>
         </div>
 
-        {/* Table Body */}
         {currentItems.length > 0 ? (
           currentItems.map((item, index) => (
             <div 
@@ -117,13 +93,13 @@ function PermohonansewaIndex() {
               }}
             >
               <div>{indexOfFirstItem + index + 1}</div>
-              <div style={{ fontWeight: "500" }}>{item.id_status}</div>
-              <div>{item.id_jenis_status}</div>
-              <div>{item.nama_status}</div>
+              <div style={{ fontWeight: "500" }}>{item.id}</div>
+              <div>{item.idJenisStatus}</div>
+              <div>{item.namaStatus}</div>
               <div>{item.keterangan}</div>
               <div style={{ display: "flex", justifyContent: "center", gap: "10px" }}>
                 <button 
-                  onClick={() => navigate(`/jenis-permohonan/edit/${item.id}`)}
+                  onClick={() => navigate(`/status/edit/${item.id}`)}
                   style={{
                     color: "#3b82f6",
                     background: "none",
@@ -148,24 +124,12 @@ function PermohonansewaIndex() {
             </div>
           ))
         ) : (
-          <div style={{ 
-            padding: "20px",
-            textAlign: "center",
-            color: "#64748b",
-            gridColumn: "1 / -1"
-          }}>
+          <div style={{ padding: "20px", textAlign: "center", color: "#64748b", gridColumn: "1 / -1" }}>
             Tidak ada data
           </div>
         )}
 
-        {/* Pagination */}
-        <div style={{ 
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          padding: "15px 20px",
-          borderTop: "1px solid #e2e8f0"
-        }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "15px 20px", borderTop: "1px solid #e2e8f0" }}>
           <div style={{ color: "#64748b" }}>
             Menampilkan {currentItems.length} dari {data.length} data
           </div>
@@ -206,4 +170,4 @@ function PermohonansewaIndex() {
   );
 }
 
-export default PermohonansewaIndex;
+export default StatusIndex;

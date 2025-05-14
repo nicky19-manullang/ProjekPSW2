@@ -1,180 +1,73 @@
-// UserIndex.jsx
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { FaEdit, FaTrash, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
 const Api_URL = "http://127.0.0.1:8000/api/jenis-jangka-waktu";
 
-function WajibretribusiIndex() {
-  const [users, setUsers] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+function JenisjangkawaktuCreate() {
+  const [jenisJangkaWaktu, setJenisJangkaWaktu] = useState("");
+  const [keterangan, setKeterangan] = useState("");
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
-
-  const fetchUsers = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     try {
-      const response = await axios.get(Api_URL);
-      setUsers(response.data);
+      await axios.post(Api_URL, { jenisJangkaWaktu, keterangan });
+      navigate("/jenisjangkawaktu");
     } catch (error) {
-      console.error('Error fetching users:', error);
+      console.error("Gagal menyimpan data:", error);
     }
   };
-
-  const handleDelete = async (id) => {
-    if (window.confirm("Hapus user ini?")) {
-      try {
-        await axios.delete(`${Api_URL}/${id}`);
-        fetchUsers();
-      } catch (error) {
-        console.error('Error deleting user:', error);
-      }
-    }
-  };
-
-  // Pagination logic
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentUsers = users.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(users.length / itemsPerPage);
 
   return (
-    <div style={{ 
-      fontFamily: "'Poppins', sans-serif",
-      padding: "20px",
-      backgroundColor: "#f8fafc",
-      minHeight: "100vh"
-    }}>
-      {/* Header */}
-      <div style={{ 
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        marginBottom: "20px"
-      }}>
-        <h1 style={{ 
-          fontSize: "24px",
-          fontWeight: "600",
-          color: "#1e293b"
-        }}>Wajib Retribusi</h1>
-        <button 
-          onClick={() => navigate("/Wajib-retribusi-create")}
+    <div style={{ padding: "20px", fontFamily: "Poppins, sans-serif" }}>
+      <h2 style={{ marginBottom: "20px", color: "#1e293b" }}>Tambah Jenis Jangka Waktu</h2>
+      <form onSubmit={handleSubmit} style={{ maxWidth: "500px" }}>
+        <div style={{ marginBottom: "15px" }}>
+          <label>Jenis Jangka Waktu:</label>
+          <input
+            type="text"
+            value={jenisJangkaWaktu}
+            onChange={(e) => setJenisJangkaWaktu(e.target.value)}
+            required
+            style={{
+              width: "100%",
+              padding: "10px",
+              borderRadius: "5px",
+              border: "1px solid #cbd5e1"
+            }}
+          />
+        </div>
+        <div style={{ marginBottom: "15px" }}>
+          <label>Keterangan:</label>
+          <input
+            type="text"
+            value={keterangan}
+            onChange={(e) => setKeterangan(e.target.value)}
+            style={{
+              width: "100%",
+              padding: "10px",
+              borderRadius: "5px",
+              border: "1px solid #cbd5e1"
+            }}
+          />
+        </div>
+        <button
+          type="submit"
           style={{
-            backgroundColor: "#4361ee",
+            backgroundColor: "#10b981",
             color: "white",
-            padding: "8px 16px",
-            borderRadius: "6px",
+            padding: "10px 20px",
             border: "none",
-            cursor: "pointer",
-            fontWeight: "500"
+            borderRadius: "5px",
+            cursor: "pointer"
           }}
         >
-          Tambah Wajib Retribusi
+          Simpan
         </button>
-      </div>
-
-      {/* Table */}
-      <div style={{ 
-        backgroundColor: "white",
-        borderRadius: "10px",
-        boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
-        overflow: "hidden"
-      }}>
-        {/* Table Header */}
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(4, 1fr)",
-          padding: "15px 20px",
-          backgroundColor: "#4361ee",
-          color: "white",
-          fontWeight: "500"
-        }}>
-          <div>No</div>
-          <div>ID Jenis Jangka Waktu</div>
-          <div>Jenis Jangka Waktu</div>
-          <div>Keterangan</div>
-        </div>
-
-        {/* Table Body */}
-        {currentUsers.length > 0 ? (
-          currentUsers.map((user, index) => (
-            <div 
-              key={user.id}
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(4, 1fr)",
-                padding: "12px 20px",
-                borderBottom: "1px solid #e2e8f0",
-                alignItems: "center",
-                backgroundColor: index % 2 === 0 ? "#ffffff" : "#f8fafc"
-              }}
-            >
-              <div>{indexOfFirstItem + index + 1}</div>
-              <div>{user.jenis_jangka_waktu_id}</div>
-              <div>{user.jenis_jangka_waktu}</div>
-              <div>{user.keterangan}</div>
-            </div>
-          ))
-        ) : (
-          <div style={{ 
-            padding: "20px",
-            textAlign: "center",
-            color: "#64748b"
-          }}>
-            Tidak ada data jenis jangka waktu
-          </div>
-        )}
-
-        {/* Pagination */}
-        <div style={{ 
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          padding: "15px 20px",
-          borderTop: "1px solid #e2e8f0"
-        }}>
-          <div style={{ color: "#64748b" }}>
-            Menampilkan {currentUsers.length} dari {users.length} jenis jangka waktu
-          </div>
-          <div style={{ display: "flex", gap: "10px" }}>
-            <button 
-              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-              style={{
-                padding: "5px 10px",
-                border: "1px solid #e2e8f0",
-                borderRadius: "4px",
-                cursor: "pointer",
-                backgroundColor: currentPage === 1 ? "#f1f5f9" : "white"
-              }}
-            >
-              <FaChevronLeft />
-            </button>
-            <span style={{ padding: "5px 10px" }}>
-              Halaman {currentPage} dari {totalPages}
-            </span>
-            <button 
-              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-              disabled={currentPage === totalPages}
-              style={{
-                padding: "5px 10px",
-                border: "1px solid #e2e8f0",
-                borderRadius: "4px",
-                cursor: "pointer",
-                backgroundColor: currentPage === totalPages ? "#f1f5f9" : "white"
-              }}
-            >
-              <FaChevronRight />
-            </button>
-          </div>
-        </div>
-      </div>
+      </form>
     </div>
   );
 }
 
-export default WajibretribusiIndex;
+export default JenisjangkawaktuCreate;

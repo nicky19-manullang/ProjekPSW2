@@ -1,81 +1,107 @@
-// JenisEdit.jsx
-import React, { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
-import "../../styles/Jenis2.css";
+import { useNavigate, useParams } from "react-router-dom";
 
-
-const Api_URL = "http://127.0.0.1:8000/api/status";
-
-function JenisEdit() {
-  const [jenisStatus, setJenisStatus] = useState("");
-  const [keterangan, setKeterangan] = useState("");
+function StatusEdit() {
+  const { id } = useParams();
   const navigate = useNavigate();
-  const { id } = useParams(); // ambil id dari URL
+  const [form, setForm] = useState({
+    idJenisStatus: "",
+    namaStatus: "",
+    keterangan: ""
+  });
 
   useEffect(() => {
-    fetchJenisById();
+    fetchData();
   }, []);
 
-  const fetchJenisById = async () => {
+  const fetchData = async () => {
     try {
-      const response = await axios.get(`${Api_URL}/${id}`);
-      setJenisStatus(response.data.jenis_status);
-      setKeterangan(response.data.keterangan);
+      const res = await axios.get(`http://127.0.0.1:8000/api/status/${id}`);
+      setForm({
+        idJenisStatus: res.data.idJenisStatus || "",
+        namaStatus: res.data.namaStatus || "",
+        keterangan: res.data.keterangan || ""
+      });
     } catch (error) {
-      console.error('Error fetching jenis status:', error);
+      console.error("Gagal mengambil data:", error);
     }
   };
 
-  const handleUpdate = async (e) => {
+  const handleChange = (e) => {
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`${Api_URL}/${id}`, {
-        jenis_status: jenisStatus,
-        keterangan: keterangan,
-      });
-      alert("Data berhasil diupdate!");
-      navigate('/jenis');
+      await axios.put(`http://127.0.0.1:8000/api/status/${id}`, form);
+      navigate("/status");
     } catch (error) {
-      console.error('Error updating jenis status:', error);
+      console.error("Gagal mengupdate data:", error);
     }
   };
 
   return (
-    <div className="form-wrapper">
-      <h1>Edit Jenis Status</h1>
-      <form className="form-container" onSubmit={handleUpdate}>
-        <div className="form-group">
-          <label className="form-label">Jenis Status</label>
-          <input
-            className="input-field"
-            type="text"
-            placeholder="Masukkan Jenis Status"
-            value={jenisStatus}
-            onChange={(e) => setJenisStatus(e.target.value)}
-            required
-          />
-        </div>
+    <div style={{ maxWidth: "600px", margin: "40px auto", padding: "20px", backgroundColor: "#ffffff", borderRadius: "10px", boxShadow: "0 0 10px rgba(0,0,0,0.1)", fontFamily: "'Poppins', sans-serif" }}>
+      <h2 style={{ textAlign: "center", marginBottom: "20px" }}>Edit Status</h2>
+      <form onSubmit={handleSubmit}>
+        <label>ID Jenis Status</label>
+        <input
+          type="text"
+          name="idJenisStatus"
+          value={form.idJenisStatus}
+          onChange={handleChange}
+          required
+          style={inputStyle}
+        />
 
-        <div className="form-group">
-          <label className="form-label">Keterangan</label>
-          <input
-            className="input-field"
-            type="text"
-            placeholder="Masukkan Keterangan"
-            value={keterangan}
-            onChange={(e) => setKeterangan(e.target.value)}
-            required
-          />
-        </div>
+        <label>Nama Status</label>
+        <input
+          type="text"
+          name="namaStatus"
+          value={form.namaStatus}
+          onChange={handleChange}
+          required
+          style={inputStyle}
+        />
 
-        <div className="button-wrapper">
-          <button className="submit-button" type="submit">Update</button>
-          <button className="cancel-button" type="button" onClick={() => navigate('/jenis')}>Batal</button>
-        </div>
+        <label>Keterangan</label>
+        <textarea
+          name="keterangan"
+          value={form.keterangan}
+          onChange={handleChange}
+          required
+          style={{ ...inputStyle, height: "80px" }}
+        />
+
+        <button type="submit" style={buttonStyle}>Update</button>
       </form>
     </div>
   );
 }
 
-export default JenisEdit;
+const inputStyle = {
+  width: "100%",
+  padding: "10px",
+  margin: "10px 0 20px",
+  borderRadius: "6px",
+  border: "1px solid #ccc",
+  fontSize: "16px"
+};
+
+const buttonStyle = {
+  width: "100%",
+  padding: "10px",
+  backgroundColor: "#f59e0b",
+  color: "white",
+  border: "none",
+  borderRadius: "6px",
+  fontWeight: "600",
+  cursor: "pointer"
+};
+
+export default StatusEdit;

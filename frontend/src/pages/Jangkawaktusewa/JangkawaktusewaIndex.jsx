@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react"; 
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { FaEdit, FaTrash, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
 const Api_URL = "http://127.0.0.1:8000/api/jangka-waktu-sewa";
 
-function PermohonansewaIndex() {
+function JangkaWaktuIndex() {
   const [data, setData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -18,24 +18,24 @@ function PermohonansewaIndex() {
   const fetchData = async () => {
     try {
       const response = await axios.get(Api_URL);
-      setData(response.data);
+      console.log("Data dari API:", response.data); // Log data API untuk memastikan formatnya benar
+      setData(response.data); // Pastikan data sesuai dengan struktur yang kamu harapkan
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error('Gagal mengambil data jangka waktu sewa:', error);
     }
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm("Hapus data ini?")) {
+    if (window.confirm("Hapus jangka waktu sewa ini?")) {
       try {
         await axios.delete(`${Api_URL}/${id}`);
-        fetchData();
+        fetchData(); // Mengambil data setelah penghapusan
       } catch (error) {
-        console.error('Error deleting data:', error);
+        console.error('Gagal menghapus data:', error);
       }
     }
   };
 
-  // Pagination logic
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = data.slice(indexOfFirstItem, indexOfLastItem);
@@ -59,9 +59,9 @@ function PermohonansewaIndex() {
           fontSize: "24px",
           fontWeight: "600",
           color: "#1e293b"
-        }}>Data Permohonan Sewa</h1>
+        }}>Jangka Waktu Sewa</h1>
         <button 
-          onClick={() => navigate("/Jenispermohonan-create")}
+          onClick={() => navigate("/jangka-waktu-create")}
           style={{
             backgroundColor: "#4361ee",
             color: "white",
@@ -72,7 +72,7 @@ function PermohonansewaIndex() {
             fontWeight: "500"
           }}
         >
-          Tambah Baru
+          Tambah Jangka Waktu
         </button>
       </div>
 
@@ -86,16 +86,14 @@ function PermohonansewaIndex() {
         {/* Table Header */}
         <div style={{
           display: "grid",
-          gridTemplateColumns: "0.5fr 1fr 1fr 1fr 1fr 0.5fr",
+          gridTemplateColumns: "repeat(5, 1fr)",
           padding: "15px 20px",
           backgroundColor: "#4361ee",
           color: "white",
-          fontWeight: "500",
-          textAlign: "center"
+          fontWeight: "500"
         }}>
           <div>No</div>
-          <div>ID Jangka Waktu</div>
-          <div>ID Jangka Waktu Sewa</div>
+          <div>ID</div>
           <div>Jangka Waktu</div>
           <div>Keterangan</div>
           <div>Aksi</div>
@@ -108,22 +106,20 @@ function PermohonansewaIndex() {
               key={item.id}
               style={{
                 display: "grid",
-                gridTemplateColumns: "0.5fr 1fr 1fr 1fr 1fr 0.5fr",
+                gridTemplateColumns: "repeat(5, 1fr)",
                 padding: "12px 20px",
                 borderBottom: "1px solid #e2e8f0",
                 alignItems: "center",
-                backgroundColor: index % 2 === 0 ? "#ffffff" : "#f8fafc",
-                textAlign: "center"
+                backgroundColor: index % 2 === 0 ? "#ffffff" : "#f8fafc"
               }}
             >
               <div>{indexOfFirstItem + index + 1}</div>
-              <div style={{ fontWeight: "500" }}>{item.id_jangka_waktu}</div>
-              <div>{item.id_jangka_waktu_sewa}</div>
-              <div>{item.jangka_waktu}</div>
+              <div>{item.id}</div>
+              <div>{item.jangkaWaktu}</div> {/* Menyesuaikan dengan field dari API */}
               <div>{item.keterangan}</div>
-              <div style={{ display: "flex", justifyContent: "center", gap: "10px" }}>
+              <div style={{ display: "flex", gap: "10px" }}>
                 <button 
-                  onClick={() => navigate(`/jenis-permohonan/edit/${item.id}`)}
+                  onClick={() => navigate(`/jangka-waktu-edit/${item.id}`)}
                   style={{
                     color: "#3b82f6",
                     background: "none",
@@ -151,10 +147,9 @@ function PermohonansewaIndex() {
           <div style={{ 
             padding: "20px",
             textAlign: "center",
-            color: "#64748b",
-            gridColumn: "1 / -1"
+            color: "#64748b"
           }}>
-            Tidak ada data
+            Tidak ada data jangka waktu sewa
           </div>
         )}
 
@@ -181,7 +176,7 @@ function PermohonansewaIndex() {
                 backgroundColor: currentPage === 1 ? "#f1f5f9" : "white"
               }}
             >
-              <FaChevronLeft /> Previous
+              <FaChevronLeft />
             </button>
             <span style={{ padding: "5px 10px" }}>
               Halaman {currentPage} dari {totalPages}
@@ -197,7 +192,7 @@ function PermohonansewaIndex() {
                 backgroundColor: currentPage === totalPages ? "#f1f5f9" : "white"
               }}
             >
-              Next <FaChevronRight />
+              <FaChevronRight />
             </button>
           </div>
         </div>
@@ -206,4 +201,4 @@ function PermohonansewaIndex() {
   );
 }
 
-export default PermohonansewaIndex;
+export default JangkaWaktuIndex;
