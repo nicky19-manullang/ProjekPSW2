@@ -1,206 +1,90 @@
-// UserIndex.jsx
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from "react";
 import axios from "axios";
-import { FaEdit, FaTrash, FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
-const Api_URL = "http://127.0.0.1:8000/api/status";
+function StatusCreate() {
+  const [form, setForm] = useState({
+    idJenisStatus: "",
+    namaStatus: "",
+    keterangan: ""
+  });
 
-function WajibretribusiIndex() {
-  const [users, setUsers] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
+  const handleChange = (e) => {
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value
+    });
+  };
 
-  const fetchUsers = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     try {
-      const response = await axios.get(Api_URL);
-      setUsers(response.data);
+      await axios.post("http://127.0.0.1:8000/api/status", form);
+      navigate("/status");
     } catch (error) {
-      console.error('Error fetching users:', error);
+      console.error("Gagal menyimpan data:", error);
     }
   };
-
-  const handleDelete = async (id) => {
-    if (window.confirm("Hapus user ini?")) {
-      try {
-        await axios.delete(`${Api_URL}/${id}`);
-        fetchUsers();
-      } catch (error) {
-        console.error('Error deleting user:', error);
-      }
-    }
-  };
-
-  // Pagination logic
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentUsers = users.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(users.length / itemsPerPage);
 
   return (
-    <div style={{ 
-      fontFamily: "'Poppins', sans-serif",
-      padding: "20px",
-      backgroundColor: "#f8fafc",
-      minHeight: "100vh"
-    }}>
-      {/* Header */}
-      <div style={{ 
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        marginBottom: "20px"
-      }}>
-        <h1 style={{ 
-          fontSize: "24px",
-          fontWeight: "600",
-          color: "#1e293b"
-        }}>Status</h1>
-        <button 
-          onClick={() => navigate("/status-create")}
-          style={{
-            backgroundColor: "#4361ee",
-            color: "white",
-            padding: "8px 16px",
-            borderRadius: "6px",
-            border: "none",
-            cursor: "pointer",
-            fontWeight: "500"
-          }}
-        >
-          Tambah Status
-        </button>
-      </div>
+    <div style={{ maxWidth: "600px", margin: "40px auto", padding: "20px", backgroundColor: "#ffffff", borderRadius: "10px", boxShadow: "0 0 10px rgba(0,0,0,0.1)", fontFamily: "'Poppins', sans-serif" }}>
+      <h2 style={{ textAlign: "center", marginBottom: "20px" }}>Tambah Status</h2>
+      <form onSubmit={handleSubmit}>
+        <label>ID Jenis Status</label>
+        <input
+          type="text"
+          name="idJenisStatus"
+          value={form.idJenisStatus}
+          onChange={handleChange}
+          required
+          style={inputStyle}
+        />
 
-      {/* Table */}
-      <div style={{ 
-        backgroundColor: "white",
-        borderRadius: "10px",
-        boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
-        overflow: "hidden"
-      }}>
-        {/* Table Header */}
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(5, 1fr)",
-          padding: "15px 20px",
-          backgroundColor: "#4361ee",
-          color: "white",
-          fontWeight: "500"
-        }}>
-          <div>No</div>
-          <div>ID Status</div>
-          <div>ID Jenis Status</div>
-          <div>Nama Status</div>
-          <div>Keterangan</div>
-        </div>
+        <label>Nama Status</label>
+        <input
+          type="text"
+          name="namaStatus"
+          value={form.namaStatus}
+          onChange={handleChange}
+          required
+          style={inputStyle}
+        />
 
-        {/* Table Body */}
-        {currentUsers.length > 0 ? (
-          currentUsers.map((user, index) => (
-            <div 
-              key={user.id}
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(5, 1fr)",
-                padding: "12px 20px",
-                borderBottom: "1px solid #e2e8f0",
-                alignItems: "center",
-                backgroundColor: index % 2 === 0 ? "#ffffff" : "#f8fafc"
-              }}
-            >
-              <div>{indexOfFirstItem + index + 1}</div>
-              <div>{user.status_id}</div>
-              <div>{user.jenis_status_id}</div>
-              <div>{user.nama_status}</div>
-              <div>{user.keterangan}</div>
-              <div style={{ display: "flex", gap: "10px" }}>
-                <button 
-                  onClick={() => navigate(`/status/edit/${user.id}`)}
-                  style={{
-                    color: "#3b82f6",
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer"
-                  }}
-                >
-                  <FaEdit />
-                </button>
-                <button 
-                  onClick={() => handleDelete(user.id)}
-                  style={{
-                    color: "#ef4444",
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer"
-                  }}
-                >
-                  <FaTrash />
-                </button>
-              </div>
-            </div>
-          ))
-        ) : (
-          <div style={{ 
-            padding: "20px",
-            textAlign: "center",
-            color: "#64748b"
-          }}>
-            Tidak ada data status
-          </div>
-        )}
+        <label>Keterangan</label>
+        <textarea
+          name="keterangan"
+          value={form.keterangan}
+          onChange={handleChange}
+          required
+          style={{ ...inputStyle, height: "80px" }}
+        />
 
-        {/* Pagination */}
-        <div style={{ 
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          padding: "15px 20px",
-          borderTop: "1px solid #e2e8f0"
-        }}>
-          <div style={{ color: "#64748b" }}>
-            Menampilkan {currentUsers.length} dari {users.length} status
-          </div>
-          <div style={{ display: "flex", gap: "10px" }}>
-            <button 
-              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-              style={{
-                padding: "5px 10px",
-                border: "1px solid #e2e8f0",
-                borderRadius: "4px",
-                cursor: "pointer",
-                backgroundColor: currentPage === 1 ? "#f1f5f9" : "white"
-              }}
-            >
-              <FaChevronLeft />
-            </button>
-            <span style={{ padding: "5px 10px" }}>
-              Halaman {currentPage} dari {totalPages}
-            </span>
-            <button 
-              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-              disabled={currentPage === totalPages}
-              style={{
-                padding: "5px 10px",
-                border: "1px solid #e2e8f0",
-                borderRadius: "4px",
-                cursor: "pointer",
-                backgroundColor: currentPage === totalPages ? "#f1f5f9" : "white"
-              }}
-            >
-              <FaChevronRight />
-            </button>
-          </div>
-        </div>
-      </div>
+        <button type="submit" style={buttonStyle}>Simpan</button>
+      </form>
     </div>
   );
 }
 
-export default WajibretribusiIndex;
+const inputStyle = {
+  width: "100%",
+  padding: "10px",
+  margin: "10px 0 20px",
+  borderRadius: "6px",
+  border: "1px solid #ccc",
+  fontSize: "16px"
+};
+
+const buttonStyle = {
+  width: "100%",
+  padding: "10px",
+  backgroundColor: "#4361ee",
+  color: "white",
+  border: "none",
+  borderRadius: "6px",
+  fontWeight: "600",
+  cursor: "pointer"
+};
+
+export default StatusCreate;

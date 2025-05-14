@@ -5,7 +5,7 @@ import { FaEdit, FaTrash, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
 const Api_URL = "http://127.0.0.1:8000/api/jenis-status";
 
-function PermohonansewaIndex() {
+function JenisstatusIndex() {
   const [data, setData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -20,7 +20,7 @@ function PermohonansewaIndex() {
       const response = await axios.get(Api_URL);
       setData(response.data);
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error("Error fetching data:", error);
     }
   };
 
@@ -30,7 +30,7 @@ function PermohonansewaIndex() {
         await axios.delete(`${Api_URL}/${id}`);
         fetchData();
       } catch (error) {
-        console.error('Error deleting data:', error);
+        console.error("Error deleting data:", error);
       }
     }
   };
@@ -42,26 +42,25 @@ function PermohonansewaIndex() {
   const totalPages = Math.ceil(data.length / itemsPerPage);
 
   return (
-    <div style={{ 
+    <div style={{
       fontFamily: "'Poppins', sans-serif",
       padding: "20px",
       backgroundColor: "#f8fafc",
       minHeight: "100vh"
     }}>
-      {/* Header */}
-      <div style={{ 
+      <div style={{
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
         marginBottom: "20px"
       }}>
-        <h1 style={{ 
+        <h1 style={{
           fontSize: "24px",
           fontWeight: "600",
           color: "#1e293b"
         }}>Data Jenis Status</h1>
-        <button 
-          onClick={() => navigate("/Jenispermohonan-create")}
+        <button
+          onClick={() => navigate("/jenis-status-create")}
           style={{
             backgroundColor: "#4361ee",
             color: "white",
@@ -76,17 +75,15 @@ function PermohonansewaIndex() {
         </button>
       </div>
 
-      {/* Table */}
-      <div style={{ 
+      <div style={{
         backgroundColor: "white",
         borderRadius: "10px",
         boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
         overflow: "hidden"
       }}>
-        {/* Table Header */}
         <div style={{
           display: "grid",
-          gridTemplateColumns: "0.5fr 1fr 1fr 1fr 0.5fr",
+          gridTemplateColumns: "0.5fr 1fr 2fr 2fr 0.5fr",
           padding: "15px 20px",
           backgroundColor: "#4361ee",
           color: "white",
@@ -94,20 +91,19 @@ function PermohonansewaIndex() {
           textAlign: "center"
         }}>
           <div>No</div>
-          <div>ID Jenis Status</div>
+          <div>ID</div>
           <div>Jenis Status</div>
           <div>Keterangan</div>
           <div>Aksi</div>
         </div>
 
-        {/* Table Body */}
         {currentItems.length > 0 ? (
           currentItems.map((item, index) => (
-            <div 
+            <div
               key={item.id}
               style={{
                 display: "grid",
-                gridTemplateColumns: "0.5fr 1fr 1fr 1fr 0.5fr",
+                gridTemplateColumns: "0.5fr 1fr 2fr 2fr 0.5fr",
                 padding: "12px 20px",
                 borderBottom: "1px solid #e2e8f0",
                 alignItems: "center",
@@ -116,12 +112,12 @@ function PermohonansewaIndex() {
               }}
             >
               <div>{indexOfFirstItem + index + 1}</div>
-              <div style={{ fontWeight: "500" }}>{item.id_jenis_status}</div>
+              <div>{item.id}</div>
               <div>{item.jenis_status}</div>
               <div>{item.keterangan}</div>
               <div style={{ display: "flex", justifyContent: "center", gap: "10px" }}>
-                <button 
-                  onClick={() => navigate(`/jenis-permohonan/edit/${item.id}`)}
+                <button
+                  onClick={() => navigate(`/jenis-status/edit/${item.id}`)}
                   style={{
                     color: "#3b82f6",
                     background: "none",
@@ -131,7 +127,7 @@ function PermohonansewaIndex() {
                 >
                   <FaEdit />
                 </button>
-                <button 
+                <button
                   onClick={() => handleDelete(item.id)}
                   style={{
                     color: "#ef4444",
@@ -146,7 +142,7 @@ function PermohonansewaIndex() {
             </div>
           ))
         ) : (
-          <div style={{ 
+          <div style={{
             padding: "20px",
             textAlign: "center",
             color: "#64748b",
@@ -156,8 +152,7 @@ function PermohonansewaIndex() {
           </div>
         )}
 
-        {/* Pagination */}
-        <div style={{ 
+        <div style={{
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
@@ -168,7 +163,7 @@ function PermohonansewaIndex() {
             Menampilkan {currentItems.length} dari {data.length} data
           </div>
           <div style={{ display: "flex", gap: "10px" }}>
-            <button 
+            <button
               onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
               style={{
@@ -184,7 +179,7 @@ function PermohonansewaIndex() {
             <span style={{ padding: "5px 10px" }}>
               Halaman {currentPage} dari {totalPages}
             </span>
-            <button 
+            <button
               onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
               disabled={currentPage === totalPages}
               style={{
@@ -204,4 +199,4 @@ function PermohonansewaIndex() {
   );
 }
 
-export default PermohonansewaIndex;
+export default JenisstatusIndex;

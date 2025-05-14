@@ -43,7 +43,7 @@ import StatusEdit from './pages/Status/StatusEdit';
 
 import JenisstatusIndex from './pages/Jenisstatus/JenisstatusIndex'; 
 import JenisstatusCreate from './pages/Jenisstatus/JenisstatusCreate'; 
-import JenisstatusEdit from './pages/Jenisstatus/JenisstatusEdit'; 
+import JenisstatusEdit from './pages/Jenisstatus/JenisstatusEdit';
 
 // OBJEK
 import JenisobjekIndex from './pages/Jenisobjek/JenisobjekIndex'; 
@@ -122,6 +122,10 @@ function App() {
       <Route path="/Lokasiobjek-index" element={isLoggedIn ? <AdminLayout><LokasiobjekIndex /></AdminLayout> : <Navigate to="/login" replace />} />
       <Route path="/Lokasiobjek-create" element={isLoggedIn ? <AdminLayout><LokasiobjekCreate /></AdminLayout> : <Navigate to="/login" replace />} />
       <Route path="/Lokasiobjek-edit/:id" element={isLoggedIn ? <AdminLayout><LokasiobjekEdit /></AdminLayout> : <Navigate to="/login" replace />} />
+      // Jenisstatus Routes
+<Route path="/Jenisstatus-index" element={isLoggedIn ? <AdminLayout><JenisstatusIndex /></AdminLayout> : <Navigate to="/login" replace />} />
+<Route path="/Jenisstatus-create" element={isLoggedIn ? <AdminLayout><JenisstatusCreate /></AdminLayout> : <Navigate to="/login" replace />} />
+<Route path="/Jenisstatus-edit/:id" element={isLoggedIn ? <AdminLayout><JenisstatusEdit /></AdminLayout> : <Navigate to="/login" replace />} />
 
       {/* Tarifobjek Routes */}
       <Route path="/Tarifobjek-index" element={isLoggedIn ? <AdminLayout><TarifobjekIndex /></AdminLayout> : <Navigate to="/login" replace />} />
