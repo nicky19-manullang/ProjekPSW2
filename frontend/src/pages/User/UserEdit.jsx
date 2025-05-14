@@ -3,11 +3,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { FaChevronLeft } from "react-icons/fa";
 
-<<<<<<< Updated upstream
-const Api_URL = "http://localhost:8000/api/v1/users";
-=======
+
 const Api_URL = "http://localhost:8000/api/v1/users"; 
->>>>>>> Stashed changes
 
 function UserEdit() {
   const { id } = useParams();
