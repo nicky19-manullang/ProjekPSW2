@@ -117,7 +117,7 @@ function PermohonansewaIndex() {
             >
               <div>{indexOfFirstItem + index + 1}</div>
               <div style={{ fontWeight: "500" }}>{item.id_lokasi_objek}</div>
-              <div>{item.lokasi_objek}</div>
+              <div>{item.lokasiObjekRetribusi}</div>
               <div>{item.keterangan}</div>
               <div style={{ display: "flex", justifyContent: "center", gap: "10px" }}>
                 <button 

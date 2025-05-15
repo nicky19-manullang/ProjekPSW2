@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('lokasi_objek_retribusis', function (Blueprint $table) {
             $table->id();
-            $table->string('lokasiObjekRetribusi');
+            $table->string(' ');
             $table->string('keterangan')->nullable(); // Keterangan boleh kosong
             $table->timestamps();
         });

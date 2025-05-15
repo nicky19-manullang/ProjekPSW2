@@ -33,7 +33,7 @@ export default function AdminLayout({ children }) {
       title: "Waktu Permohonan",
       icon: "fa-clock",
       submenus: [
-        { title: "Jangka Waktu Sewa", path: "/Jangkawaktusewa-index" },
+        { title: "Jangka Waktu Sewa", path: "/Jenisjangkawaktu-index" },
         { title: "Jenis Jangka Waktu", path: "/Jenisjangkawaktu-index" }
       ]
     },

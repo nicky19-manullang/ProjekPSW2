@@ -23,7 +23,6 @@ Route::prefix('v1')->group(function () {
     Route::put('/jenis-permohonan/{id}', [JenisPermohonanController::class, 'update']);
     Route::delete('/jenis-permohonan/{id}', [JenisPermohonanController::class, 'destroy']);
 });
-
 Route::prefix('v1')->group(function () {
     Route::get('/wajib-retribusi', [WajibRetribusiController::class, 'index']);
     Route::post('/wajib-retribusi', [WajibRetribusiController::class, 'store']);
@@ -39,12 +38,69 @@ Route::prefix('v1')->group(function () {
     Route::delete('/users/{id}', [UserController::class, 'destroy']);
 });
 
-Route::apiResource('permohonan-sewa', PermohonanSewaController::class);
-Route::apiResource('peruntukan-sewa', PeruntukanSewaController::class);
-Route::apiResource('status', StatusController::class);
-Route::apiResource('jenis-jangka-waktu', JenisJangkaWaktuController::class);
-Route::apiResource('jangka-waktu-sewa', JangkaWaktuSewaController::class);
-Route::apiResource('tarif-objek-retribusi', TarifObjekRetribusiController::class);
-Route::apiResource('jenis-objek-retribusi', JenisObjekRetribusiController::class);
-Route::apiResource('objek-retribusi', ObjekRetribusiController::class);
-Route::apiResource('lokasi-objek-retribusi', LokasiObjekRetribusiController::class);
+Route::prefix('v1')->group(function () {
+    Route::get('/permohonan-sewa', [PermohonanSewaController::class, 'index']);
+    Route::post('/permohonan-sewa', [PermohonanSewaController::class, 'store']);
+    Route::get('/permohonan-sewa/{id}', [PermohonanSewaController::class, 'show']);
+    Route::put('/permohonan-sewa/{id}', [PermohonanSewaController::class, 'update']);
+    Route::delete('/permohonan-sewa/{id}', [PermohonanSewaController::class, 'destroy']);
+});
+Route::prefix('v1')->group(function () {
+    Route::get('/peruntukan-sewa', [PeruntukanSewaController::class, 'index']);
+    Route::post('/peruntukan-sewa', [PeruntukanSewaController::class, 'store']);
+    Route::get('/peruntukan-sewa/{id}', [PeruntukanSewaController::class, 'show']);
+    Route::put('/peruntukan-sewa/{id}', [PeruntukanSewaController::class, 'update']);
+    Route::delete('/peruntukan-sewa/{id}', [PeruntukanSewaController::class, 'destroy']);
+});
+Route::prefix('v1')->group(function () {
+    Route::get('/status', [StatusController::class, 'index']);
+    Route::post('/status', [StatusController::class, 'store']);
+    Route::get('/status/{id}', [StatusController::class, 'show']);
+    Route::put('/status/{id}', [StatusController::class, 'update']);
+    Route::delete('/status/{id}', [StatusController::class, 'destroy']);
+});
+Route::prefix('v1')->group(function () {
+    Route::get('/jenis-jangka-waktu', [JenisJangkaWaktuController::class, 'index']);
+    Route::post('/jenis-jangka-waktu', [JenisJangkaWaktuController::class, 'store']);
+    Route::get('/jenis-jangka-waktu/{id}', [JenisJangkaWaktuController::class, 'show']);
+    Route::put('/jenis-jangka-waktu/{id}', [JenisJangkaWaktuController::class, 'update']);
+    Route::delete('/jenis-jangka-waktu/{id}', [JenisJangkaWaktuController::class, 'destroy']);
+});
+Route::prefix('v1')->group(function () {
+    Route::get('/jangka-waktu-sewa', [JangkaWaktuSewaController::class, 'index']);
+    Route::post('/jangka-waktu-sewa', [JangkaWaktuSewaController::class, 'store']);
+    Route::get('/jangka-waktu-sewa/{id}', [JangkaWaktuSewaController::class, 'show']);
+    Route::put('/jangka-waktu-sewa/{id}', [JangkaWaktuSewaController::class, 'update']);
+    Route::delete('/jangka-waktu-sewa/{id}', [JangkaWaktuSewaController::class, 'destroy']);
+});
+Route::prefix('v1')->group(function () {
+    Route::get('/tarif-objek-retribusi', [TarifObjekRetribusiController::class, 'index']);
+    Route::post('/tarif-objek-retribusi', [TarifObjekRetribusiController::class, 'store']);
+    Route::get('/tarif-objek-retribusi/{id}', [TarifObjekRetribusiController::class, 'show']);
+    Route::put('/tarif-objek-retribusi/{id}', [TarifObjekRetribusiController::class, 'update']);
+    Route::delete('/tarif-objek-retribusi/{id}', [TarifObjekRetribusiController::class, 'destroy']);
+});
+
+Route::prefix('v1')->group(function () {
+    Route::get('/jenis-objek-retribusi', [JenisObjekRetribusiController::class, 'index']);
+    Route::post('/jenis-objek-retribusi', [JenisObjekRetribusiController::class, 'store']);
+    Route::get('/jenis-objek-retribusi/{id}', [JenisObjekRetribusiController::class, 'show']);
+    Route::put('/jenis-objek-retribusi/{id}', [JenisObjekRetribusiController::class, 'update']);
+    Route::delete('/jenis-objek-retribusi/{id}', [JenisObjekRetribusiController::class, 'destroy']);
+});
+
+Route::prefix('v1')->group(function () {
+    Route::get('/objek-retribusi', [ObjekRetribusiController::class, 'index']);
+    Route::post('/objek-retribusi', [ObjekRetribusiController::class, 'store']);
+    Route::get('/objek-retribusi/{id}', [ObjekRetribusiController::class, 'show']);
+    Route::put('/objek-retribusi/{id}', [ObjekRetribusiController::class, 'update']);
+    Route::delete('/objek-retribusi/{id}', [ObjekRetribusiController::class, 'destroy']);
+});
+
+Route::prefix('v1')->group(function () {
+    Route::get('/lokasi-objek-retribusi', [LokasiObjekRetribusiController::class, 'index']);
+    Route::post('/lokasi-objek-retribusi', [JenisPermohonanController::class, 'store']);
+    Route::get('/lokasi-objek-retribusi/{id}', [JenisPermohonanController::class, 'show']);
+    Route::put('/lokasi-objek-retribusi/{id}', [JenisPermohonanController::class, 'update']);
+    Route::delete('/lokasi-objek-retribusi/{id}', [JenisPermohonanController::class, 'destroy']);
+});

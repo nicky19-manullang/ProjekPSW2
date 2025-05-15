@@ -79,7 +79,7 @@ class JenisPermohonanController extends Controller
 {
     try {
         // Cari data yang akan diupdate
-        $wajibRetribusi = JenisPermohonan::findOrFail($id);
+        $jenisPermohonan = JenisPermohonan::findOrFail($id);
 
         // Validasi input
         $validatedData = $request->validate([
@@ -89,12 +89,12 @@ class JenisPermohonanController extends Controller
         ]);
 
         // Update data
-        $wajibRetribusi->update($validatedData);
+        $jenisPermohonan->update($validatedData);
 
         return response()->json([
             'status' => 'success',
             'message' => 'Data berhasil diupdate!',
-            'data' => $wajibRetribusi
+            'data' => $jenisPermohonan
         ], 200);
 
     } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {

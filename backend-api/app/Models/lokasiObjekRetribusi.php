@@ -6,5 +6,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class lokasiObjekRetribusi extends Model
 {
-    //
+    protected $fillable = ['lokasiObjekRetribusi', 'keterangan'];
 }

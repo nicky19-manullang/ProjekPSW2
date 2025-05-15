@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { FaEdit, FaTrash, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
-const Api_URL = "http://127.0.0.1:8000/api/jenis-jangka-waktu";
+const Api_URL = "http://127.0.0.1:8000/api/v1/jenis-jangka-waktu";
 
 function JenisjangkawaktuIndex() {
   const [data, setData] = useState([]);
@@ -18,23 +18,33 @@ function JenisjangkawaktuIndex() {
   const fetchData = async () => {
     try {
       const response = await axios.get(Api_URL);
-      setData(response.data);
+      setData(response.data.data); // Pastikan response.data.data sesuai struktur Laravel
     } catch (error) {
-      console.error("Error fetching data:", error);
+      console.error('Error fetching data:', error);
     }
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm("Hapus data ini?")) {
-      try {
-        await axios.delete(`${Api_URL}/${id}`);
-        fetchData();
-      } catch (error) {
-        console.error("Error deleting data:", error);
+  if (!id) return alert("ID tidak valid!");
+  
+  if (window.confirm("Hapus data ini?")) {
+    try {
+      const response = await axios.delete(`${Api_URL}/${id}`);
+      
+      // Pastikan response success (sesuai struktur Laravel lu)
+      if (response.data.status === 'success') {
+        alert("Data berhasil dihapus!");
+        fetchData(); // Refresh data
+      } else {
+        throw new Error(response.data.message || "Gagal menghapus");
       }
+    } catch (error) {
+      console.error('Error:', error.response || error);
+      alert(`Gagal hapus: ${error.response?.data?.message || error.message}`);
     }
-  };
-
+  }
+};
+  // Pagination logic
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = data.slice(indexOfFirstItem, indexOfLastItem);
@@ -44,37 +54,28 @@ function JenisjangkawaktuIndex() {
     <div style={{ fontFamily: "'Poppins', sans-serif", padding: "20px", backgroundColor: "#f8fafc", minHeight: "100vh" }}>
       {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-        <h1 style={{ fontSize: "24px", fontWeight: "600", color: "#1e293b" }}>Data Jenis Jangka Waktu</h1>
-        <button
-          onClick={() => navigate("/jenisjangkawaktu-create")}
-          style={{
-            backgroundColor: "#4361ee",
-            color: "white",
-            padding: "8px 16px",
-            borderRadius: "6px",
-            border: "none",
-            cursor: "pointer",
-            fontWeight: "500",
-          }}
+        <h1 style={{ fontSize: "24px", fontWeight: "600", color: "#1e293b" }}>Jenis Jangka Waktu</h1>
+        <button 
+          onClick={() => navigate("/Jenisjangkawaktu-create")}
+          style={{ backgroundColor: "#4361ee", color: "white", padding: "8px 16px", borderRadius: "6px", border: "none", cursor: "pointer", fontWeight: "500" }}
         >
-          Tambah Baru
+          Tambah Data
         </button>
       </div>
 
       {/* Table */}
       <div style={{ backgroundColor: "white", borderRadius: "10px", boxShadow: "0 2px 10px rgba(0,0,0,0.05)", overflow: "hidden" }}>
         {/* Table Header */}
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "0.5fr 1fr 2fr 2fr 0.5fr",
-          padding: "15px 20px",
-          backgroundColor: "#4361ee",
-          color: "white",
+        <div style={{ 
+          display: "grid", 
+          gridTemplateColumns: "0.5fr 2fr 3fr 1fr", 
+          padding: "15px 20px", 
+          backgroundColor: "#4361ee", 
+          color: "white", 
           fontWeight: "500",
           textAlign: "center"
         }}>
           <div>No</div>
-          <div>ID</div>
           <div>Jenis Jangka Waktu</div>
           <div>Keterangan</div>
           <div>Aksi</div>
@@ -83,10 +84,11 @@ function JenisjangkawaktuIndex() {
         {/* Table Body */}
         {currentItems.length > 0 ? (
           currentItems.map((item, index) => (
-            <div key={item.id}
+            <div 
+              key={item.id}
               style={{
                 display: "grid",
-                gridTemplateColumns: "0.5fr 1fr 2fr 2fr 0.5fr",
+                gridTemplateColumns: "0.5fr 2fr 3fr 1fr",
                 padding: "12px 20px",
                 borderBottom: "1px solid #e2e8f0",
                 alignItems: "center",
@@ -95,17 +97,16 @@ function JenisjangkawaktuIndex() {
               }}
             >
               <div>{indexOfFirstItem + index + 1}</div>
-              <div>{item.id}</div>
               <div>{item.jenisJangkaWaktu}</div>
-              <div>{item.keterangan}</div>
+              <div>{item.keterangan || "-"}</div>
               <div style={{ display: "flex", justifyContent: "center", gap: "10px" }}>
-                <button
-                  onClick={() => navigate(`/jenisjangkawaktu-edit/${item.id}`)}
+                <button 
+                  onClick={() => navigate(`/Jenisjangkawaktu-edit/${item.id}`)}
                   style={{ color: "#3b82f6", background: "none", border: "none", cursor: "pointer" }}
                 >
                   <FaEdit />
                 </button>
-                <button
+                <button 
                   onClick={() => handleDelete(item.id)}
                   style={{ color: "#ef4444", background: "none", border: "none", cursor: "pointer" }}
                 >
@@ -126,34 +127,22 @@ function JenisjangkawaktuIndex() {
             Menampilkan {currentItems.length} dari {data.length} data
           </div>
           <div style={{ display: "flex", gap: "10px" }}>
-            <button
+            <button 
               onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
-              style={{
-                padding: "5px 10px",
-                border: "1px solid #e2e8f0",
-                borderRadius: "4px",
-                cursor: "pointer",
-                backgroundColor: currentPage === 1 ? "#f1f5f9" : "white"
-              }}
+              style={{ padding: "5px 10px", border: "1px solid #e2e8f0", borderRadius: "4px", cursor: "pointer", backgroundColor: currentPage === 1 ? "#f1f5f9" : "white" }}
             >
-              <FaChevronLeft /> Sebelumnya
+              <FaChevronLeft />
             </button>
             <span style={{ padding: "5px 10px" }}>
               Halaman {currentPage} dari {totalPages}
             </span>
-            <button
+            <button 
               onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
               disabled={currentPage === totalPages}
-              style={{
-                padding: "5px 10px",
-                border: "1px solid #e2e8f0",
-                borderRadius: "4px",
-                cursor: "pointer",
-                backgroundColor: currentPage === totalPages ? "#f1f5f9" : "white"
-              }}
+              style={{ padding: "5px 10px", border: "1px solid #e2e8f0", borderRadius: "4px", cursor: "pointer", backgroundColor: currentPage === totalPages ? "#f1f5f9" : "white" }}
             >
-              Selanjutnya <FaChevronRight />
+              <FaChevronRight />
             </button>
           </div>
         </div>

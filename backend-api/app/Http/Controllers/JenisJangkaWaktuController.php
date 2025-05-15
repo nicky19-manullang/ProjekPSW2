@@ -1,15 +1,27 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Models\JenisJangkaWaktu; 
+
+use App\Models\JenisJangkaWaktu;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 
 class JenisJangkaWaktuController extends Controller
 {
     public function index()
     {
-        // Mengambil semua data jenis jangka waktu dari database
-        return JenisJangkaWaktu::all();
+        try {
+            $data = JenisJangkaWaktu::all();
+            return response()->json([
+                'status' => 'success',
+                'data' => $data
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 500);
+        }
     }
 
     public function create()
@@ -19,20 +31,52 @@ class JenisJangkaWaktuController extends Controller
 
     public function store(Request $request)
     {
-        // Validasi data yang diterima dari request
-        $validatedData = $request->validate([
-            'jenisJangkaWaktu' => 'required|string|max:255',
-            'keterangan' => 'nullable|string|max:255',
-        ]);
+        try {
+            $validatedData = $request->validate([
+                'jenisJangkaWaktu' => 'required|string|max:255',
+                'keterangan' => 'nullable|string|max:255',
+            ]);
 
-        // Membuat data baru jenis jangka waktu di database
-        return JenisJangkaWaktu::create($validatedData);
+            $data = JenisJangkaWaktu::create($validatedData);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Data berhasil ditambahkan',
+                'data' => $data
+            ], 201);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Data tidak ditemukan!'
+            ], 404);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Validasi gagal',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
-    public function show(JenisJangkaWaktu $jenisJangkaWaktu)
+    public function show($id): JsonResponse
     {
-        // Menampilkan data jenis jangka waktu berdasarkan ID
-        return $jenisJangkaWaktu;
+        try {
+            $jenisJangkaWaktu = JenisJangkaWaktu::findOrFail($id);
+            return response()->json([
+                'status' => 'success',
+                'data' => $jenisJangkaWaktu
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Data tidak ditemukan'
+            ], 404);
+        }
     }
 
     public function edit(JenisJangkaWaktu $jenisJangkaWaktu)
@@ -42,23 +86,57 @@ class JenisJangkaWaktuController extends Controller
 
     public function update(Request $request, JenisJangkaWaktu $jenisJangkaWaktu)
     {
-        // Validasi data yang diterima dari request
-        $validatedData = $request->validate([
-            'jenisJangkaWaktu' => 'required|string|max:255',
-            'keterangan' => 'nullable|string|max:255',
-        ]);
+        try {
+            $validatedData = $request->validate([
+                'jenisJangkaWaktu' => 'required|string|max:255',
+                'keterangan' => 'nullable|string|max:255',
+            ]);
 
-        // Mengupdate data jenis jangka waktu di database
-        $jenisJangkaWaktu->update($validatedData);
+            $jenisJangkaWaktu->update($validatedData);
 
-        return $jenisJangkaWaktu;
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Data berhasil diupdate!',
+                'data' => $jenisJangkaWaktu
+            ], 200);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Data tidak ditemukan!'
+            ], 404);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Validasi gagal',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function destroy(JenisJangkaWaktu $jenisJangkaWaktu)
     {
-        // Menghapus data jenis jangka waktu dari database
-        $jenisJangkaWaktu->delete();
+        try {
+            $jenisJangkaWaktu->delete();
 
-        return response()->json(['message' => 'Jenis Jangka Waktu deleted successfully']);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Data berhasil dihapus'
+            ], 200);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Data tidak ditemukan'
+            ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

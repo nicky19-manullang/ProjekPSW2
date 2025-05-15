@@ -9,51 +9,124 @@ class LokasiObjekRetribusiController extends Controller
 {
     public function index()
     {
-        // Mengambil semua data lokasi objek retribusi dari database
-        return LokasiObjekRetribusi::all();
+        try {
+            $data = LokasiObjekRetribusi::all();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Data retrieved successfully',
+                'data' => $data
+            ], 200)->header('Content-Type', 'application/json');
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to fetch data',
+                'error' => $e->getMessage(),
+                'error_code' => $e->getCode()
+            ], 500)->header('Content-Type', 'application/json');
+        }
     }
+
     public function create()
     {
         //
     }
+
     public function store(Request $request)
     {
-        // Validasi data yang diterima dari request
-        $validatedData = $request->validate([
-            'lokasi_objek_retribusi' => 'required|string|max:255',
-            'keterangan' => 'nullable|string|max:255',
-        ]);
+        try {
+            $validatedData = $request->validate([
+                'lokasiObjekRetribusi' => 'required|string|max:255',
+                'keterangan' => 'nullable|string|max:255',
+            ]);
 
-        // Membuat data baru lokasi objek retribusi di database
-        return LokasiObjekRetribusi::create($validatedData);
+            $data = LokasiObjekRetribusi::create($validatedData);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Data created successfully',
+                'data' => $data,
+                'timestamp' => now()
+            ], 201)->header('Content-Type', 'application/json');
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to create data',
+                'error' => $e->getMessage(),
+                'error_code' => $e->getCode(),
+                'timestamp' => now()
+            ], 500)->header('Content-Type', 'application/json');
+        }
     }
+
     public function show(LokasiObjekRetribusi $lokasiObjekRetribusi)
     {
-        // Menampilkan data lokasi objek retribusi berdasarkan ID
-        return $lokasiObjekRetribusi;
+        try {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Data retrieved successfully',
+                'data' => $lokasiObjekRetribusi,
+                'timestamp' => now()
+            ], 200)->header('Content-Type', 'application/json');
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to fetch data',
+                'error' => $e->getMessage(),
+                'error_code' => $e->getCode(),
+                'timestamp' => now()
+            ], 500)->header('Content-Type', 'application/json');
+        }
     }
+
     public function edit(LokasiObjekRetribusi $lokasiObjekRetribusi)
     {
         //
     }
+
     public function update(Request $request, LokasiObjekRetribusi $lokasiObjekRetribusi)
     {
-        // Validasi data yang diterima dari request
-        $validatedData = $request->validate([
-            'lokasi_objek_retribusi' => 'required|string|max:255',
-            'keterangan' => 'nullable|string|max:255',
-        ]);
+        try {
+            $validatedData = $request->validate([
+                'lokasiObjekRetribusi' => 'required|string|max:255',
+                'keterangan' => 'nullable|string|max:255',
+            ]);
 
-        // Mengupdate data lokasi objek retribusi di database
-        $lokasiObjekRetribusi->update($validatedData);
+            $lokasiObjekRetribusi->update($validatedData);
 
-        return $lokasiObjekRetribusi;
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Data updated successfully',
+                'data' => $lokasiObjekRetribusi,
+                'timestamp' => now()
+            ], 200)->header('Content-Type', 'application/json');
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to update data',
+                'error' => $e->getMessage(),
+                'error_code' => $e->getCode(),
+                'timestamp' => now()
+            ], 500)->header('Content-Type', 'application/json');
+        }
     }
+
     public function destroy(LokasiObjekRetribusi $lokasiObjekRetribusi)
     {
-        // Menghapus data lokasi objek retribusi dari database
-        $lokasiObjekRetribusi->delete();
+        try {
+            $lokasiObjekRetribusi->delete();
 
-        return response()->json(['message' => 'Lokasi Objek Retribusi deleted successfully']);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Data deleted successfully',
+                'timestamp' => now()
+            ], 200)->header('Content-Type', 'application/json');
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to delete data',
+                'error' => $e->getMessage(),
+                'error_code' => $e->getCode(),
+                'timestamp' => now()
+            ], 500)->header('Content-Type', 'application/json');
+        }
     }
 }

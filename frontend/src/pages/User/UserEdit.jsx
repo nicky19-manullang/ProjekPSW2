@@ -3,12 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { FaChevronLeft } from "react-icons/fa";
 
-<<<<<<< HEAD
 const Api_URL = "http://localhost:8000/api/v1/users";
-=======
-
-const Api_URL = "http://localhost:8000/api/v1/users"; 
->>>>>>> 73879d9f17ac1af279e4762cfdad35990a702938
 
 function UserEdit() {
   const { id } = useParams();
@@ -33,13 +28,28 @@ function UserEdit() {
     fetchData();
   }, [id]);
 
-     request: error.config,
-      response: error.response?.data,
-      status: error.response?.status
-    });
-    alert(`Gagal update! ${error.response?.data?.message || error.message}`);
-  }
-};
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prevState => ({
+      ...prevState,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.put(`${Api_URL}/${id}`, formData);
+      navigate("/users-index");
+    } catch (error) {
+      console.error({
+        request: error.config,
+        response: error.response?.data,
+        status: error.response?.status
+      });
+      alert(`Gagal update! ${error.response?.data?.message || error.message}`);
+    }
+  };
 
   return (
     <div style={{ 
