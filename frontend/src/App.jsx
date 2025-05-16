@@ -89,10 +89,38 @@ function App() {
       <Route path="/Jenispermohonan-edit/:id" element={isLoggedIn ? <AdminLayout><JenispermohonanEdit /></AdminLayout> : <Navigate to="/login" replace />} />
 
       {/* Peruntukansewa Routes */}
-      <Route path="/Peruntukansewa-index" element={isLoggedIn ? <AdminLayout><PeruntukansewaIndex /></AdminLayout> : <Navigate to="/login" replace />} />
-      <Route path="/Peruntukansewa-create" element={isLoggedIn ? <AdminLayout><PeruntukansewaCreate /></AdminLayout> : <Navigate to="/login" replace />} />
-      <Route path="/Peruntukansewa-edit/:id" element={isLoggedIn ? <AdminLayout><PeruntukansewaEdit /></AdminLayout> : <Navigate to="/login" replace />} />
+      <Route 
+  path="/Peruntukansewa-index" 
+  element={isLoggedIn ? (
+    <AdminLayout>
+      <PeruntukansewaIndex />
+    </AdminLayout>
+  ) : (
+    <Navigate to="/login" replace />
+  )} 
+/>
 
+<Route 
+  path="/Peruntukansewa-create" 
+  element={isLoggedIn ? (
+    <AdminLayout>
+      <PeruntukansewaCreate />
+    </AdminLayout>
+  ) : (
+    <Navigate to="/login" replace />
+  )} 
+/>
+
+<Route 
+  path="/Peruntukansewa-edit/:id" 
+  element={isLoggedIn ? (
+    <AdminLayout>
+      <PeruntukansewaEdit />
+    </AdminLayout>
+  ) : (
+    <Navigate to="/login" replace />
+  )} 
+/>
       {/* Permohonansewa Routes */}
       <Route path="/Permohonansewa-index" element={isLoggedIn ? <AdminLayout><PermohonansewaIndex /></AdminLayout> : <Navigate to="/login" replace />} />
       <Route path="/Permohonansewa-create" element={isLoggedIn ? <AdminLayout><PermohonansewaCreate /></AdminLayout> : <Navigate to="/login" replace />} />
@@ -122,10 +150,10 @@ function App() {
       <Route path="/Lokasiobjek-index" element={isLoggedIn ? <AdminLayout><LokasiobjekIndex /></AdminLayout> : <Navigate to="/login" replace />} />
       <Route path="/Lokasiobjek-create" element={isLoggedIn ? <AdminLayout><LokasiobjekCreate /></AdminLayout> : <Navigate to="/login" replace />} />
       <Route path="/Lokasiobjek-edit/:id" element={isLoggedIn ? <AdminLayout><LokasiobjekEdit /></AdminLayout> : <Navigate to="/login" replace />} />
-      // Jenisstatus Routes
-<Route path="/Jenisstatus-index" element={isLoggedIn ? <AdminLayout><JenisstatusIndex /></AdminLayout> : <Navigate to="/login" replace />} />
-<Route path="/Jenisstatus-create" element={isLoggedIn ? <AdminLayout><JenisstatusCreate /></AdminLayout> : <Navigate to="/login" replace />} />
-<Route path="/Jenisstatus-edit/:id" element={isLoggedIn ? <AdminLayout><JenisstatusEdit /></AdminLayout> : <Navigate to="/login" replace />} />
+      {/* Jenisstatus Routes */}
+      <Route path="/Jenisstatus-index" element={isLoggedIn ? <AdminLayout><JenisstatusIndex /></AdminLayout> : <Navigate to="/login" replace />} />
+      <Route path="/Jenisstatus-create" element={isLoggedIn ? <AdminLayout><JenisstatusCreate /></AdminLayout> : <Navigate to="/login" replace />} />
+      <Route path="/Jenisstatus-edit/:id" element={isLoggedIn ? <AdminLayout><JenisstatusEdit /></AdminLayout> : <Navigate to="/login" replace />} />
 
       {/* Tarifobjek Routes */}
       <Route path="/Tarifobjek-index" element={isLoggedIn ? <AdminLayout><TarifobjekIndex /></AdminLayout> : <Navigate to="/login" replace />} />

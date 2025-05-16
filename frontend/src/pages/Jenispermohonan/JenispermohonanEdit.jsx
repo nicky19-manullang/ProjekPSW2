@@ -1,191 +1,181 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
-import { FaChevronLeft } from "react-icons/fa";
 
 const Api_URL = "http://127.0.0.1:8000/api/v1/jenis-permohonan";
 
-function JenisPermohonanEdit() {
+function JenispermohonanEdit() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
+    id: "",
     jenis_permohonan: "",
     parent_id: "",
     keterangan: ""
   });
+  const [loading, setLoading] = useState(true);
 
-  // Fetch data yang mau diedit
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(`${Api_URL}/${id}`);
-        setFormData(response.data);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-    fetchData();
+    fetchDataById();
   }, [id]);
+
+  const fetchDataById = async () => {
+    try {
+      const res = await axios.get(Api_URL);
+      // res.data adalah array semua jenis permohonan
+      const dataItem = res.data.find(item => item.id === parseInt(id));
+      if (dataItem) {
+        setFormData({
+          id: dataItem.id,
+          jenis_permohonan: dataItem.jenis_permohonan,
+          parent_id: dataItem.parent_id || "",
+          keterangan: dataItem.keterangan || ""
+        });
+      } else {
+        alert("Data dengan ID tersebut tidak ditemukan.");
+        navigate("/jenis-permohonan");
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      alert("Gagal mengambil data untuk diedit.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-   const handleSubmit = async (e) => {
-  e.preventDefault();
-  try {
-    const response = await axios.put(`${Api_URL}/${id}`, formData, {
-      headers: {
-        'Content-Type': 'application/json' // << PASTIKAN HEADER ADA
-      }
-    });
-    alert("Data berhasil diupdate!");
-    navigate("/users-index");
-  } catch (error) {
-    console.error('Full error:', {
-      request: error.config,
-      response: error.response?.data,
-      status: error.response?.status
-    });
-    alert(`Gagal update! ${error.response?.data?.message || error.message}`);
-  }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.put(`${Api_URL}/${id}`, formData, {
+        headers: {
+          "Content-Type": "application/json"
+        }
+      });
+      alert("Data berhasil diperbarui!");
+      navigate("/jenis-permohonan");
+    } catch (error) {
+      console.error("Error updating data:", error.response?.data);
+      alert(`Gagal memperbarui data! ${error.response?.data?.message || ""}`);
+    }
   };
 
-  return (
-    <div style={{ 
-      fontFamily: "'Poppins', sans-serif",
-      padding: "20px",
-      backgroundColor: "#f8fafc",
-      minHeight: "100vh"
-    }}>
-      {/* Header */}
-      <div style={{ 
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        marginBottom: "20px"
-      }}>
-        <button 
-          onClick={() => navigate(-1)}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-            background: "none",
-            border: "none",
-            cursor: "pointer",
-            color: "#4361ee"
-          }}
-        >
-          <FaChevronLeft /> Kembali
-        </button>
-        <h1 style={{ 
-          fontSize: "24px",
-          fontWeight: "600",
-          color: "#1e293b"
-        }}>Edit Jenis Permohonan</h1>
-        <div style={{ width: "100px" }}></div> {/* Spacer */}
-      </div>
+  if (loading) {
+    return <p>Memuat data...</p>;
+  }
 
-      {/* Form */}
-      <div style={{ 
-        backgroundColor: "white",
-        borderRadius: "10px",
-        boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
-        padding: "25px",
-        maxWidth: "600px",
-        margin: "0 auto"
-      }}>
+  return (
+    <div style={{ fontFamily: "'Poppins', sans-serif", padding: 40, backgroundColor: "#f8fafc", minHeight: "100vh" }}>
+      <h1 style={{ fontSize: 24, fontWeight: 600, color: "#1e293b", marginBottom: 30 }}>
+        Edit Jenis Permohonan
+      </h1>
+
+      <div style={{ backgroundColor: "white", borderRadius: 12, boxShadow: "0 4px 15px rgba(0,0,0,0.08)", padding: 35, maxWidth: 800, margin: "0 auto" }}>
         <form onSubmit={handleSubmit}>
+          {/* ID (readonly karena biasanya primary key) */}
+          <div style={{ marginBottom: 25 }}>
+            <label style={{ display: "block", marginBottom: 10, fontWeight: 500, color: "#334155", fontSize: 16 }}>
+              ID
+            </label>
+            <input
+              type="text"
+              name="id"
+              value={formData.id}
+              readOnly
+              style={{
+                width: "100%",
+                padding: "12px 18px",
+                border: "1px solid #e2e8f0",
+                borderRadius: 8,
+                fontSize: 16,
+                backgroundColor: "#f1f5f9"
+              }}
+            />
+          </div>
+
           {/* Jenis Permohonan */}
-          <div style={{ marginBottom: "20px" }}>
-            <label style={{
-              display: "block",
-              marginBottom: "8px",
-              fontWeight: "500",
-              color: "#334155"
-            }}>Jenis Permohonan</label>
+          <div style={{ marginBottom: 25 }}>
+            <label style={{ display: "block", marginBottom: 10, fontWeight: 500, color: "#334155", fontSize: 16 }}>
+              Jenis Permohonan
+            </label>
             <input
               type="text"
               name="jenis_permohonan"
               value={formData.jenis_permohonan}
               onChange={handleChange}
               required
+              placeholder="Masukkan jenis permohonan"
               style={{
                 width: "100%",
-                padding: "10px 15px",
+                padding: "12px 18px",
                 border: "1px solid #e2e8f0",
-                borderRadius: "6px",
-                fontSize: "14px"
+                borderRadius: 8,
+                fontSize: 16
               }}
             />
           </div>
 
           {/* Parent ID */}
-          <div style={{ marginBottom: "20px" }}>
-            <label style={{
-              display: "block",
-              marginBottom: "8px",
-              fontWeight: "500",
-              color: "#334155"
-            }}>Parent ID</label>
+          <div style={{ marginBottom: 25 }}>
+            <label style={{ display: "block", marginBottom: 10, fontWeight: 500, color: "#334155", fontSize: 16 }}>
+              Parent ID
+            </label>
             <input
               type="text"
               name="parent_id"
               value={formData.parent_id}
               onChange={handleChange}
+              placeholder="Masukkan parent ID (opsional)"
               style={{
                 width: "100%",
-                padding: "10px 15px",
+                padding: "12px 18px",
                 border: "1px solid #e2e8f0",
-                borderRadius: "6px",
-                fontSize: "14px"
+                borderRadius: 8,
+                fontSize: 16
               }}
             />
           </div>
 
           {/* Keterangan */}
-          <div style={{ marginBottom: "25px" }}>
-            <label style={{
-              display: "block",
-              marginBottom: "8px",
-              fontWeight: "500",
-              color: "#334155"
-            }}>Keterangan</label>
+          <div style={{ marginBottom: 30 }}>
+            <label style={{ display: "block", marginBottom: 10, fontWeight: 500, color: "#334155", fontSize: 16 }}>
+              Keterangan
+            </label>
             <textarea
               name="keterangan"
               value={formData.keterangan}
               onChange={handleChange}
+              placeholder="Masukkan keterangan"
               style={{
                 width: "100%",
-                padding: "10px 15px",
+                padding: "12px 18px",
                 border: "1px solid #e2e8f0",
-                borderRadius: "6px",
-                fontSize: "14px",
-                minHeight: "100px",
+                borderRadius: 8,
+                fontSize: 16,
+                minHeight: 120,
                 resize: "vertical"
               }}
             />
           </div>
 
-          {/* Submit Button */}
-          <div style={{ 
-            display: "flex",
-            justifyContent: "flex-end",
-            gap: "15px"
-          }}>
+          {/* Buttons */}
+          <div style={{ display: "flex", justifyContent: "flex-end", gap: 20 }}>
             <button
               type="button"
               onClick={() => navigate("/jenis-permohonan")}
               style={{
-                padding: "10px 20px",
+                padding: "12px 24px",
                 backgroundColor: "#f1f5f9",
                 color: "#64748b",
                 border: "none",
-                borderRadius: "6px",
+                borderRadius: 8,
                 cursor: "pointer",
-                fontWeight: "500"
+                fontWeight: 500,
+                fontSize: 16
               }}
             >
               Batal
@@ -193,13 +183,14 @@ function JenisPermohonanEdit() {
             <button
               type="submit"
               style={{
-                padding: "10px 20px",
-                backgroundColor: "#4361ee",
+                padding: "12px 24px",
+                backgroundColor: "#16a34a",
                 color: "white",
                 border: "none",
-                borderRadius: "6px",
+                borderRadius: 8,
                 cursor: "pointer",
-                fontWeight: "500"
+                fontWeight: 500,
+                fontSize: 16
               }}
             >
               Simpan Perubahan
@@ -211,4 +202,4 @@ function JenisPermohonanEdit() {
   );
 }
 
-export default JenisPermohonanEdit;
+export default JenispermohonanEdit;
