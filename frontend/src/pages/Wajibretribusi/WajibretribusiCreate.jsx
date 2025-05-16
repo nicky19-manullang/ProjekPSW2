@@ -37,7 +37,7 @@ function WajibretribusiCreate() {
       }
       await axios.post(Api_URL, formDataToSend);
       alert("Data berhasil ditambahkan!");
-      navigate("/wajib-retribusi");
+      navigate("/wajib-retribusi-index");
     } catch (error) {
       console.error('Error:', error.response?.data);
       alert(`Gagal: ${error.response?.data?.message || error.message}`);
@@ -182,7 +182,7 @@ function WajibretribusiCreate() {
           <div style={{ display: "flex", justifyContent: "flex-end", gap: "20px" }}>
             <button
               type="button"
-              onClick={() => navigate("/wajib-retribusi")}
+              onClick={() => navigate("/wajib-retribusi-index")}
               style={{ padding: "12px 24px", backgroundColor: "#f1f5f9", color: "#64748b", border: "none", borderRadius: "8px", cursor: "pointer", fontWeight: "500", fontSize: "16px" }}
             >
               Batal
