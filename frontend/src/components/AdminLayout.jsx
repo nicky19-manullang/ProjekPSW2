@@ -50,7 +50,7 @@ export default function AdminLayout({ children }) {
       icon: "fa-map",
       submenus: [
         { title: "Jenis Objek", path: "/Jenisobjek-index" },
-        { title: "Lokasi Objek", path: "/Lokasiobjek-index" },
+        { title: "Lokasi Objek", path: "/lokasi-objek-retribusi" },
         { title: "Tarif Objek", path: "/Tarifobjek-index" },
         { title: "Objek Retribusi", path: "/Objek-retribusi-index" }
       ]

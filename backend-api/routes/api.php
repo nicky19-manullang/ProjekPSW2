@@ -96,11 +96,10 @@ Route::prefix('v1')->group(function () {
     Route::put('/objek-retribusi/{id}', [ObjekRetribusiController::class, 'update']);
     Route::delete('/objek-retribusi/{id}', [ObjekRetribusiController::class, 'destroy']);
 });
-
-Route::prefix('v1')->group(function () {
+ Route::prefix('v1')->group(function () {
     Route::get('/lokasi-objek-retribusi', [LokasiObjekRetribusiController::class, 'index']);
-    Route::post('/lokasi-objek-retribusi', [JenisPermohonanController::class, 'store']);
-    Route::get('/lokasi-objek-retribusi/{id}', [JenisPermohonanController::class, 'show']);
-    Route::put('/lokasi-objek-retribusi/{id}', [JenisPermohonanController::class, 'update']);
-    Route::delete('/lokasi-objek-retribusi/{id}', [JenisPermohonanController::class, 'destroy']);
+    Route::post('/lokasi-objek-retribusi', [LokasiObjekRetribusiController::class, 'store']);
+    Route::get('/lokasi-objek-retribusi/{id}', [LokasiObjekRetribusiController::class, 'show']);
+    Route::put('/lokasi-objek-retribusi/{id}', [LokasiObjekRetribusiController::class, 'update']);
+    Route::delete('/lokasi-objek-retribusi/{id}', [LokasiObjekRetribusiController::class, 'destroy']);
 });
