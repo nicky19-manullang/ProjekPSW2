@@ -52,7 +52,7 @@ export default function AdminLayout({ children }) {
         { title: "Jenis Objek", path: "/Jenisobjek-index" },
         { title: "Lokasi Objek", path: "/lokasi-objek-retribusi" },
         { title: "Tarif Objek", path: "/Tarifobjek-index" },
-        { title: "Objek Retribusi", path: "/Objek-retribusi-index" }
+        { title: "Objek Retribusi", path: "/Objekretribusi-index" }
       ]
     }
   ];
