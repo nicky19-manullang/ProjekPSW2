@@ -1,44 +1,36 @@
-// UserIndex.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { FaEdit, FaTrash, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
-const Api_URL = "http://localhost:8000/api/v1/users"; 
+const Api_URL = "http://127.0.0.1:8000/api/v1/users";
 
 function UserIndex() {
-  const [users, setUsers] = useState([]);
+  const [data, setData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchUsers();
+    fetchData();
   }, []);
 
-  const fetchUsers = async () => {
-  try {
-    const response = await axios.get(`${Api_URL}?page=${currentPage}`);
-    setUsers(response.data.data); // Data dari Laravel paginate()
-    setTotalPages(response.data.last_page);
-  } catch (error) {
-    console.error('Error:', error);
-  }
-};
+  const fetchData = async () => {
+    try {
+      const response = await axios.get(Api_URL);
+      setData(response.data.data);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
 
   const handleDelete = async (id) => {
-    if (window.confirm("Hapus user ini?")) {
+    if (window.confirm("Delete this user?")) {
       try {
         await axios.delete(`${Api_URL}/${id}`);
-        fetchUsers();
-        alert("User berhasil dihapus!");
+        fetchData();
       } catch (error) {
-        console.error('Error deleting user:', error);
-        if (error.response) {
-          alert(`Gagal menghapus user: ${error.response.data.message}`);
-        } else {
-          alert("Terjadi kesalahan saat menghapus user");
-        }
+        console.error('Error deleting data:', error);
       }
     }
   };
@@ -46,77 +38,42 @@ function UserIndex() {
   // Pagination logic
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentUsers = users.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(users.length / itemsPerPage);
+  const currentItems = data.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(data.length / itemsPerPage);
 
   return (
-    <div style={{ 
-      fontFamily: "'Poppins', sans-serif",
-      padding: "20px",
-      backgroundColor: "#f8fafc",
-      minHeight: "100vh"
-    }}>
+    <div style={{ fontFamily: "'Poppins', sans-serif", padding: "20px", backgroundColor: "#f8fafc", minHeight: "100vh" }}>
       {/* Header */}
-      <div style={{ 
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        marginBottom: "20px"
-      }}>
-        <h1 style={{ 
-          fontSize: "24px",
-          fontWeight: "600",
-          color: "#1e293b"
-        }}>User ID</h1>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+        <h1 style={{ fontSize: "24px", fontWeight: "600", color: "#1e293b" }}>Users Management</h1>
         <button 
           onClick={() => navigate("/User-create")}
-          style={{
-            backgroundColor: "#4361ee",
-            color: "white",
-            padding: "8px 16px",
-            borderRadius: "6px",
-            border: "none",
-            cursor: "pointer",
-            fontWeight: "500"
-          }}
+          style={{ backgroundColor: "#4361ee", color: "white", padding: "8px 16px", borderRadius: "6px", border: "none", cursor: "pointer", fontWeight: "500" }}
         >
-          Tambah User
+          Add New User
         </button>
       </div>
 
       {/* Table */}
-      <div style={{ 
-        backgroundColor: "white",
-        borderRadius: "10px",
-        boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
-        overflow: "hidden"
-      }}>
+      <div style={{ backgroundColor: "white", borderRadius: "10px", boxShadow: "0 2px 10px rgba(0,0,0,0.05)", overflow: "hidden" }}>
         {/* Table Header */}
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(7, 1fr)",
-          padding: "15px 20px",
-          backgroundColor: "#4361ee",
-          color: "white",
-          fontWeight: "500"
-        }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", padding: "15px 20px", backgroundColor: "#4361ee", color: "white", fontWeight: "500" }}>
           <div>No</div>
           <div>Username</div>
-          <div>Password</div>
           <div>Email</div>
           <div>Token</div>
           <div>Keterangan</div>
-          <div>Aksi</div>
+          <div>Actions</div>
         </div>
 
         {/* Table Body */}
-        {currentUsers.length > 0 ? (
-          currentUsers.map((user, index) => (
+        {currentItems.length > 0 ? (
+          currentItems.map((item, index) => (
             <div 
-              key={user.id}
+              key={item.id}
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(7, 1fr)",
+                gridTemplateColumns: "repeat(6, 1fr)",
                 padding: "12px 20px",
                 borderBottom: "1px solid #e2e8f0",
                 alignItems: "center",
@@ -124,90 +81,52 @@ function UserIndex() {
               }}
             >
               <div>{indexOfFirstItem + index + 1}</div>
-              <div style={{ fontWeight: "500" }}>{user.username}</div>
-              <div style={{ color: "#64748b" }}>{user.password}</div>
-              <div>{user.email}</div>
-              <div>{user.token}</div>
-              <div>{user.keterangan}</div>
+              <div>{item.username}</div>
+              <div>{item.email}</div>
+              <div>{item.token || '-'}</div>
+              <div>{item.keterangan || '-'}</div>
               <div style={{ display: "flex", gap: "10px" }}>
                 <button 
-                  onClick={() => navigate(`/users/edit/${user.id}`)}
-                  style={{
-                    color: "#3b82f6",
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer"
-                  }}
-                  title="Edit data pengguna"
+                  onClick={() => navigate(`/users/edit/${item.id}`)}
+                  style={{ color: "#3b82f6", background: "none", border: "none", cursor: "pointer" }}
                 >
                   <FaEdit />
                 </button>
                 <button 
-                  onClick={() => handleDelete(user.id)}
-                  style={{
-                    color: "#ef4444",
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer"
-                  }}
-                  title="Hapus data pengguna"
+                  onClick={() => handleDelete(item.id)}
+                  style={{ color: "#ef4444", background: "none", border: "none", cursor: "pointer" }}
                 >
                   <FaTrash />
                 </button>
-                
               </div>
             </div>
           ))
         ) : (
-          <div style={{ 
-            padding: "20px",
-            textAlign: "center",
-            color: "#64748b"
-          }}>
-            Tidak ada data user
+          <div style={{ padding: "20px", textAlign: "center", color: "#64748b" }}>
+            No data available
           </div>
         )}
 
         {/* Pagination */}
-        <div style={{ 
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          padding: "15px 20px",
-          borderTop: "1px solid #e2e8f0"
-        }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "15px 20px", borderTop: "1px solid #e2e8f0" }}>
           <div style={{ color: "#64748b" }}>
-            Menampilkan {currentUsers.length} dari {users.length} user
+            Showing {currentItems.length} of {data.length} entries
           </div>
           <div style={{ display: "flex", gap: "10px" }}>
             <button 
               onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
-              style={{
-                padding: "5px 10px",
-                border: "1px solid #e2e8f0",
-                borderRadius: "4px",
-                cursor: "pointer",
-                backgroundColor: currentPage === 1 ? "#f1f5f9" : "white"
-              }}
-              title="Halaman sebelumnya"
+              style={{ padding: "5px 10px", border: "1px solid #e2e8f0", borderRadius: "4px", cursor: "pointer", backgroundColor: currentPage === 1 ? "#f1f5f9" : "white" }}
             >
               <FaChevronLeft />
             </button>
             <span style={{ padding: "5px 10px" }}>
-              Halaman {currentPage} dari {totalPages}
+              Page {currentPage} of {totalPages}
             </span>
             <button 
               onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
               disabled={currentPage === totalPages}
-              style={{
-                padding: "5px 10px",
-                border: "1px solid #e2e8f0",
-                borderRadius: "4px",
-                cursor: "pointer",
-                backgroundColor: currentPage === totalPages ? "#f1f5f9" : "white"
-              }}
-              title="Halaman selanjutnya"
+              style={{ padding: "5px 10px", border: "1px solid #e2e8f0", borderRadius: "4px", cursor: "pointer", backgroundColor: currentPage === totalPages ? "#f1f5f9" : "white" }}
             >
               <FaChevronRight />
             </button>

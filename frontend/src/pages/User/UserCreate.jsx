@@ -1,9 +1,11 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
-const Api_URL = "http://localhost:8000/api/v1/jenis-permohonan"; 
+const Api_URL = "http://127.0.0.1:8000/api/v1/users";
+
 function UserCreate() {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     username: "",
     password: "",
@@ -11,223 +13,115 @@ function UserCreate() {
     token: "",
     keterangan: ""
   });
-  const navigate = useNavigate();
+  const [errors, setErrors] = useState({});
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  try {
-    // Kirim sebagai JSON, bukan FormData
-    await axios.post(Api_URL, formData, {
-      headers: {
-        'Content-Type': 'application/json' // Wajib ditambah!
+    e.preventDefault();
+    try {
+      const response = await axios.post(Api_URL, formData);
+      if (response.data.status === 'success') {
+        navigate('/users-index');
       }
-    });
-    alert("Data User berhasil ditambahkan!");
-    navigate("/users-index");
-  } catch (error) {
-    console.error('Error adding user:', error.response?.data); // Log error detail
-    alert(`Gagal menambahkan data! ${error.response?.data?.message}`);
-  }
-};
+    } catch (error) {
+      if (error.response && error.response.status === 422) {
+        setErrors(error.response.data.errors);
+      } else {
+        console.error('Error creating user:', error);
+      }
+    }
+  };
 
   return (
-    <div style={{
-      fontFamily: "'Poppins', sans-serif",
-      padding: "40px",
-      backgroundColor: "#f8fafc",
-      minHeight: "100vh"
-    }}>
-      <div style={{ 
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        marginBottom: "30px"
-      }}>
-        <h1 style={{ 
-          fontSize: "24px",
-          fontWeight: "600",
-          color: "#1e293b"
-        }}>Tambah User</h1>
-      </div>
+    <div style={{ fontFamily: "'Poppins', sans-serif", padding: "20px", backgroundColor: "#f8fafc", minHeight: "100vh" }}>
+      <div style={{ maxWidth: "600px", margin: "0 auto", backgroundColor: "white", borderRadius: "10px", boxShadow: "0 2px 10px rgba(0,0,0,0.05)", padding: "20px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+          <h1 style={{ fontSize: "24px", fontWeight: "600", color: "#1e293b" }}>Create New User</h1>
+          <button 
+            onClick={() => navigate("/users-index")}
+            style={{ backgroundColor: "#e2e8f0", color: "#64748b", padding: "8px 16px", borderRadius: "6px", border: "none", cursor: "pointer", fontWeight: "500" }}
+          >
+            Back
+          </button>
+        </div>
 
-      <div style={{ 
-        backgroundColor: "white",
-        borderRadius: "12px",
-        boxShadow: "0 4px 15px rgba(0,0,0,0.08)",
-        padding: "35px",
-        maxWidth: "800px",
-        margin: "0 auto"
-      }}>
         <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: "25px" }}>
-            <label style={{
-              display: "block",
-              marginBottom: "10px",
-              fontWeight: "500",
-              color: "#334155",
-              fontSize: "16px"
-            }}>Username</label>
+          <div style={{ marginBottom: "15px" }}>
+            <label style={{ display: "block", marginBottom: "5px", color: "#475569", fontWeight: "500" }}>Username</label>
             <input
               type="text"
               name="username"
               value={formData.username}
               onChange={handleChange}
+              style={{ width: "100%", padding: "10px", borderRadius: "6px", border: "1px solid #e2e8f0", outline: "none" }}
               required
-              style={{
-                width: "100%",
-                padding: "12px 18px",
-                border: "1px solid #e2e8f0",
-                borderRadius: "8px",
-                fontSize: "16px"
-              }}
-              placeholder="Masukkan Username"
             />
+            {errors.username && <span style={{ color: "#ef4444", fontSize: "14px" }}>{errors.username[0]}</span>}
           </div>
 
-          <div style={{ marginBottom: "25px" }}>
-            <label style={{
-              display: "block",
-              marginBottom: "10px",
-              fontWeight: "500",
-              color: "#334155",
-              fontSize: "16px"
-            }}>Password</label>
+          <div style={{ marginBottom: "15px" }}>
+            <label style={{ display: "block", marginBottom: "5px", color: "#475569", fontWeight: "500" }}>Password</label>
             <input
               type="password"
               name="password"
               value={formData.password}
               onChange={handleChange}
+              style={{ width: "100%", padding: "10px", borderRadius: "6px", border: "1px solid #e2e8f0", outline: "none" }}
               required
-              style={{
-                width: "100%",
-                padding: "12px 18px",
-                border: "1px solid #e2e8f0",
-                borderRadius: "8px",
-                fontSize: "16px"
-              }}
-              placeholder="Masukkan Password"
             />
+            {errors.password && <span style={{ color: "#ef4444", fontSize: "14px" }}>{errors.password[0]}</span>}
           </div>
 
-          <div style={{ marginBottom: "25px" }}>
-            <label style={{
-              display: "block",
-              marginBottom: "10px",
-              fontWeight: "500",
-              color: "#334155",
-              fontSize: "16px"
-            }}>Email</label>
+          <div style={{ marginBottom: "15px" }}>
+            <label style={{ display: "block", marginBottom: "5px", color: "#475569", fontWeight: "500" }}>Email</label>
             <input
               type="email"
               name="email"
               value={formData.email}
               onChange={handleChange}
+              style={{ width: "100%", padding: "10px", borderRadius: "6px", border: "1px solid #e2e8f0", outline: "none" }}
               required
-              style={{
-                width: "100%",
-                padding: "12px 18px",
-                border: "1px solid #e2e8f0",
-                borderRadius: "8px",
-                fontSize: "16px"
-              }}
-              placeholder="Masukkan Email"
             />
+            {errors.email && <span style={{ color: "#ef4444", fontSize: "14px" }}>{errors.email[0]}</span>}
           </div>
 
-          <div style={{ marginBottom: "25px" }}>
-            <label style={{
-              display: "block",
-              marginBottom: "10px",
-              fontWeight: "500",
-              color: "#334155",
-              fontSize: "16px"
-            }}>Token</label>
+          <div style={{ marginBottom: "15px" }}>
+            <label style={{ display: "block", marginBottom: "5px", color: "#475569", fontWeight: "500" }}>Token</label>
             <input
               type="text"
               name="token"
               value={formData.token}
               onChange={handleChange}
-              required
-              style={{
-                width: "100%",
-                padding: "12px 18px",
-                border: "1px solid #e2e8f0",
-                borderRadius: "8px",
-                fontSize: "16px"
-              }}
-              placeholder="Masukkan Token"
+              style={{ width: "100%", padding: "10px", borderRadius: "6px", border: "1px solid #e2e8f0", outline: "none" }}
             />
+            {errors.token && <span style={{ color: "#ef4444", fontSize: "14px" }}>{errors.token[0]}</span>}
           </div>
 
-          <div style={{ marginBottom: "25px" }}>
-            <label style={{
-              display: "block",
-              marginBottom: "10px",
-              fontWeight: "500",
-              color: "#334155",
-              fontSize: "16px"
-            }}>Keterangan</label>
-            <textarea
+          <div style={{ marginBottom: "20px" }}>
+            <label style={{ display: "block", marginBottom: "5px", color: "#475569", fontWeight: "500" }}>Keterangan</label>
+            <input
+              type="text"
               name="keterangan"
               value={formData.keterangan}
               onChange={handleChange}
-              required
-              style={{
-                width: "100%",
-                padding: "12px 18px",
-                border: "1px solid #e2e8f0",
-                borderRadius: "8px",
-                fontSize: "16px",
-                minHeight: "100px",
-                resize: "vertical"
-              }}
-              placeholder="Masukkan Keterangan"
+              style={{ width: "100%", padding: "10px", borderRadius: "6px", border: "1px solid #e2e8f0", outline: "none" }}
             />
+            {errors.keterangan && <span style={{ color: "#ef4444", fontSize: "14px" }}>{errors.keterangan[0]}</span>}
           </div>
 
-          <div style={{ 
-            display: "flex",
-            justifyContent: "flex-end",
-            gap: "20px"
-          }}>
-            <button
-              type="button"
-              onClick={() => navigate("/users-index")}
-              style={{
-                padding: "12px 24px",
-                backgroundColor: "#f1f5f9",
-                color: "#64748b",
-                border: "none",
-                borderRadius: "8px",
-                cursor: "pointer",
-                fontWeight: "500",
-                fontSize: "16px"
-              }}
-            >
-              Batal
-            </button>
-            <button
-              type="submit"
-              style={{
-                padding: "12px 24px",
-                backgroundColor: "#4361ee",
-                color: "white",
-                border: "none",
-                borderRadius: "8px",
-                cursor: "pointer",
-                fontWeight: "500",
-                fontSize: "16px",
-                transition: "background 0.2s"
-              }}
-            >
-              Tambahkan Data
-            </button>
-          </div>
+          <button 
+            type="submit"
+            style={{ width: "100%", backgroundColor: "#4361ee", color: "white", padding: "12px", borderRadius: "6px", border: "none", cursor: "pointer", fontWeight: "500" }}
+          >
+            Create User
+          </button>
         </form>
       </div>
     </div>

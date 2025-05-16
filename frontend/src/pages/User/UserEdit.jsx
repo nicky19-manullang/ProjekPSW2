@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
-import { FaChevronLeft } from "react-icons/fa";
 
-const Api_URL = "http://localhost:8000/api/v1/users";
+const Api_URL = "http://127.0.0.1:8000/api/v1/users";
 
 function UserEdit() {
   const { id } = useParams();
@@ -15,23 +14,32 @@ function UserEdit() {
     token: "",
     keterangan: ""
   });
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchUser = async () => {
       try {
         const response = await axios.get(`${Api_URL}/${id}`);
-        setFormData(response.data);
+        const userData = response.data.data;
+        setFormData({
+          username: userData.username,
+          password: "", // Password is empty by default for security
+          email: userData.email,
+          token: userData.token || "",
+          keterangan: userData.keterangan || ""
+        });
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error('Error fetching user:', error);
       }
     };
-    fetchData();
+
+    fetchUser();
   }, [id]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prevState => ({
-      ...prevState,
+    setFormData(prev => ({
+      ...prev,
       [name]: value
     }));
   };
@@ -39,210 +47,107 @@ function UserEdit() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`${Api_URL}/${id}`, formData);
-      navigate("/users-index");
+      // Only send password if it's not empty
+      const dataToSend = formData.password 
+        ? formData 
+        : { ...formData, password: undefined };
+      
+      const response = await axios.put(`${Api_URL}/${id}`, dataToSend);
+      if (response.data.status === 'success') {
+        navigate('/users-index');
+      }
     } catch (error) {
-      console.error({
-        request: error.config,
-        response: error.response?.data,
-        status: error.response?.status
-      });
-      alert(`Gagal update! ${error.response?.data?.message || error.message}`);
+      if (error.response && error.response.status === 422) {
+        setErrors(error.response.data.errors);
+      } else {
+        console.error('Error updating user:', error);
+      }
     }
   };
 
   return (
-    <div style={{ 
-      fontFamily: "'Poppins', sans-serif",
-      padding: "20px",
-      backgroundColor: "#f8fafc",
-      minHeight: "100vh"
-    }}>
-      <div style={{ 
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        marginBottom: "20px"
-      }}>
-        <button 
-          onClick={() => navigate(-1)}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-            background: "none",
-            border: "none",
-            cursor: "pointer",
-            color: "#4361ee"
-          }}
-        >
-          <FaChevronLeft /> Kembali
-        </button>
-        <h1 style={{ 
-          fontSize: "24px",
-          fontWeight: "600",
-          color: "#1e293b"
-        }}>Edit User</h1>
-        <div style={{ width: "100px" }}></div>
-      </div>
+    <div style={{ fontFamily: "'Poppins', sans-serif", padding: "20px", backgroundColor: "#f8fafc", minHeight: "100vh" }}>
+      <div style={{ maxWidth: "600px", margin: "0 auto", backgroundColor: "white", borderRadius: "10px", boxShadow: "0 2px 10px rgba(0,0,0,0.05)", padding: "20px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+          <h1 style={{ fontSize: "24px", fontWeight: "600", color: "#1e293b" }}>Edit User</h1>
+          <button 
+            onClick={() => navigate("/users-index")}
+            style={{ backgroundColor: "#e2e8f0", color: "#64748b", padding: "8px 16px", borderRadius: "6px", border: "none", cursor: "pointer", fontWeight: "500" }}
+          >
+            Back
+          </button>
+        </div>
 
-      <div style={{ 
-        backgroundColor: "white",
-        borderRadius: "10px",
-        boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
-        padding: "25px",
-        maxWidth: "600px",
-        margin: "0 auto"
-      }}>
         <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: "20px" }}>
-            <label style={{
-              display: "block",
-              marginBottom: "8px",
-              fontWeight: "500",
-              color: "#334155"
-            }}>Username</label>
+          <div style={{ marginBottom: "15px" }}>
+            <label style={{ display: "block", marginBottom: "5px", color: "#475569", fontWeight: "500" }}>Username</label>
             <input
               type="text"
               name="username"
               value={formData.username}
               onChange={handleChange}
+              style={{ width: "100%", padding: "10px", borderRadius: "6px", border: "1px solid #e2e8f0", outline: "none" }}
               required
-              style={{
-                width: "100%",
-                padding: "10px 15px",
-                border: "1px solid #e2e8f0",
-                borderRadius: "6px",
-                fontSize: "14px"
-              }}
             />
+            {errors.username && <span style={{ color: "#ef4444", fontSize: "14px" }}>{errors.username[0]}</span>}
           </div>
 
-          <div style={{ marginBottom: "20px" }}>
-            <label style={{
-              display: "block",
-              marginBottom: "8px",
-              fontWeight: "500",
-              color: "#334155"
-            }}>Password</label>
+          <div style={{ marginBottom: "15px" }}>
+            <label style={{ display: "block", marginBottom: "5px", color: "#475569", fontWeight: "500" }}>Password (Leave empty to keep current)</label>
             <input
               type="password"
               name="password"
               value={formData.password}
               onChange={handleChange}
-              style={{
-                width: "100%",
-                padding: "10px 15px",
-                border: "1px solid #e2e8f0",
-                borderRadius: "6px",
-                fontSize: "14px"
-              }}
+              style={{ width: "100%", padding: "10px", borderRadius: "6px", border: "1px solid #e2e8f0", outline: "none" }}
+              placeholder="Leave blank to keep current password"
             />
+            {errors.password && <span style={{ color: "#ef4444", fontSize: "14px" }}>{errors.password[0]}</span>}
           </div>
 
-          <div style={{ marginBottom: "20px" }}>
-            <label style={{
-              display: "block",
-              marginBottom: "8px",
-              fontWeight: "500",
-              color: "#334155"
-            }}>Email</label>
+          <div style={{ marginBottom: "15px" }}>
+            <label style={{ display: "block", marginBottom: "5px", color: "#475569", fontWeight: "500" }}>Email</label>
             <input
               type="email"
               name="email"
               value={formData.email}
               onChange={handleChange}
+              style={{ width: "100%", padding: "10px", borderRadius: "6px", border: "1px solid #e2e8f0", outline: "none" }}
               required
-              style={{
-                width: "100%",
-                padding: "10px 15px",
-                border: "1px solid #e2e8f0",
-                borderRadius: "6px",
-                fontSize: "14px"
-              }}
             />
+            {errors.email && <span style={{ color: "#ef4444", fontSize: "14px" }}>{errors.email[0]}</span>}
           </div>
 
-          <div style={{ marginBottom: "20px" }}>
-            <label style={{
-              display: "block",
-              marginBottom: "8px",
-              fontWeight: "500",
-              color: "#334155"
-            }}>Token</label>
+          <div style={{ marginBottom: "15px" }}>
+            <label style={{ display: "block", marginBottom: "5px", color: "#475569", fontWeight: "500" }}>Token</label>
             <input
               type="text"
               name="token"
               value={formData.token}
               onChange={handleChange}
-              style={{
-                width: "100%",
-                padding: "10px 15px",
-                border: "1px solid #e2e8f0",
-                borderRadius: "6px",
-                fontSize: "14px"
-              }}
+              style={{ width: "100%", padding: "10px", borderRadius: "6px", border: "1px solid #e2e8f0", outline: "none" }}
             />
+            {errors.token && <span style={{ color: "#ef4444", fontSize: "14px" }}>{errors.token[0]}</span>}
           </div>
 
-          <div style={{ marginBottom: "25px" }}>
-            <label style={{
-              display: "block",
-              marginBottom: "8px",
-              fontWeight: "500",
-              color: "#334155"
-            }}>Keterangan</label>
-            <textarea
+          <div style={{ marginBottom: "20px" }}>
+            <label style={{ display: "block", marginBottom: "5px", color: "#475569", fontWeight: "500" }}>Keterangan</label>
+            <input
+              type="text"
               name="keterangan"
               value={formData.keterangan}
               onChange={handleChange}
-              style={{
-                width: "100%",
-                padding: "10px 15px",
-                border: "1px solid #e2e8f0",
-                borderRadius: "6px",
-                fontSize: "14px",
-                minHeight: "100px",
-                resize: "vertical"
-              }}
+              style={{ width: "100%", padding: "10px", borderRadius: "6px", border: "1px solid #e2e8f0", outline: "none" }}
             />
+            {errors.keterangan && <span style={{ color: "#ef4444", fontSize: "14px" }}>{errors.keterangan[0]}</span>}
           </div>
 
-          <div style={{ 
-            display: "flex",
-            justifyContent: "flex-end",
-            gap: "15px"
-          }}>
-            <button
-              type="button"
-              onClick={() => navigate("/users-index")}
-              style={{
-                padding: "10px 20px",
-                backgroundColor: "#f1f5f9",
-                color: "#64748b",
-                border: "none",
-                borderRadius: "6px",
-                cursor: "pointer",
-                fontWeight: "500"
-              }}
-            >
-              Batal
-            </button>
-            <button
-              type="submit"
-              style={{
-                padding: "10px 20px",
-                backgroundColor: "#4361ee",
-                color: "white",
-                border: "none",
-                borderRadius: "6px",
-                cursor: "pointer",
-                fontWeight: "500"
-              }}
-            >
-              Simpan Perubahan
-            </button>
-          </div>
+          <button 
+            type="submit"
+            style={{ width: "100%", backgroundColor: "#4361ee", color: "white", padding: "12px", borderRadius: "6px", border: "none", cursor: "pointer", fontWeight: "500" }}
+          >
+            Update User
+          </button>
         </form>
       </div>
     </div>
