@@ -4,64 +4,139 @@ namespace App\Http\Controllers;
 
 use App\Models\JangkaWaktuSewa;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class JangkaWaktuSewaController extends Controller
 {
-    // Menampilkan semua data jangka waktu sewa
     public function index()
     {
-        return response()->json(JangkaWaktuSewa::all(), 200);
+        try {
+            $data = JangkaWaktuSewa::with(['jenisJangkaWaktu'])->get();
+            return response()->json([
+                'status' => 'success',
+                'data' => $data
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Gagal mengambil data jangka waktu sewa'
+            ], 500);
+        }
     }
 
-    // Menyimpan data jangka waktu sewa baru
     public function store(Request $request)
     {
-        // Validasi data yang diterima dari request
-        $validatedData = $request->validate([
+        $validator = Validator::make($request->all(), [
             'idJenisJangkaWaktu' => 'required|exists:jenis_jangka_waktus,id',
-            'idWajibRetribusi' => 'required|exists:wajib_retribusis,id',
-            'jangkaWaktu' => 'required|string|max:255',
+            'jangkaWaktu' => 'required|string|max:255|unique:jangka_waktu_sewas',
             'keterangan' => 'nullable|string|max:255',
+            'isDefault' => 'required|in:0,1'
         ]);
 
-        // Membuat data baru jangka waktu sewa di database
-        $jangkaWaktuSewa = JangkaWaktuSewa::create($validatedData);
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
 
-        // Mengembalikan data yang baru dibuat beserta status HTTP 201
-        return response()->json($jangkaWaktuSewa, 201);
+        try {
+            // Reset default if new one is being set
+            if ($request->isDefault == '1') {
+                JangkaWaktuSewa::where('isDefault', '1')->update(['isDefault' => '0']);
+            }
+
+            $data = JangkaWaktuSewa::create($request->all());
+            return response()->json([
+                'status' => 'success',
+                'data' => $data,
+                'message' => 'Jangka waktu sewa berhasil dibuat'
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Gagal membuat jangka waktu sewa: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
-    // Menampilkan data jangka waktu sewa berdasarkan ID
-    public function show(JangkaWaktuSewa $jangkaWaktuSewa)
+    public function show($id)
     {
-        return response()->json($jangkaWaktuSewa, 200);
+        try {
+            $data = JangkaWaktuSewa::with(['jenisJangkaWaktu'])->findOrFail($id);
+            return response()->json([
+                'status' => 'success',
+                'data' => $data
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Data jangka waktu sewa tidak ditemukan'
+            ], 404);
+        }
     }
 
-    // Mengupdate data jangka waktu sewa yang ada
-    public function update(Request $request, JangkaWaktuSewa $jangkaWaktuSewa)
+    public function update(Request $request, $id)
     {
-        // Validasi data yang diterima dari request
-        $validatedData = $request->validate([
+        $validator = Validator::make($request->all(), [
             'idJenisJangkaWaktu' => 'required|exists:jenis_jangka_waktus,id',
-            'idWajibRetribusi' => 'required|exists:wajib_retribusis,id',
-            'jangkaWaktu' => 'required|string|max:255',
+            'jangkaWaktu' => 'required|string|max:255|unique:jangka_waktu_sewas,jangkaWaktu,'.$id,
             'keterangan' => 'nullable|string|max:255',
+            'isDefault' => 'required|in:0,1'
         ]);
 
-        // Mengupdate data jangka waktu sewa di database
-        $jangkaWaktuSewa->update($validatedData);
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
 
-        // Mengembalikan data yang sudah diperbarui beserta status HTTP 200
-        return response()->json($jangkaWaktuSewa, 200);
+        try {
+            $data = JangkaWaktuSewa::findOrFail($id);
+            
+            // Reset default if this one is being set as default
+            if ($request->isDefault == '1' && $data->isDefault != '1') {
+                JangkaWaktuSewa::where('isDefault', '1')->update(['isDefault' => '0']);
+            }
+
+            $data->update($request->all());
+            return response()->json([
+                'status' => 'success',
+                'data' => $data,
+                'message' => 'Jangka waktu sewa berhasil diperbarui'
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Gagal memperbarui jangka waktu sewa'
+            ], 500);
+        }
     }
 
-    // Menghapus data jangka waktu sewa dari database
-    public function destroy(JangkaWaktuSewa $jangkaWaktuSewa)
+    public function destroy($id)
     {
-        // Menghapus data
-        $jangkaWaktuSewa->delete();
+        try {
+            $data = JangkaWaktuSewa::findOrFail($id);
+            
+            // Prevent deletion if this is the default
+            if ($data->isDefault == '1') {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Tidak dapat menghapus jangka waktu sewa default'
+                ], 400);
+            }
 
-        // Mengembalikan respons sukses dengan status HTTP 200
-        return response()->json(['message' => 'Jangka Waktu Sewa deleted successfully'], 200);
+            $data->delete();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Jangka waktu sewa berhasil dihapus'
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Gagal menghapus jangka waktu sewa'
+            ], 500);
+        }
     }
 }

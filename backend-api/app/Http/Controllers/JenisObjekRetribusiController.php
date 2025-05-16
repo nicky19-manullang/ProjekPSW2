@@ -1,66 +1,116 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Models\JenisObjekRetribusi; 
 
+use App\Models\JenisObjekRetribusi;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class JenisObjekRetribusiController extends Controller
 {
     public function index()
     {
-        // Mengambil semua data jenis objek retribusi dari database
-        return JenisObjekRetribusi::all();
-    }
-
-    public function create()
-    {
-        //
+        try {
+            $data = JenisObjekRetribusi::all();
+            return response()->json([
+                'status' => 'success',
+                'data' => $data
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to retrieve data'
+            ], 500);
+        }
     }
 
     public function store(Request $request)
     {
-        // Validasi data yang diterima dari request
-        $validatedData = $request->validate([
-            'jenisObjekRetribusi' => 'required|string|max:255',
+        $validator = Validator::make($request->all(), [
+            'jenisObjekRetribusi' => 'required|string|max:255|unique:jenis_objek_retribusis',
             'keterangan' => 'nullable|string|max:255',
         ]);
 
-        // Membuat data baru jenis objek retribusi di database
-        return JenisObjekRetribusi::create($validatedData);
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            $data = JenisObjekRetribusi::create($request->all());
+            return response()->json([
+                'status' => 'success',
+                'data' => $data
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to create data'
+            ], 500);
+        }
     }
 
-    public function show(JenisObjekRetribusi $jenisObjekRetribusi)
+    public function show($id)
     {
-        // Menampilkan data jenis objek retribusi berdasarkan ID
-        return $jenisObjekRetribusi;
+        try {
+            $data = JenisObjekRetribusi::findOrFail($id);
+            return response()->json([
+                'status' => 'success',
+                'data' => $data
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Data not found'
+            ], 404);
+        }
     }
 
-    public function edit(JenisObjekRetribusi $jenisObjekRetribusi)
+    public function update(Request $request, $id)
     {
-        //
-    }
-
-    public function update(Request $request, JenisObjekRetribusi $jenisObjekRetribusi)
-    {
-        // Validasi data yang diterima dari request
-        $validatedData = $request->validate([
-            'jenisObjekRetribusi' => 'required|string|max:255',
+        $validator = Validator::make($request->all(), [
+            'jenisObjekRetribusi' => 'required|string|max:255|unique:jenis_objek_retribusis,jenisObjekRetribusi,'.$id,
             'keterangan' => 'nullable|string|max:255',
         ]);
 
-        // Mengupdate data jenis objek retribusi di database
-        $jenisObjekRetribusi->update($validatedData);
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
 
-        return $jenisObjekRetribusi;
+        try {
+            $data = JenisObjekRetribusi::findOrFail($id);
+            $data->update($request->all());
+            return response()->json([
+                'status' => 'success',
+                'data' => $data
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to update data'
+            ], 500);
+        }
     }
 
-    public function destroy(JenisObjekRetribusi $jenisObjekRetribusi)
+    public function destroy($id)
     {
-        // Menghapus data jenis objek retribusi dari database
-        $jenisObjekRetribusi->delete();
-
-        return response()->json(['message' => 'Jenis Objek Retribusi deleted successfully']);
+        try {
+            $data = JenisObjekRetribusi::findOrFail($id);
+            $data->delete();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Data deleted successfully'
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to delete data'
+            ], 500);
+        }
     }
-
 }

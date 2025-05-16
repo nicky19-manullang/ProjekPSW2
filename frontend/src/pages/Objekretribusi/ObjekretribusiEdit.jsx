@@ -1,81 +1,111 @@
-// JenisEdit.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
-import "../../styles/Jenis2.css";
 
+const Api_URL = "http://127.0.0.1:8000/api/v1/objek-retribusi";
 
-const Api_URL = "http://127.0.0.1:8000/api/objek-retribusi";
-
-function JenisEdit() {
-  const [jenisStatus, setJenisStatus] = useState("");
-  const [keterangan, setKeterangan] = useState("");
+function ObjekretribusiEdit() {
+  const { id } = useParams();
   const navigate = useNavigate();
-  const { id } = useParams(); // ambil id dari URL
+  const [formData, setFormData] = useState({
+    idLokasiObjekRetribusi: "",
+    idJenisObjekRetribusi: "",
+    kodeObjekRetribusi: "",
+    noBangunan: "",
+    jumlahLantai: "",
+    objekRetribusi: "",
+    panjangTanah: "",
+    lebarTanah: "",
+    luasTanah: "",
+    panjangBangunan: "",
+    lebarBangunan: "",
+    luasBangunan: "",
+    alamat: "",
+    latitute: "",
+    longitute: "",
+    keterangan: "",
+    gambarDenahTanah: ""
+  });
+  const [errors, setErrors] = useState({});
+  const [lokasiOptions, setLokasiOptions] = useState([]);
+  const [jenisOptions, setJenisOptions] = useState([]);
 
   useEffect(() => {
-    fetchJenisById();
-  }, []);
+    // Fetch options and current data
+    const fetchData = async () => {
+      try {
+        const [lokasiRes, jenisRes, currentData] = await Promise.all([
+          axios.get("http://127.0.0.1:8000/api/v1/lokasi-objek-retribusi"),
+          axios.get("http://127.0.0.1:8000/api/v1/jenis-objek-retribusi"),
+          axios.get(`${Api_URL}/${id}`)
+        ]);
+        
+        setLokasiOptions(lokasiRes.data.data);
+        setJenisOptions(jenisRes.data.data);
+        
+        // Set form data from current data
+        setFormData(currentData.data.data);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        navigate('/Objekretribusi-index');
+      }
+    };
 
-  const fetchJenisById = async () => {
-    try {
-      const response = await axios.get(`${Api_URL}/${id}`);
-      setJenisStatus(response.data.jenis_status);
-      setKeterangan(response.data.keterangan);
-    } catch (error) {
-      console.error('Error fetching jenis status:', error);
-    }
+    fetchData();
+  }, [id, navigate]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
-  const handleUpdate = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`${Api_URL}/${id}`, {
-        jenis_status: jenisStatus,
-        keterangan: keterangan,
-      });
-      alert("Data berhasil diupdate!");
-      navigate('/jenis');
+      const response = await axios.put(`${Api_URL}/${id}`, formData);
+      if (response.data.status === 'success') {
+        navigate('/Objekretribusi-index');
+      }
     } catch (error) {
-      console.error('Error updating jenis status:', error);
+      if (error.response && error.response.status === 422) {
+        setErrors(error.response.data.errors);
+      } else {
+        console.error('Error updating data:', error);
+        alert('Gagal mengupdate data: ' + (error.response?.data?.message || error.message));
+      }
     }
   };
 
   return (
-    <div className="form-wrapper">
-      <h1>Edit Jenis Status</h1>
-      <form className="form-container" onSubmit={handleUpdate}>
-        <div className="form-group">
-          <label className="form-label">Jenis Status</label>
-          <input
-            className="input-field"
-            type="text"
-            placeholder="Masukkan Jenis Status"
-            value={jenisStatus}
-            onChange={(e) => setJenisStatus(e.target.value)}
-            required
-          />
+    <div style={{ fontFamily: "'Poppins', sans-serif", padding: "20px", backgroundColor: "#f8fafc", minHeight: "100vh" }}>
+      <div style={{ maxWidth: "800px", margin: "0 auto", backgroundColor: "white", borderRadius: "10px", boxShadow: "0 2px 10px rgba(0,0,0,0.05)", padding: "20px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+          <h1 style={{ fontSize: "24px", fontWeight: "600", color: "#1e293b" }}>Edit Objek Retribusi</h1>
+          <button 
+            onClick={() => navigate("/Objekretribusi-index")}
+            style={{ backgroundColor: "#e2e8f0", color: "#64748b", padding: "8px 16px", borderRadius: "6px", border: "none", cursor: "pointer", fontWeight: "500" }}
+          >
+            Kembali
+          </button>
         </div>
 
-        <div className="form-group">
-          <label className="form-label">Keterangan</label>
-          <input
-            className="input-field"
-            type="text"
-            placeholder="Masukkan Keterangan"
-            value={keterangan}
-            onChange={(e) => setKeterangan(e.target.value)}
-            required
-          />
-        </div>
-
-        <div className="button-wrapper">
-          <button className="submit-button" type="submit">Update</button>
-          <button className="cancel-button" type="button" onClick={() => navigate('/jenis')}>Batal</button>
-        </div>
-      </form>
+        <form onSubmit={handleSubmit}>
+          {/* Same form structure as Create component */}
+          {/* ... (same form fields as Create component) ... */}
+          
+          <button 
+            type="submit"
+            style={{ width: "100%", backgroundColor: "#4361ee", color: "white", padding: "12px", borderRadius: "6px", border: "none", cursor: "pointer", fontWeight: "500" }}
+          >
+            Update
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
 
-export default JenisEdit;
+export default ObjekretribusiEdit;

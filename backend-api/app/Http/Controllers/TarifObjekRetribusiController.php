@@ -1,70 +1,128 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Models\TarifObjekRetribusi;
 
+use App\Models\TarifObjekRetribusi;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class TarifObjekRetribusiController extends Controller
 {
     public function index()
     {
-        // Mengambil semua data tarif objek retribusi dari database
-        return TarifObjekRetribusi::all();
-    }
-
-    public function create()
-    {
-        //
+        try {
+            $data = TarifObjekRetribusi::with(['objekRetribusi', 'jenisJangkaWaktu'])->get();
+            return response()->json([
+                'status' => 'success',
+                'data' => $data
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Gagal mengambil data tarif objek retribusi'
+            ], 500);
+        }
     }
 
     public function store(Request $request)
     {
-        // Validasi data yang diterima dari request
-        $validatedData = $request->validate([
-            'idObjekRetribusi' => 'required|integer',
-            'idJenisJangkaWaktu' => 'required|integer',
-            'tarif' => 'required|numeric',
-            'keterangan' => 'nullable|string|max:255',
+        $validator = Validator::make($request->all(), [
+            'idObjekRetribusi' => 'required|exists:objek_retribusis,id',
+            'idJenisJangkaWaktu' => 'required|exists:jenis_jangka_waktus,id',
+            'tanggalDinilai' => 'required|date',
+            'namaPenilai' => 'required|string|max:255',
+            'nominalTarif' => 'required|numeric|min:0',
+            'fileHasilPenilaian' => 'nullable|string',
+            'keterangan' => 'nullable|string|max:255'
         ]);
 
-        // Membuat data baru tarif objek retribusi di database
-        return TarifObjekRetribusi::create($validatedData);
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            $data = TarifObjekRetribusi::create($request->all());
+            return response()->json([
+                'status' => 'success',
+                'data' => $data,
+                'message' => 'Tarif objek retribusi berhasil dibuat'
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Gagal membuat tarif objek retribusi: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
-    public function show(TarifObjekRetribusi $tarifObjekRetribusi)
+    public function show($id)
     {
-        // Menampilkan data tarif objek retribusi berdasarkan ID
-        return $tarifObjekRetribusi;
+        try {
+            $data = TarifObjekRetribusi::with(['objekRetribusi', 'jenisJangkaWaktu'])->findOrFail($id);
+            return response()->json([
+                'status' => 'success',
+                'data' => $data
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Data tarif objek retribusi tidak ditemukan'
+            ], 404);
+        }
     }
 
-    public function edit(TarifObjekRetribusi $tarifObjekRetribusi)
+    public function update(Request $request, $id)
     {
-        //
-    }
-
-    public function update(Request $request, TarifObjekRetribusi $tarifObjekRetribusi)
-    {
-        // Validasi data yang diterima dari request
-        $validatedData = $request->validate([
-            'idObjekRetribusi' => 'required|integer',
-            'idJenisJangkaWaktu' => 'required|integer',
-            'tarif' => 'required|numeric',
-            'keterangan' => 'nullable|string|max:255',
+        $validator = Validator::make($request->all(), [
+            'idObjekRetribusi' => 'required|exists:objek_retribusis,id',
+            'idJenisJangkaWaktu' => 'required|exists:jenis_jangka_waktus,id',
+            'tanggalDinilai' => 'required|date',
+            'namaPenilai' => 'required|string|max:255',
+            'nominalTarif' => 'required|numeric|min:0',
+            'fileHasilPenilaian' => 'nullable|string',
+            'keterangan' => 'nullable|string|max:255'
         ]);
 
-        // Mengupdate data tarif objek retribusi di database
-        $tarifObjekRetribusi->update($validatedData);
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
 
-        return $tarifObjekRetribusi;
+        try {
+            $data = TarifObjekRetribusi::findOrFail($id);
+            $data->update($request->all());
+            return response()->json([
+                'status' => 'success',
+                'data' => $data,
+                'message' => 'Tarif objek retribusi berhasil diperbarui'
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Gagal memperbarui tarif objek retribusi'
+            ], 500);
+        }
     }
 
-    public function destroy(TarifObjekRetribusi $tarifObjekRetribusi)
+    public function destroy($id)
     {
-        // Menghapus data tarif objek retribusi dari database
-        $tarifObjekRetribusi->delete();
-
-        return response()->json(['message' => 'Data deleted successfully']);
+        try {
+            $data = TarifObjekRetribusi::findOrFail($id);
+            $data->delete();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Tarif objek retribusi berhasil dihapus'
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Gagal menghapus tarif objek retribusi'
+            ], 500);
+        }
     }
-    
 }

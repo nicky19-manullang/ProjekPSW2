@@ -3,9 +3,9 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { FaEdit, FaTrash, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
-const Api_URL = "http://127.0.0.1:8000/api/jenis-objek-retribusi";
+const Api_URL = "http://127.0.0.1:8000/api/v1/jenis-objek-retribusi";
 
-function PermohonansewaIndex() {
+function JenisobjekIndex() {
   const [data, setData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -18,7 +18,7 @@ function PermohonansewaIndex() {
   const fetchData = async () => {
     try {
       const response = await axios.get(Api_URL);
-      setData(response.data);
+      setData(response.data.data);
     } catch (error) {
       console.error('Error fetching data:', error);
     }
@@ -31,6 +31,7 @@ function PermohonansewaIndex() {
         fetchData();
       } catch (error) {
         console.error('Error deleting data:', error);
+        alert('Gagal menghapus data: ' + (error.response?.data?.message || error.message));
       }
     }
   };
@@ -42,59 +43,23 @@ function PermohonansewaIndex() {
   const totalPages = Math.ceil(data.length / itemsPerPage);
 
   return (
-    <div style={{ 
-      fontFamily: "'Poppins', sans-serif",
-      padding: "20px",
-      backgroundColor: "#f8fafc",
-      minHeight: "100vh"
-    }}>
+    <div style={{ fontFamily: "'Poppins', sans-serif", padding: "20px", backgroundColor: "#f8fafc", minHeight: "100vh" }}>
       {/* Header */}
-      <div style={{ 
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        marginBottom: "20px"
-      }}>
-        <h1 style={{ 
-          fontSize: "24px",
-          fontWeight: "600",
-          color: "#1e293b"
-        }}>Data Jenis Status</h1>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+        <h1 style={{ fontSize: "24px", fontWeight: "600", color: "#1e293b" }}>Jenis Objek Retribusi</h1>
         <button 
-          onClick={() => navigate("/Jenispermohonan-create")}
-          style={{
-            backgroundColor: "#4361ee",
-            color: "white",
-            padding: "8px 16px",
-            borderRadius: "6px",
-            border: "none",
-            cursor: "pointer",
-            fontWeight: "500"
-          }}
+          onClick={() => navigate("/Jenisobjek-create")}
+          style={{ backgroundColor: "#4361ee", color: "white", padding: "8px 16px", borderRadius: "6px", border: "none", cursor: "pointer", fontWeight: "500" }}
         >
-          Tambah Baru
+          Tambah Data
         </button>
       </div>
 
       {/* Table */}
-      <div style={{ 
-        backgroundColor: "white",
-        borderRadius: "10px",
-        boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
-        overflow: "hidden"
-      }}>
+      <div style={{ backgroundColor: "white", borderRadius: "10px", boxShadow: "0 2px 10px rgba(0,0,0,0.05)", overflow: "hidden" }}>
         {/* Table Header */}
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "0.5fr 1fr 1fr 1fr 0.5fr",
-          padding: "15px 20px",
-          backgroundColor: "#4361ee",
-          color: "white",
-          fontWeight: "500",
-          textAlign: "center"
-        }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", padding: "15px 20px", backgroundColor: "#4361ee", color: "white", fontWeight: "500" }}>
           <div>No</div>
-          <div>ID Jenis Objek Retribusi</div>
           <div>Jenis Objek Retribusi</div>
           <div>Keterangan</div>
           <div>Aksi</div>
@@ -107,38 +72,26 @@ function PermohonansewaIndex() {
               key={item.id}
               style={{
                 display: "grid",
-                gridTemplateColumns: "0.5fr 1fr 1fr 1fr 0.5fr",
+                gridTemplateColumns: "repeat(4, 1fr)",
                 padding: "12px 20px",
                 borderBottom: "1px solid #e2e8f0",
                 alignItems: "center",
-                backgroundColor: index % 2 === 0 ? "#ffffff" : "#f8fafc",
-                textAlign: "center"
+                backgroundColor: index % 2 === 0 ? "#ffffff" : "#f8fafc"
               }}
             >
               <div>{indexOfFirstItem + index + 1}</div>
-              <div style={{ fontWeight: "500" }}>{item.id_jenis_objek}</div>
-              <div>{item.jenis_objek}</div>
-              <div>{item.keterangan}</div>
-              <div style={{ display: "flex", justifyContent: "center", gap: "10px" }}>
+              <div>{item.jenisObjekRetribusi}</div>
+              <div>{item.keterangan || '-'}</div>
+              <div style={{ display: "flex", gap: "10px" }}>
                 <button 
-                  onClick={() => navigate(`/jenis-permohonan/edit/${item.id}`)}
-                  style={{
-                    color: "#3b82f6",
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer"
-                  }}
+                  onClick={() => navigate(`/Jenisobjek-edit/${item.id}`)}
+                  style={{ color: "#3b82f6", background: "none", border: "none", cursor: "pointer" }}
                 >
                   <FaEdit />
                 </button>
                 <button 
                   onClick={() => handleDelete(item.id)}
-                  style={{
-                    color: "#ef4444",
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer"
-                  }}
+                  style={{ color: "#ef4444", background: "none", border: "none", cursor: "pointer" }}
                 >
                   <FaTrash />
                 </button>
@@ -146,24 +99,13 @@ function PermohonansewaIndex() {
             </div>
           ))
         ) : (
-          <div style={{ 
-            padding: "20px",
-            textAlign: "center",
-            color: "#64748b",
-            gridColumn: "1 / -1"
-          }}>
+          <div style={{ padding: "20px", textAlign: "center", color: "#64748b" }}>
             Tidak ada data
           </div>
         )}
 
         {/* Pagination */}
-        <div style={{ 
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          padding: "15px 20px",
-          borderTop: "1px solid #e2e8f0"
-        }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "15px 20px", borderTop: "1px solid #e2e8f0" }}>
           <div style={{ color: "#64748b" }}>
             Menampilkan {currentItems.length} dari {data.length} data
           </div>
@@ -171,15 +113,9 @@ function PermohonansewaIndex() {
             <button 
               onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
-              style={{
-                padding: "5px 10px",
-                border: "1px solid #e2e8f0",
-                borderRadius: "4px",
-                cursor: "pointer",
-                backgroundColor: currentPage === 1 ? "#f1f5f9" : "white"
-              }}
+              style={{ padding: "5px 10px", border: "1px solid #e2e8f0", borderRadius: "4px", cursor: "pointer", backgroundColor: currentPage === 1 ? "#f1f5f9" : "white" }}
             >
-              <FaChevronLeft /> Previous
+              <FaChevronLeft />
             </button>
             <span style={{ padding: "5px 10px" }}>
               Halaman {currentPage} dari {totalPages}
@@ -187,15 +123,9 @@ function PermohonansewaIndex() {
             <button 
               onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
               disabled={currentPage === totalPages}
-              style={{
-                padding: "5px 10px",
-                border: "1px solid #e2e8f0",
-                borderRadius: "4px",
-                cursor: "pointer",
-                backgroundColor: currentPage === totalPages ? "#f1f5f9" : "white"
-              }}
+              style={{ padding: "5px 10px", border: "1px solid #e2e8f0", borderRadius: "4px", cursor: "pointer", backgroundColor: currentPage === totalPages ? "#f1f5f9" : "white" }}
             >
-              Next <FaChevronRight />
+              <FaChevronRight />
             </button>
           </div>
         </div>
@@ -204,4 +134,4 @@ function PermohonansewaIndex() {
   );
 }
 
-export default PermohonansewaIndex;
+export default JenisobjekIndex;

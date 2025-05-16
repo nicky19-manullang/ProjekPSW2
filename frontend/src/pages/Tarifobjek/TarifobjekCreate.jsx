@@ -1,237 +1,243 @@
-// UserIndex.jsx
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { FaEdit, FaTrash, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
-const Api_URL = "http://127.0.0.1:8000/api/tarif-objek-retribusi";
+const Api_URL = "http://127.0.0.1:8000/api/v1/tarif-objek-retribusi";
 
-function WajibretribusiIndex() {
-  const [users, setUsers] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+function TarifobjekCreate() {
   const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    idObjekRetribusi: "",
+    idJenisJangkaWaktu: "",
+    tanggalDinilai: "",
+    namaPenilai: "",
+    nominalTarif: "",
+    fileHasilPenilaian: "",
+    keterangan: ""
+  });
+  const [errors, setErrors] = useState({});
+  const [objekOptions, setObjekOptions] = useState([]);
+  const [jangkaWaktuOptions, setJangkaWaktuOptions] = useState([]);
 
   useEffect(() => {
-    fetchUsers();
+    // Fetch options for dropdowns
+    const fetchOptions = async () => {
+      try {
+        const [objekRes, jangkaRes] = await Promise.all([
+          axios.get("http://127.0.0.1:8000/api/v1/objek-retribusi"),
+          axios.get("http://127.0.0.1:8000/api/v1/jenis-jangka-waktu")
+        ]);
+        setObjekOptions(objekRes.data.data);
+        setJangkaWaktuOptions(jangkaRes.data.data);
+      } catch (error) {
+        console.error('Error fetching options:', error);
+      }
+    };
+
+    fetchOptions();
   }, []);
 
-  const fetchUsers = async () => {
-    try {
-      const response = await axios.get(Api_URL);
-      setUsers(response.data);
-    } catch (error) {
-      console.error('Error fetching users:', error);
-    }
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm("Hapus user ini?")) {
-      try {
-        await axios.delete(`${Api_URL}/${id}`);
-        fetchUsers();
-      } catch (error) {
-        console.error('Error deleting user:', error);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post(Api_URL, formData);
+      if (response.data.status === 'success') {
+        navigate('/Tarifobjek-index');
+      }
+    } catch (error) {
+      if (error.response && error.response.status === 422) {
+        setErrors(error.response.data.errors);
+      } else {
+        console.error('Error creating data:', error);
+        alert('Gagal membuat data: ' + (error.response?.data?.message || error.message));
       }
     }
   };
 
-  // Pagination logic
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentUsers = users.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(users.length / itemsPerPage);
-
   return (
-    <div style={{ 
-      fontFamily: "'Poppins', sans-serif",
-      padding: "20px",
-      backgroundColor: "#f8fafc",
-      minHeight: "100vh"
-    }}>
-      {/* Header */}
-      <div style={{ 
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        marginBottom: "20px"
-      }}>
-        <h1 style={{ 
-          fontSize: "24px",
-          fontWeight: "600",
-          color: "#1e293b"
-        }}>Wajib Retribusi</h1>
-        <button 
-          onClick={() => navigate("/Wajib-retribusi-create")}
-          style={{
-            backgroundColor: "#4361ee",
-            color: "white",
-            padding: "8px 16px",
-            borderRadius: "6px",
-            border: "none",
-            cursor: "pointer",
-            fontWeight: "500"
-          }}
-        >
-          Tambah Wajib Retribusi
-        </button>
-      </div>
-
-      {/* Table */}
-      <div style={{ 
-        backgroundColor: "white",
-        borderRadius: "10px",
-        boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
-        overflow: "hidden"
-      }}>
-        {/* Table Header */}
-        <div style={{
-          display: "grid",
-
-          gridTemplateColumns: "repeat(10, 1fr)",
-          padding: "15px 20px",
-          backgroundColor: "#4361ee",
-          color: "white",
-          fontWeight: "500"
-        }}>
-          <div>No</div>
-
-
-
-
-
-
-
-
-
-
-          <div>ID Jenis Jangka Waktu</div>
-          <div>ID Tarif Retribusi</div>
-          <div>ID Objek Retribusi</div>
-          <div>Nama Penilai</div>
-          <div>Tanggal Dinilai</div>
-          <div>File Hasil Penilaian</div>
-          <div>Nominal Tarif</div>
-          <div>Keterangan</div>
-          <div>Aksi</div>
+    <div style={{ fontFamily: "'Poppins', sans-serif", padding: "20px", backgroundColor: "#f8fafc", minHeight: "100vh" }}>
+      <div style={{ maxWidth: "800px", margin: "0 auto", backgroundColor: "white", borderRadius: "10px", boxShadow: "0 2px 10px rgba(0,0,0,0.05)", padding: "20px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+          <h1 style={{ fontSize: "24px", fontWeight: "600", color: "#1e293b" }}>Tambah Tarif Objek Retribusi</h1>
+          <button 
+            onClick={() => navigate("/Tarifobjek-index")}
+            style={{ backgroundColor: "#e2e8f0", color: "#64748b", padding: "8px 16px", borderRadius: "6px", border: "none", cursor: "pointer", fontWeight: "500" }}
+          >
+            Kembali
+          </button>
         </div>
 
-        {/* Table Body */}
-        {currentUsers.length > 0 ? (
-          currentUsers.map((user, index) => (
-            <div 
-              key={user.id}
-              style={{
-                display: "grid",
-
-                gridTemplateColumns: "repeat(10, 1fr)",
-                padding: "12px 20px",
-                borderBottom: "1px solid #e2e8f0",
-                alignItems: "center",
-                backgroundColor: index % 2 === 0 ? "#ffffff" : "#f8fafc"
-              }}
-            >
-              <div>{indexOfFirstItem + index + 1}</div>
-
-
-
-
-
-
-
-
-
-
-              <div>{user.jenis_jangka_waktu_id}</div>
-              <div>{user.tarif_retribusi_id}</div>
-              <div>{user.objek_retribusi_id}</div>
-              <div>{user.nama_penilai}</div>
-              <div>{user.tanggal_dinilai}</div>
-              <div>{user.file_hasil_penilaian}</div>
-              <div>{user.nominal_tarif}</div>
-              <div>{user.keterangan}</div>
-              <div style={{ display: "flex", gap: "10px" }}>
-                <button 
-                  onClick={() => navigate(`/users/edit/${user.id}`)}
-                  style={{
-                    color: "#3b82f6",
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer"
-                  }}
-                >
-                  <FaEdit />
-                </button>
-                <button 
-                  onClick={() => handleDelete(user.id)}
-                  style={{
-                    color: "#ef4444",
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer"
-                  }}
-                >
-                  <FaTrash />
-                </button>
-              </div>
+        <form onSubmit={handleSubmit}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px", marginBottom: "20px" }}>
+            <div>
+              <label style={{ display: "block", marginBottom: "5px", color: "#475569", fontWeight: "500" }}>Objek Retribusi*</label>
+              <select
+                name="idObjekRetribusi"
+                value={formData.idObjekRetribusi}
+                onChange={handleChange}
+                style={{ 
+                  width: "100%", 
+                  padding: "10px", 
+                  borderRadius: "6px", 
+                  border: errors.idObjekRetribusi ? "1px solid #ef4444" : "1px solid #e2e8f0", 
+                  outline: "none" 
+                }}
+                required
+              >
+                <option value="">Pilih Objek Retribusi</option>
+                {objekOptions.map(option => (
+                  <option key={option.id} value={option.id}>{option.nama}</option>
+                ))}
+              </select>
+              {errors.idObjekRetribusi && (
+                <span style={{ color: "#ef4444", fontSize: "14px" }}>{errors.idObjekRetribusi[0]}</span>
+              )}
             </div>
-          ))
-        ) : (
-          <div style={{ 
-            padding: "20px",
-            textAlign: "center",
-            color: "#64748b"
-          }}>
-            Tidak ada data wajib retribusi
-          </div>
-        )}
 
-        {/* Pagination */}
-        <div style={{ 
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          padding: "15px 20px",
-          borderTop: "1px solid #e2e8f0"
-        }}>
-          <div style={{ color: "#64748b" }}>
-            Menampilkan {currentUsers.length} dari {users.length} wajib retribusi
+            <div>
+              <label style={{ display: "block", marginBottom: "5px", color: "#475569", fontWeight: "500" }}>Jenis Jangka Waktu*</label>
+              <select
+                name="idJenisJangkaWaktu"
+                value={formData.idJenisJangkaWaktu}
+                onChange={handleChange}
+                style={{ 
+                  width: "100%", 
+                  padding: "10px", 
+                  borderRadius: "6px", 
+                  border: errors.idJenisJangkaWaktu ? "1px solid #ef4444" : "1px solid #e2e8f0", 
+                  outline: "none" 
+                }}
+                required
+              >
+                <option value="">Pilih Jangka Waktu</option>
+                {jangkaWaktuOptions.map(option => (
+                  <option key={option.id} value={option.id}>{option.nama}</option>
+                ))}
+              </select>
+              {errors.idJenisJangkaWaktu && (
+                <span style={{ color: "#ef4444", fontSize: "14px" }}>{errors.idJenisJangkaWaktu[0]}</span>
+              )}
+            </div>
           </div>
-          <div style={{ display: "flex", gap: "10px" }}>
-            <button 
-              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-              style={{
-                padding: "5px 10px",
-                border: "1px solid #e2e8f0",
-                borderRadius: "4px",
-                cursor: "pointer",
-                backgroundColor: currentPage === 1 ? "#f1f5f9" : "white"
-              }}
-            >
-              <FaChevronLeft />
-            </button>
-            <span style={{ padding: "5px 10px" }}>
-              Halaman {currentPage} dari {totalPages}
-            </span>
-            <button 
-              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-              disabled={currentPage === totalPages}
-              style={{
-                padding: "5px 10px",
-                border: "1px solid #e2e8f0",
-                borderRadius: "4px",
-                cursor: "pointer",
-                backgroundColor: currentPage === totalPages ? "#f1f5f9" : "white"
-              }}
-            >
-              <FaChevronRight />
-            </button>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px", marginBottom: "20px" }}>
+            <div>
+              <label style={{ display: "block", marginBottom: "5px", color: "#475569", fontWeight: "500" }}>Tanggal Dinilai*</label>
+              <input
+                type="date"
+                name="tanggalDinilai"
+                value={formData.tanggalDinilai}
+                onChange={handleChange}
+                style={{ 
+                  width: "100%", 
+                  padding: "10px", 
+                  borderRadius: "6px", 
+                  border: errors.tanggalDinilai ? "1px solid #ef4444" : "1px solid #e2e8f0", 
+                  outline: "none" 
+                }}
+                required
+              />
+              {errors.tanggalDinilai && (
+                <span style={{ color: "#ef4444", fontSize: "14px" }}>{errors.tanggalDinilai[0]}</span>
+              )}
+            </div>
+
+            <div>
+              <label style={{ display: "block", marginBottom: "5px", color: "#475569", fontWeight: "500" }}>Nominal Tarif*</label>
+              <input
+                type="number"
+                name="nominalTarif"
+                value={formData.nominalTarif}
+                onChange={handleChange}
+                style={{ 
+                  width: "100%", 
+                  padding: "10px", 
+                  borderRadius: "6px", 
+                  border: errors.nominalTarif ? "1px solid #ef4444" : "1px solid #e2e8f0", 
+                  outline: "none" 
+                }}
+                required
+              />
+              {errors.nominalTarif && (
+                <span style={{ color: "#ef4444", fontSize: "14px" }}>{errors.nominalTarif[0]}</span>
+              )}
+            </div>
           </div>
-        </div>
+
+          <div style={{ marginBottom: "20px" }}>
+            <label style={{ display: "block", marginBottom: "5px", color: "#475569", fontWeight: "500" }}>Nama Penilai*</label>
+            <input
+              type="text"
+              name="namaPenilai"
+              value={formData.namaPenilai}
+              onChange={handleChange}
+              style={{ 
+                width: "100%", 
+                padding: "10px", 
+                borderRadius: "6px", 
+                border: errors.namaPenilai ? "1px solid #ef4444" : "1px solid #e2e8f0", 
+                outline: "none" 
+              }}
+              required
+            />
+            {errors.namaPenilai && (
+              <span style={{ color: "#ef4444", fontSize: "14px" }}>{errors.namaPenilai[0]}</span>
+            )}
+          </div>
+
+          <div style={{ marginBottom: "20px" }}>
+            <label style={{ display: "block", marginBottom: "5px", color: "#475569", fontWeight: "500" }}>File Hasil Penilaian</label>
+            <input
+              type="text"
+              name="fileHasilPenilaian"
+              value={formData.fileHasilPenilaian}
+              onChange={handleChange}
+              style={{ 
+                width: "100%", 
+                padding: "10px", 
+                borderRadius: "6px", 
+                border: "1px solid #e2e8f0", 
+                outline: "none" 
+              }}
+              placeholder="URL file (jika ada)"
+            />
+          </div>
+
+          <div style={{ marginBottom: "20px" }}>
+            <label style={{ display: "block", marginBottom: "5px", color: "#475569", fontWeight: "500" }}>Keterangan</label>
+            <textarea
+              name="keterangan"
+              value={formData.keterangan}
+              onChange={handleChange}
+              style={{ 
+                width: "100%", 
+                padding: "10px", 
+                borderRadius: "6px", 
+                border: "1px solid #e2e8f0", 
+                outline: "none",
+                minHeight: "100px"
+              }}
+            />
+          </div>
+
+          <button 
+            type="submit"
+            style={{ width: "100%", backgroundColor: "#4361ee", color: "white", padding: "12px", borderRadius: "6px", border: "none", cursor: "pointer", fontWeight: "500" }}
+          >
+            Simpan
+          </button>
+        </form>
       </div>
     </div>
   );
 }
 
-export default WajibretribusiIndex;
+export default TarifobjekCreate;

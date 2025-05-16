@@ -1,180 +1,107 @@
-// UserIndex.jsx
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { FaEdit, FaTrash, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
-const Api_URL = "http://127.0.0.1:8000/api/jenis-objek-retribusi";
+const Api_URL = "http://127.0.0.1:8000/api/v1/jenis-objek-retribusi";
 
-function WajibretribusiIndex() {
-  const [users, setUsers] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+function JenisobjekCreate() {
   const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    jenisObjekRetribusi: "",
+    keterangan: ""
+  });
+  const [errors, setErrors] = useState({});
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
-
-  const fetchUsers = async () => {
-    try {
-      const response = await axios.get(Api_URL);
-      setUsers(response.data);
-    } catch (error) {
-      console.error('Error fetching users:', error);
-    }
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm("Hapus user ini?")) {
-      try {
-        await axios.delete(`${Api_URL}/${id}`);
-        fetchUsers();
-      } catch (error) {
-        console.error('Error deleting user:', error);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post(Api_URL, formData);
+      if (response.data.status === 'success') {
+        navigate('/Jenisobjek-index');
+      }
+    } catch (error) {
+      if (error.response && error.response.status === 422) {
+        setErrors(error.response.data.errors);
+      } else {
+        console.error('Error creating data:', error);
+        alert('Gagal membuat data: ' + (error.response?.data?.message || error.message));
       }
     }
   };
 
-  // Pagination logic
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentUsers = users.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(users.length / itemsPerPage);
-
   return (
-    <div style={{ 
-      fontFamily: "'Poppins', sans-serif",
-      padding: "20px",
-      backgroundColor: "#f8fafc",
-      minHeight: "100vh"
-    }}>
-      {/* Header */}
-      <div style={{ 
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        marginBottom: "20px"
-      }}>
-        <h1 style={{ 
-          fontSize: "24px",
-          fontWeight: "600",
-          color: "#1e293b"
-        }}>Wajib Retribusi</h1>
-        <button 
-          onClick={() => navigate("/Wajib-retribusi-create")}
-          style={{
-            backgroundColor: "#4361ee",
-            color: "white",
-            padding: "8px 16px",
-            borderRadius: "6px",
-            border: "none",
-            cursor: "pointer",
-            fontWeight: "500"
-          }}
-        >
-          Tambah Wajib Retribusi
-        </button>
-      </div>
-
-      {/* Table */}
-      <div style={{ 
-        backgroundColor: "white",
-        borderRadius: "10px",
-        boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
-        overflow: "hidden"
-      }}>
-        {/* Table Header */}
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(4, 1fr)",
-          padding: "15px 20px",
-          backgroundColor: "#4361ee",
-          color: "white",
-          fontWeight: "500"
-        }}>
-          <div>No</div>
-          <div>ID Jenis Objek Retribusi</div>
-          <div>Jenis Objek Retribusi</div>
-          <div>Keterangan</div>
+    <div style={{ fontFamily: "'Poppins', sans-serif", padding: "20px", backgroundColor: "#f8fafc", minHeight: "100vh" }}>
+      <div style={{ maxWidth: "600px", margin: "0 auto", backgroundColor: "white", borderRadius: "10px", boxShadow: "0 2px 10px rgba(0,0,0,0.05)", padding: "20px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+          <h1 style={{ fontSize: "24px", fontWeight: "600", color: "#1e293b" }}>Tambah Jenis Objek Retribusi</h1>
+          <button 
+            onClick={() => navigate("/Jenisobjek-index")}
+            style={{ backgroundColor: "#e2e8f0", color: "#64748b", padding: "8px 16px", borderRadius: "6px", border: "none", cursor: "pointer", fontWeight: "500" }}
+          >
+            Kembali
+          </button>
         </div>
 
-        {/* Table Body */}
-        {currentUsers.length > 0 ? (
-          currentUsers.map((user, index) => (
-            <div 
-              key={user.id}
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(4, 1fr)",
-                padding: "12px 20px",
-                borderBottom: "1px solid #e2e8f0",
-                alignItems: "center",
-                backgroundColor: index % 2 === 0 ? "#ffffff" : "#f8fafc"
+        <form onSubmit={handleSubmit}>
+          <div style={{ marginBottom: "15px" }}>
+            <label style={{ display: "block", marginBottom: "5px", color: "#475569", fontWeight: "500" }}>Jenis Objek Retribusi*</label>
+            <input
+              type="text"
+              name="jenisObjekRetribusi"
+              value={formData.jenisObjekRetribusi}
+              onChange={handleChange}
+              style={{ 
+                width: "100%", 
+                padding: "10px", 
+                borderRadius: "6px", 
+                border: errors.jenisObjekRetribusi ? "1px solid #ef4444" : "1px solid #e2e8f0", 
+                outline: "none" 
               }}
-            >
-              <div>{indexOfFirstItem + index + 1}</div>
-              <div>{user.jenis_objek_retribusi_id}</div>
-              <div>{user.jenis_objek_retribusi}</div>
-              <div>{user.keterangan}</div>
-            </div>
-          ))
-        ) : (
-          <div style={{ 
-            padding: "20px",
-            textAlign: "center",
-            color: "#64748b"
-          }}>
-            Tidak ada data jenis objek
+              required
+            />
+            {errors.jenisObjekRetribusi && (
+              <span style={{ color: "#ef4444", fontSize: "14px" }}>{errors.jenisObjekRetribusi[0]}</span>
+            )}
           </div>
-        )}
 
-        {/* Pagination */}
-        <div style={{ 
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          padding: "15px 20px",
-          borderTop: "1px solid #e2e8f0"
-        }}>
-          <div style={{ color: "#64748b" }}>
-            Menampilkan {currentUsers.length} dari {users.length} jenis objek
-          </div>
-          <div style={{ display: "flex", gap: "10px" }}>
-            <button 
-              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-              style={{
-                padding: "5px 10px",
-                border: "1px solid #e2e8f0",
-                borderRadius: "4px",
-                cursor: "pointer",
-                backgroundColor: currentPage === 1 ? "#f1f5f9" : "white"
+          <div style={{ marginBottom: "20px" }}>
+            <label style={{ display: "block", marginBottom: "5px", color: "#475569", fontWeight: "500" }}>Keterangan</label>
+            <textarea
+              name="keterangan"
+              value={formData.keterangan}
+              onChange={handleChange}
+              style={{ 
+                width: "100%", 
+                padding: "10px", 
+                borderRadius: "6px", 
+                border: "1px solid #e2e8f0", 
+                outline: "none",
+                minHeight: "100px"
               }}
-            >
-              <FaChevronLeft />
-            </button>
-            <span style={{ padding: "5px 10px" }}>
-              Halaman {currentPage} dari {totalPages}
-            </span>
-            <button 
-              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-              disabled={currentPage === totalPages}
-              style={{
-                padding: "5px 10px",
-                border: "1px solid #e2e8f0",
-                borderRadius: "4px",
-                cursor: "pointer",
-                backgroundColor: currentPage === totalPages ? "#f1f5f9" : "white"
-              }}
-            >
-              <FaChevronRight />
-            </button>
+            />
+            {errors.keterangan && (
+              <span style={{ color: "#ef4444", fontSize: "14px" }}>{errors.keterangan[0]}</span>
+            )}
           </div>
-        </div>
+
+          <button 
+            type="submit"
+            style={{ width: "100%", backgroundColor: "#4361ee", color: "white", padding: "12px", borderRadius: "6px", border: "none", cursor: "pointer", fontWeight: "500" }}
+          >
+            Simpan
+          </button>
+        </form>
       </div>
     </div>
   );
 }
 
-export default WajibretribusiIndex;
+export default JenisobjekCreate;

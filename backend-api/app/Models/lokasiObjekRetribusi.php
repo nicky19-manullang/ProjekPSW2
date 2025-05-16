@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class lokasiObjekRetribusi extends Model
+class LokasiObjekRetribusi extends Model
 {
-    protected $fillable = ['lokasiObjekRetribusi', 'keterangan'];
+    protected $fillable = ['LokasiObjekRetribusi', 'keterangan'];
 }
