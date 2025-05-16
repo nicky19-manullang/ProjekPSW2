@@ -1,207 +1,114 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { FaEdit, FaTrash, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
 const Api_URL = "http://127.0.0.1:8000/api/v1/jenis-permohonan";
 
 function JenispermohonanIndex() {
-  const [data, setData] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
   const navigate = useNavigate();
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchData();
+    fetchAllData();
   }, []);
 
-  const fetchData = async () => {
+  const fetchAllData = async () => {
     try {
-      const response = await axios.get(Api_URL);
-      setData(response.data);
+      const res = await axios.get(Api_URL);
+      setData(res.data);
     } catch (error) {
-      console.error('Error fetching data:', error);
+      alert("Gagal memuat data!");
+      console.error(error);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm("Hapus data ini?")) {
+    if (window.confirm("Yakin ingin menghapus data ini?")) {
       try {
         await axios.delete(`${Api_URL}/${id}`);
-        fetchData();
+        alert("Data berhasil dihapus.");
+        fetchAllData();
       } catch (error) {
-        console.error('Error deleting data:', error);
+        alert("Gagal menghapus data!");
+        console.error(error);
       }
     }
   };
 
-  // Pagination logic
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = data.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(data.length / itemsPerPage);
+  if (loading) return <p>Loading...</p>;
 
   return (
-    <div style={{ 
-      fontFamily: "'Poppins', sans-serif",
-      padding: "20px",
-      backgroundColor: "#f8fafc",
-      minHeight: "100vh"
-    }}>
-      {/* Header */}
-      <div style={{ 
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        marginBottom: "20px"
-      }}>
-        <h1 style={{ 
-          fontSize: "24px",
-          fontWeight: "600",
-          color: "#1e293b"
-        }}>ID Jenis Permohonan</h1>
-        <button 
-          onClick={() => navigate("/Jenispermohonan-create")}
-          style={{
-            backgroundColor: "#4361ee",
-            color: "white",
-            padding: "8px 16px",
-            borderRadius: "6px",
-            border: "none",
-            cursor: "pointer",
-            fontWeight: "500"
-          }}
-        >
-          Tambah Baru
-        </button>
-      </div>
+    <div style={{ fontFamily: "'Poppins', sans-serif", padding: 40, backgroundColor: "#f8fafc", minHeight: "100vh" }}>
+      <h1 style={{ fontSize: 24, fontWeight: 600, color: "#1e293b", marginBottom: 30 }}>
+        Daftar Jenis Permohonan
+      </h1>
 
-      {/* Table */}
-      <div style={{ 
-        backgroundColor: "white",
-        borderRadius: "10px",
-        boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
-        overflow: "hidden"
-      }}>
-        {/* Table Header */}
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(6, 1fr)",
-          padding: "15px 20px",
-          backgroundColor: "#4361ee",
+      <button
+        onClick={() => navigate("/jenis-permohonan/create")}
+        style={{
+          padding: "12px 20px",
+          backgroundColor: "#16a34a",
           color: "white",
-          fontWeight: "500",
-          textAlign: "center"
-        }}>
-          <div>No</div>
-          <div>ID Jenis Permohonan</div>
-          <div>Jenis Permohonan</div>
-          <div>ParentID</div>
-          <div>Keterangan</div>
-          <div>Aksi</div>
-        </div>
+          border: "none",
+          borderRadius: 8,
+          cursor: "pointer",
+          fontWeight: 600,
+          fontSize: 16,
+          marginBottom: 20
+        }}
+      >
+        + Tambah Baru
+      </button>
 
-        {/* Table Body */}
-        {currentItems.length > 0 ? (
-          currentItems.map((item, index) => (
-            <div 
-              key={item.id}
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(6, 1fr)",
-                padding: "12px 20px",
-                borderBottom: "1px solid #e2e8f0",
-                alignItems: "center",
-                backgroundColor: index % 2 === 0 ? "#ffffff" : "#f8fafc",
-                textAlign: "center"
-              }}
-            >
-              <div>{indexOfFirstItem + index + 1}</div>
-              <div style={{ fontWeight: "500" }}>{item.id}</div>
-              <div>{item.jenis_permohonan}</div>
-              <div>{item.parent_id}</div>
-              <div>{item.keterangan}</div>
-              <div style={{ display: "flex", justifyContent: "center", gap: "10px" }}>
-                <button 
-                  onClick={() => navigate(`/Jenispermohonan-edit/:id${item.id}`)}
-                  style={{
-                    color: "#3b82f6",
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer"
-                  }}
-                >
-                  <FaEdit />
-                </button>
-                <button 
-                  onClick={() => handleDelete(item.id)}
-                  style={{
-                    color: "#ef4444",
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer"
-                  }}
-                >
-                  <FaTrash />
-                </button>
-              </div>
-            </div>
-          ))
-        ) : (
-          <div style={{ 
-            padding: "20px",
-            textAlign: "center",
-            color: "#64748b",
-            gridColumn: "1 / -1"
-          }}>
-            Tidak ada data
-          </div>
-        )}
-
-        {/* Pagination */}
-        <div style={{ 
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          padding: "15px 20px",
-          borderTop: "1px solid #e2e8f0"
-        }}>
-          <div style={{ color: "#64748b" }}>
-            Menampilkan {currentItems.length} dari {data.length} data
-          </div>
-          <div style={{ display: "flex", gap: "10px" }}>
-            <button 
-              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-              style={{
-                padding: "5px 10px",
-                border: "1px solid #e2e8f0",
-                borderRadius: "4px",
-                cursor: "pointer",
-                backgroundColor: currentPage === 1 ? "#f1f5f9" : "white"
-              }}
-            >
-              <FaChevronLeft /> Previous
-            </button>
-            <span style={{ padding: "5px 10px" }}>
-              Halaman {currentPage} dari {totalPages}
-            </span>
-            <button 
-              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-              disabled={currentPage === totalPages}
-              style={{
-                padding: "5px 10px",
-                border: "1px solid #e2e8f0",
-                borderRadius: "4px",
-                cursor: "pointer",
-                backgroundColor: currentPage === totalPages ? "#f1f5f9" : "white"
-              }}
-            >
-              Next <FaChevronRight />
-            </button>
-          </div>
-        </div>
-      </div>
+      <table style={{ width: "100%", borderCollapse: "collapse", backgroundColor: "white", borderRadius: 12, overflow: "hidden" }}>
+        <thead style={{ backgroundColor: "#22c55e", color: "white" }}>
+          <tr>
+            <th style={{ padding: 12, textAlign: "left" }}>ID</th>
+            <th style={{ padding: 12, textAlign: "left" }}>Jenis Permohonan</th>
+            <th style={{ padding: 12, textAlign: "left" }}>Parent ID</th>
+            <th style={{ padding: 12, textAlign: "left" }}>Keterangan</th>
+            <th style={{ padding: 12, textAlign: "center" }}>Aksi</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.length === 0 ? (
+            <tr>
+              <td colSpan={5} style={{ textAlign: "center", padding: 20 }}>
+                Data tidak ditemukan
+              </td>
+            </tr>
+          ) : (
+            data.map(item => (
+              <tr key={item.id} style={{ borderBottom: "1px solid #e2e8f0" }}>
+                <td style={{ padding: 12 }}>{item.id}</td>
+                <td style={{ padding: 12 }}>{item.jenis_permohonan}</td>
+                <td style={{ padding: 12 }}>{item.parent_id || "-"}</td>
+                <td style={{ padding: 12 }}>{item.keterangan || "-"}</td>
+                <td style={{ padding: 12, textAlign: "center" }}>
+                  <Link to={`/jenis-permohonan/edit/${item.id}`} style={{ marginRight: 10, color: "#2563eb", fontWeight: 600, cursor: "pointer" }}>
+                    Edit
+                  </Link>
+                  <button
+                    onClick={() => handleDelete(item.id)}
+                    style={{
+                      backgroundColor: "transparent",
+                      border: "none",
+                      color: "#dc2626",
+                      cursor: "pointer",
+                      fontWeight: 600
+                    }}
+                  >
+                    Hapus
+                  </button>
+                </td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
     </div>
   );
 }

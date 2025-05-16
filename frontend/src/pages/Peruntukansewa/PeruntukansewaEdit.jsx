@@ -1,81 +1,98 @@
-// JenisEdit.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
-import "../../styles/Jenis2.css";
 
+const Api_URL = "http://127.0.0.1:8000/api/v1/peruntukan-sewa";
 
-const Api_URL = "http://127.0.0.1:8000/api/peruntukan-sewa";
-
-function JenisEdit() {
-  const [jenisStatus, setJenisStatus] = useState("");
+function PeruntukansewaEdit() {
+  const { id } = useParams();
+  const [jenisKegiatan, setJenisKegiatan] = useState("");
+  const [peruntukanSewa, setPeruntukanSewa] = useState("");
   const [keterangan, setKeterangan] = useState("");
   const navigate = useNavigate();
-  const { id } = useParams(); // ambil id dari URL
 
   useEffect(() => {
-    fetchJenisById();
-  }, []);
+    fetchData();
+  }, [id]);
 
-  const fetchJenisById = async () => {
+  const fetchData = async () => {
     try {
       const response = await axios.get(`${Api_URL}/${id}`);
-      setJenisStatus(response.data.jenis_status);
-      setKeterangan(response.data.keterangan);
+      const data = response.data;
+      setJenisKegiatan(data.jenisKegiatan);
+      setPeruntukanSewa(data.peruntukanSewa);
+      setKeterangan(data.keterangan);
     } catch (error) {
-      console.error('Error fetching jenis status:', error);
+      console.error("Error fetching data:", error);
+      alert("Gagal mengambil data");
     }
   };
 
-  const handleUpdate = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       await axios.put(`${Api_URL}/${id}`, {
-        jenis_status: jenisStatus,
-        keterangan: keterangan,
+        jenisKegiatan,
+        peruntukanSewa,
+        keterangan,
       });
-      alert("Data berhasil diupdate!");
-      navigate('/jenis');
+      alert("Data berhasil diperbarui!");
+      navigate("/peruntukansewa");
     } catch (error) {
-      console.error('Error updating jenis status:', error);
+      console.error("Error updating data:", error);
+      alert("Gagal memperbarui data");
     }
   };
 
   return (
-    <div className="form-wrapper">
-      <h1>Edit Jenis Status</h1>
-      <form className="form-container" onSubmit={handleUpdate}>
-        <div className="form-group">
-          <label className="form-label">Jenis Status</label>
+    <div style={{ padding: 20, fontFamily: "'Poppins', sans-serif" }}>
+      <h2>Edit Data Peruntukan Sewa</h2>
+      <form onSubmit={handleSubmit} style={{ maxWidth: 500 }}>
+        <label>
+          Jenis Kegiatan:
           <input
-            className="input-field"
             type="text"
-            placeholder="Masukkan Jenis Status"
-            value={jenisStatus}
-            onChange={(e) => setJenisStatus(e.target.value)}
+            value={jenisKegiatan}
+            onChange={(e) => setJenisKegiatan(e.target.value)}
             required
+            style={{ width: "100%", padding: 8, margin: "8px 0" }}
           />
-        </div>
-
-        <div className="form-group">
-          <label className="form-label">Keterangan</label>
+        </label>
+        <label>
+          Peruntukan Sewa:
           <input
-            className="input-field"
             type="text"
-            placeholder="Masukkan Keterangan"
+            value={peruntukanSewa}
+            onChange={(e) => setPeruntukanSewa(e.target.value)}
+            required
+            style={{ width: "100%", padding: 8, margin: "8px 0" }}
+          />
+        </label>
+        <label>
+          Keterangan:
+          <textarea
             value={keterangan}
             onChange={(e) => setKeterangan(e.target.value)}
             required
+            style={{ width: "100%", padding: 8, margin: "8px 0" }}
           />
-        </div>
-
-        <div className="button-wrapper">
-          <button className="submit-button" type="submit">Update</button>
-          <button className="cancel-button" type="button" onClick={() => navigate('/jenis')}>Batal</button>
-        </div>
+        </label>
+        <button
+          type="submit"
+          style={{
+            backgroundColor: "#4361ee",
+            color: "white",
+            padding: "10px 20px",
+            border: "none",
+            borderRadius: 6,
+            cursor: "pointer",
+          }}
+        >
+          Update
+        </button>
       </form>
     </div>
   );
 }
 
-export default JenisEdit;
+export default PeruntukansewaEdit;

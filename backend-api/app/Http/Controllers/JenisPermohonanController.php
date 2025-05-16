@@ -27,7 +27,7 @@ class JenisPermohonanController extends Controller
     //     ]);
 
     //     return JenisPermohonan::create($validatedData);
-        
+
     // }
     public function store(Request $request): JsonResponse
 {
@@ -65,10 +65,18 @@ class JenisPermohonanController extends Controller
     }
 }
 
-    public function show(JenisPermohonan $jenisPermohonan)
-    {
-        return $jenisPermohonan;
+   public function show($id)
+{
+    // Sesuaikan pencarian ke kolom id_jenis_permohonan
+    $data = JenisPermohonan::where('id_jenis_permohonan', $id)->first();
+
+    if (!$data) {
+        return response()->json(['message' => 'Data tidak ditemukan'], 404);
     }
+
+    return response()->json(['data' => $data]);
+}
+
 
     public function edit(JenisPermohonan $jenisPermohonan)
     {

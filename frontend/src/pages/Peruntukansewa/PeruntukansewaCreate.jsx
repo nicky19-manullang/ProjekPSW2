@@ -1,206 +1,76 @@
-// UserIndex.jsx
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { FaEdit, FaTrash, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
-const Api_URL = "http://127.0.0.1:8000/api/peruntukan-sewa";
+const Api_URL = "http://127.0.0.1:8000/api/v1/peruntukan-sewa";
 
-function WajibretribusiIndex() {
-  const [users, setUsers] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+function PeruntukansewaCreate() {
+  const [jenisKegiatan, setJenisKegiatan] = useState("");
+  const [peruntukanSewa, setPeruntukanSewa] = useState("");
+  const [keterangan, setKeterangan] = useState("");
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
-
-  const fetchUsers = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     try {
-      const response = await axios.get(Api_URL);
-      setUsers(response.data);
+      await axios.post(Api_URL, { jenisKegiatan, peruntukanSewa, keterangan });
+      alert("Data berhasil ditambahkan!");
+      navigate("/peruntukansewa");
     } catch (error) {
-      console.error('Error fetching users:', error);
+      console.error("Error creating data:", error);
+      alert("Gagal menambahkan data");
     }
   };
-
-  const handleDelete = async (id) => {
-    if (window.confirm("Hapus user ini?")) {
-      try {
-        await axios.delete(`${Api_URL}/${id}`);
-        fetchUsers();
-      } catch (error) {
-        console.error('Error deleting user:', error);
-      }
-    }
-  };
-
-  // Pagination logic
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentUsers = users.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(users.length / itemsPerPage);
 
   return (
-    <div style={{ 
-      fontFamily: "'Poppins', sans-serif",
-      padding: "20px",
-      backgroundColor: "#f8fafc",
-      minHeight: "100vh"
-    }}>
-      {/* Header */}
-      <div style={{ 
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        marginBottom: "20px"
-      }}>
-        <h1 style={{ 
-          fontSize: "24px",
-          fontWeight: "600",
-          color: "#1e293b"
-        }}>Peruntukan Sewa</h1>
-        <button 
-          onClick={() => navigate("/Peruntukan-sewa-create")}
+    <div style={{ padding: 20, fontFamily: "'Poppins', sans-serif" }}>
+      <h2>Tambah Data Peruntukan Sewa</h2>
+      <form onSubmit={handleSubmit} style={{ maxWidth: 500 }}>
+        <label>
+          Jenis Kegiatan:
+          <input
+            type="text"
+            value={jenisKegiatan}
+            onChange={(e) => setJenisKegiatan(e.target.value)}
+            required
+            style={{ width: "100%", padding: 8, margin: "8px 0" }}
+          />
+        </label>
+        <label>
+          Peruntukan Sewa:
+          <input
+            type="text"
+            value={peruntukanSewa}
+            onChange={(e) => setPeruntukanSewa(e.target.value)}
+            required
+            style={{ width: "100%", padding: 8, margin: "8px 0" }}
+          />
+        </label>
+        <label>
+          Keterangan:
+          <textarea
+            value={keterangan}
+            onChange={(e) => setKeterangan(e.target.value)}
+            required
+            style={{ width: "100%", padding: 8, margin: "8px 0" }}
+          />
+        </label>
+        <button
+          type="submit"
           style={{
             backgroundColor: "#4361ee",
             color: "white",
-            padding: "8px 16px",
-            borderRadius: "6px",
+            padding: "10px 20px",
             border: "none",
+            borderRadius: 6,
             cursor: "pointer",
-            fontWeight: "500"
           }}
         >
-          Tambah Peruntukan Sewa
+          Simpan
         </button>
-      </div>
-
-      {/* Table */}
-      <div style={{ 
-        backgroundColor: "white",
-        borderRadius: "10px",
-        boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
-        overflow: "hidden"
-      }}>
-        {/* Table Header */}
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(5, 1fr)",
-          padding: "15px 20px",
-          backgroundColor: "#4361ee",
-          color: "white",
-          fontWeight: "500"
-        }}>
-          <div>No</div>
-          <div>ID Peruntukan Sewa</div>
-          <div>Peruntukan Sewa</div>
-          <div>Jenis Kegiatan</div>
-          <div>Keterangan</div>
-        </div>
-
-        {/* Table Body */}
-        {currentUsers.length > 0 ? (
-          currentUsers.map((user, index) => (
-            <div 
-              key={user.id}
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(5, 1fr)",
-                padding: "12px 20px",
-                borderBottom: "1px solid #e2e8f0",
-                alignItems: "center",
-                backgroundColor: index % 2 === 0 ? "#ffffff" : "#f8fafc"
-              }}
-            >
-              <div>{indexOfFirstItem + index + 1}</div>
-              <div>{user.peruntukan_sewa_id}</div>
-              <div>{user.peruntukan_sewa}</div>
-              <div>{user.jenis_kegiatan}</div>
-              <div>{user.keterangan}</div>
-              <div style={{ display: "flex", gap: "10px" }}>
-                <button 
-                  onClick={() => navigate(`/users/edit/${user.id}`)}
-                  style={{
-                    color: "#3b82f6",
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer"
-                  }}
-                >
-                  <FaEdit />
-                </button>
-                <button 
-                  onClick={() => handleDelete(user.id)}
-                  style={{
-                    color: "#ef4444",
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer"
-                  }}
-                >
-                  <FaTrash />
-                </button>
-              </div>
-            </div>
-          ))
-        ) : (
-          <div style={{ 
-            padding: "20px",
-            textAlign: "center",
-            color: "#64748b"
-          }}>
-            Tidak ada data peruntukan sewa
-          </div>
-        )}
-
-        {/* Pagination */}
-        <div style={{ 
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          padding: "15px 20px",
-          borderTop: "1px solid #e2e8f0"
-        }}>
-          <div style={{ color: "#64748b" }}>
-            Menampilkan {currentUsers.length} dari {users.length} peruntukan sewa
-          </div>
-          <div style={{ display: "flex", gap: "10px" }}>
-            <button 
-              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-              style={{
-                padding: "5px 10px",
-                border: "1px solid #e2e8f0",
-                borderRadius: "4px",
-                cursor: "pointer",
-                backgroundColor: currentPage === 1 ? "#f1f5f9" : "white"
-              }}
-            >
-              <FaChevronLeft />
-            </button>
-            <span style={{ padding: "5px 10px" }}>
-              Halaman {currentPage} dari {totalPages}
-            </span>
-            <button 
-              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-              disabled={currentPage === totalPages}
-              style={{
-                padding: "5px 10px",
-                border: "1px solid #e2e8f0",
-                borderRadius: "4px",
-                cursor: "pointer",
-                backgroundColor: currentPage === totalPages ? "#f1f5f9" : "white"
-              }}
-            >
-              <FaChevronRight />
-            </button>
-          </div>
-        </div>
-      </div>
+      </form>
     </div>
   );
 }
 
-export default WajibretribusiIndex;
+export default PeruntukansewaCreate;

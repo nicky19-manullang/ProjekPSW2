@@ -1,17 +1,16 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const Api_URL = "http://127.0.0.1:8000/api/v1/jenis-permohonan";
 
 function JenispermohonanCreate() {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    id_jenis_permohonan: "",
     jenis_permohonan: "",
     parent_id: "",
     keterangan: ""
   });
-  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -19,166 +18,96 @@ function JenispermohonanCreate() {
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  try {
-    // Kirim sebagai JSON, bukan FormData
-    await axios.post(Api_URL, formData, {
-      headers: {
-        'Content-Type': 'application/json' // Wajib ditambah!
-      }
-    });
-    alert("Data User berhasil ditambahkan!");
-    navigate("/Jenispermohonan-index");
-  } catch (error) {
-    console.error('Error adding user:', error.response?.data); // Log error detail
-    alert(`Gagal menambahkan data! ${error.response?.data?.message}`);
-  }
-};
+    e.preventDefault();
+    try {
+      await axios.post(Api_URL, formData, {
+        headers: {
+          "Content-Type": "application/json"
+        }
+      });
+      alert("Data berhasil ditambahkan!");
+      navigate("/jenis-permohonan");
+    } catch (error) {
+      console.error("Error creating data:", error.response?.data);
+      alert(`Gagal menambahkan data! ${error.response?.data?.message || ""}`);
+    }
+  };
 
   return (
-    <div style={{
-      fontFamily: "'Poppins', sans-serif",
-      padding: "40px",
-      backgroundColor: "#f8fafc",
-      minHeight: "100vh"
-    }}>
-      {/* Header */}
-      <div style={{ 
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        marginBottom: "30px"
-      }}>
-        <h1 style={{ 
-          fontSize: "24px",
-          fontWeight: "600",
-          color: "#1e293b"
-        }}>Tambah Jenis Permohonan</h1>
-      </div>
+    <div style={{ fontFamily: "'Poppins', sans-serif", padding: 40, backgroundColor: "#f8fafc", minHeight: "100vh" }}>
+      <h1 style={{ fontSize: 24, fontWeight: 600, color: "#1e293b", marginBottom: 30 }}>
+        Tambah Jenis Permohonan Baru
+      </h1>
 
-      {/* Form */}
-      <div style={{ 
-        backgroundColor: "white",
-        borderRadius: "12px",
-        boxShadow: "0 4px 15px rgba(0,0,0,0.08)",
-        padding: "35px",
-        maxWidth: "800px",
-        margin: "0 auto"
-      }}>
+      <div style={{ backgroundColor: "white", borderRadius: 12, boxShadow: "0 4px 15px rgba(0,0,0,0.08)", padding: 35, maxWidth: 800, margin: "0 auto" }}>
         <form onSubmit={handleSubmit}>
-          {/* ID Jenis Permohonan */}
-          <div style={{ marginBottom: "25px" }}>
-            <label style={{
-              display: "block",
-              marginBottom: "10px",
-              fontWeight: "500",
-              color: "#334155",
-              fontSize: "16px"
-            }}>ID Jenis Permohonan</label>
-            <input
-              type="text"
-              name="id_jenis_permohonan"
-              value={formData.id_jenis_permohonan}
-              onChange={handleChange}
-              required
-              style={{
-                width: "100%",
-                padding: "12px 18px",
-                border: "1px solid #e2e8f0",
-                borderRadius: "8px",
-                fontSize: "16px",
-                transition: "border 0.2s",
-                outline: "none"
-              }}
-              placeholder="Masukkan ID jenis permohonan"
-            />
-          </div>
-
           {/* Jenis Permohonan */}
-          <div style={{ marginBottom: "25px" }}>
-            <label style={{
-              display: "block",
-              marginBottom: "10px",
-              fontWeight: "500",
-              color: "#334155",
-              fontSize: "16px"
-            }}>Jenis Permohonan</label>
+          <div style={{ marginBottom: 25 }}>
+            <label style={{ display: "block", marginBottom: 10, fontWeight: 500, color: "#334155", fontSize: 16 }}>
+              Jenis Permohonan
+            </label>
             <input
               type="text"
               name="jenis_permohonan"
               value={formData.jenis_permohonan}
               onChange={handleChange}
               required
+              placeholder="Masukkan jenis permohonan"
               style={{
                 width: "100%",
                 padding: "12px 18px",
                 border: "1px solid #e2e8f0",
-                borderRadius: "8px",
-                fontSize: "16px",
-                transition: "border 0.2s",
-                outline: "none"
+                borderRadius: 8,
+                fontSize: 16
               }}
-              placeholder="Masukkan jenis permohonan"
             />
           </div>
 
           {/* Parent ID */}
-          <div style={{ marginBottom: "25px" }}>
-            <label style={{
-              display: "block",
-              marginBottom: "10px",
-              fontWeight: "500",
-              color: "#334155",
-              fontSize: "16px"
-            }}>Parent ID</label>
+          <div style={{ marginBottom: 25 }}>
+            <label style={{ display: "block", marginBottom: 10, fontWeight: 500, color: "#334155", fontSize: 16 }}>
+              Parent ID
+            </label>
             <input
-              type="text"
+              type="number"
               name="parent_id"
               value={formData.parent_id}
               onChange={handleChange}
+              placeholder="Masukkan parent ID (opsional)"
               style={{
                 width: "100%",
                 padding: "12px 18px",
                 border: "1px solid #e2e8f0",
-                borderRadius: "8px",
-                fontSize: "16px"
+                borderRadius: 8,
+                fontSize: 16
               }}
-              placeholder="Masukkan parent ID (opsional)"
             />
           </div>
 
           {/* Keterangan */}
-          <div style={{ marginBottom: "30px" }}>
-            <label style={{
-              display: "block",
-              marginBottom: "10px",
-              fontWeight: "500",
-              color: "#334155",
-              fontSize: "16px"
-            }}>Keterangan</label>
+          <div style={{ marginBottom: 30 }}>
+            <label style={{ display: "block", marginBottom: 10, fontWeight: 500, color: "#334155", fontSize: 16 }}>
+              Keterangan
+            </label>
             <textarea
               name="keterangan"
               value={formData.keterangan}
               onChange={handleChange}
+              placeholder="Masukkan keterangan"
               style={{
                 width: "100%",
                 padding: "12px 18px",
                 border: "1px solid #e2e8f0",
-                borderRadius: "8px",
-                fontSize: "16px",
-                minHeight: "120px",
+                borderRadius: 8,
+                fontSize: 16,
+                minHeight: 120,
                 resize: "vertical"
               }}
-              placeholder="Masukkan keterangan"
             />
           </div>
 
-          {/* Submit Button */}
-          <div style={{ 
-            display: "flex",
-            justifyContent: "flex-end",
-            gap: "20px"
-          }}>
+          {/* Buttons */}
+          <div style={{ display: "flex", justifyContent: "flex-end", gap: 20 }}>
             <button
               type="button"
               onClick={() => navigate("/jenis-permohonan")}
@@ -187,10 +116,10 @@ function JenispermohonanCreate() {
                 backgroundColor: "#f1f5f9",
                 color: "#64748b",
                 border: "none",
-                borderRadius: "8px",
+                borderRadius: 8,
                 cursor: "pointer",
-                fontWeight: "500",
-                fontSize: "16px"
+                fontWeight: 500,
+                fontSize: 16
               }}
             >
               Batal
@@ -199,17 +128,16 @@ function JenispermohonanCreate() {
               type="submit"
               style={{
                 padding: "12px 24px",
-                backgroundColor: "#4361ee",
+                backgroundColor: "#16a34a",
                 color: "white",
                 border: "none",
-                borderRadius: "8px",
+                borderRadius: 8,
                 cursor: "pointer",
-                fontWeight: "500",
-                fontSize: "16px",
-                transition: "background 0.2s"
+                fontWeight: 500,
+                fontSize: 16
               }}
             >
-              Tambahkan Data
+              Simpan
             </button>
           </div>
         </form>
@@ -218,4 +146,4 @@ function JenispermohonanCreate() {
   );
 }
 
-export default JenispermohonanCreate; 
+export default JenispermohonanCreate;
