@@ -1,90 +1,272 @@
-import React, { useState } from "react";
-import axios from "axios";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import Swal from "sweetalert2";
+
+const Api_URL = "http://127.0.0.1:8000/api/v1/status";
+const JenisStatus_URL = "http://127.0.0.1:8000/api/v1/jenis-status";
 
 function StatusCreate() {
-  const [form, setForm] = useState({
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
     idJenisStatus: "",
     namaStatus: "",
-    keterangan: ""
+    keterangan: "",
   });
+  const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [jenisStatusOptions, setJenisStatusOptions] = useState([]);
+  const [isLoadingOptions, setIsLoadingOptions] = useState(true);
 
-  const navigate = useNavigate();
+  useEffect(() => {
+    const fetchJenisStatus = async () => {
+      try {
+        const response = await axios.get(JenisStatus_URL);
+        setJenisStatusOptions(response.data.data);
+        setIsLoadingOptions(false);
+      } catch (error) {
+        console.error('Error fetching jenis status:', error);
+        setIsLoadingOptions(false);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Gagal memuat data jenis status',
+        });
+      }
+    };
+
+    fetchJenisStatus();
+  }, []);
 
   const handleChange = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value
-    });
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    // Clear error when user types
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: null
+      }));
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
+
     try {
-      await axios.post("http://127.0.0.1:8000/api/status", form);
-      navigate("/status");
+      const response = await axios.post(Api_URL, formData);
+      Swal.fire({
+        icon: 'success',
+        title: 'Berhasil!',
+        text: 'Data status berhasil ditambahkan',
+      }).then(() => {
+        navigate("/Status-index");
+      });
     } catch (error) {
-      console.error("Gagal menyimpan data:", error);
+      if (error.response && error.response.status === 422) {
+        setErrors(error.response.data.errors);
+        Swal.fire({
+          icon: 'error',
+          title: 'Validasi Gagal',
+          text: 'Terdapat kesalahan pada input Anda',
+        });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Gagal menambahkan data: ' + (error.response?.data?.message || error.message),
+        });
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div style={{ maxWidth: "600px", margin: "40px auto", padding: "20px", backgroundColor: "#ffffff", borderRadius: "10px", boxShadow: "0 0 10px rgba(0,0,0,0.1)", fontFamily: "'Poppins', sans-serif" }}>
-      <h2 style={{ textAlign: "center", marginBottom: "20px" }}>Tambah Status</h2>
-      <form onSubmit={handleSubmit}>
-        <label>ID Jenis Status</label>
-        <input
-          type="text"
-          name="idJenisStatus"
-          value={form.idJenisStatus}
-          onChange={handleChange}
-          required
-          style={inputStyle}
-        />
+    <div style={{ 
+      fontFamily: "'Poppins', sans-serif", 
+      padding: "20px", 
+      backgroundColor: "#f8fafc", 
+      minHeight: "100vh" 
+    }}>
+      <div style={{ 
+        backgroundColor: "white", 
+        borderRadius: "10px", 
+        boxShadow: "0 2px 10px rgba(0,0,0,0.05)", 
+        padding: "20px",
+        maxWidth: "800px",
+        margin: "0 auto"
+      }}>
+        <div style={{ 
+          display: "flex", 
+          justifyContent: "space-between", 
+          alignItems: "center", 
+          marginBottom: "20px",
+          borderBottom: "1px solid #e2e8f0",
+          paddingBottom: "15px"
+        }}>
+          <h1 style={{ fontSize: "24px", fontWeight: "600", color: "#1e293b" }}>Tambah Status</h1>
+          <button 
+            onClick={() => navigate("/Status-index")}
+            style={{ 
+              backgroundColor: "#e2e8f0", 
+              color: "#64748b", 
+              padding: "8px 16px", 
+              borderRadius: "6px", 
+              border: "none", 
+              cursor: "pointer", 
+              fontWeight: "500"
+            }}
+          >
+            Kembali
+          </button>
+        </div>
 
-        <label>Nama Status</label>
-        <input
-          type="text"
-          name="namaStatus"
-          value={form.namaStatus}
-          onChange={handleChange}
-          required
-          style={inputStyle}
-        />
+        <form onSubmit={handleSubmit}>
+          <div style={{ marginBottom: "20px" }}>
+            <label style={{ 
+              display: "block", 
+              marginBottom: "8px", 
+              fontWeight: "500", 
+              color: "#334155" 
+            }}>
+              Jenis Status <span style={{ color: "#ef4444" }}>*</span>
+            </label>
+            {isLoadingOptions ? (
+              <div style={{ padding: "10px", textAlign: "center", color: "#64748b" }}>
+                Memuat data jenis status...
+              </div>
+            ) : (
+              <select
+                name="idJenisStatus"
+                value={formData.idJenisStatus}
+                onChange={handleChange}
+                style={{
+                  width: "100%",
+                  padding: "10px 15px",
+                  borderRadius: "6px",
+                  border: errors.idJenisStatus ? "1px solid #ef4444" : "1px solid #e2e8f0",
+                  fontSize: "14px",
+                  backgroundColor: "white"
+                }}
+              >
+                <option value="">Pilih Jenis Status</option>
+                {jenisStatusOptions.map(option => (
+                  <option key={option.id} value={option.id}>
+                    {option.namaJenisStatus}
+                  </option>
+                ))}
+              </select>
+            )}
+            {errors.idJenisStatus && (
+              <div style={{ color: "#ef4444", fontSize: "12px", marginTop: "5px" }}>
+                {errors.idJenisStatus[0]}
+              </div>
+            )}
+          </div>
 
-        <label>Keterangan</label>
-        <textarea
-          name="keterangan"
-          value={form.keterangan}
-          onChange={handleChange}
-          required
-          style={{ ...inputStyle, height: "80px" }}
-        />
+          <div style={{ marginBottom: "20px" }}>
+            <label style={{ 
+              display: "block", 
+              marginBottom: "8px", 
+              fontWeight: "500", 
+              color: "#334155" 
+            }}>
+              Nama Status <span style={{ color: "#ef4444" }}>*</span>
+            </label>
+            <input
+              type="text"
+              name="namaStatus"
+              value={formData.namaStatus}
+              onChange={handleChange}
+              style={{
+                width: "100%",
+                padding: "10px 15px",
+                borderRadius: "6px",
+                border: errors.namaStatus ? "1px solid #ef4444" : "1px solid #e2e8f0",
+                fontSize: "14px"
+              }}
+              placeholder="Masukkan nama status"
+            />
+            {errors.namaStatus && (
+              <div style={{ color: "#ef4444", fontSize: "12px", marginTop: "5px" }}>
+                {errors.namaStatus[0]}
+              </div>
+            )}
+          </div>
 
-        <button type="submit" style={buttonStyle}>Simpan</button>
-      </form>
+          <div style={{ marginBottom: "20px" }}>
+            <label style={{ 
+              display: "block", 
+              marginBottom: "8px", 
+              fontWeight: "500", 
+              color: "#334155" 
+            }}>
+              Keterangan
+            </label>
+            <textarea
+              name="keterangan"
+              value={formData.keterangan}
+              onChange={handleChange}
+              style={{
+                width: "100%",
+                padding: "10px 15px",
+                borderRadius: "6px",
+                border: errors.keterangan ? "1px solid #ef4444" : "1px solid #e2e8f0",
+                fontSize: "14px",
+                minHeight: "100px",
+                resize: "vertical"
+              }}
+              placeholder="Masukkan keterangan (opsional)"
+            />
+            {errors.keterangan && (
+              <div style={{ color: "#ef4444", fontSize: "12px", marginTop: "5px" }}>
+                {errors.keterangan[0]}
+              </div>
+            )}
+          </div>
+
+          <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
+            <button
+              type="button"
+              onClick={() => navigate("/Status-index")}
+              style={{ 
+                backgroundColor: "#e2e8f0", 
+                color: "#64748b", 
+                padding: "10px 20px", 
+                borderRadius: "6px", 
+                border: "none", 
+                cursor: "pointer", 
+                fontWeight: "500"
+              }}
+            >
+              Batal
+            </button>
+            <button
+              type="submit"
+              disabled={isSubmitting || isLoadingOptions}
+              style={{ 
+                backgroundColor: "#4361ee", 
+                color: "white", 
+                padding: "10px 20px", 
+                borderRadius: "6px", 
+                border: "none", 
+                cursor: "pointer", 
+                fontWeight: "500",
+                opacity: isSubmitting || isLoadingOptions ? 0.7 : 1
+              }}
+            >
+              {isSubmitting ? "Menyimpan..." : "Simpan"}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }
-
-const inputStyle = {
-  width: "100%",
-  padding: "10px",
-  margin: "10px 0 20px",
-  borderRadius: "6px",
-  border: "1px solid #ccc",
-  fontSize: "16px"
-};
-
-const buttonStyle = {
-  width: "100%",
-  padding: "10px",
-  backgroundColor: "#4361ee",
-  color: "white",
-  border: "none",
-  borderRadius: "6px",
-  fontWeight: "600",
-  cursor: "pointer"
-};
 
 export default StatusCreate;

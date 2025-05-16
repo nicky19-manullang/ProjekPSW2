@@ -1,60 +1,144 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Models\Status; 
+
+use App\Models\Status;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Validator;
 
 class StatusController extends Controller
 {
     public function index()
     {
-        // Mengambil semua data status dari database
-        return Status::all();
+        try {
+            $data = Status::with('jenisStatus')
+                ->orderBy('created_at', 'desc')
+                ->get();
+            
+            return response()->json([
+                'status' => 'success',
+                'data' => $data
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to retrieve status data: ' . $e->getMessage()
+            ], 500);
+        }
     }
-    public function create()
-    {
-        //
-    }
+
     public function store(Request $request)
     {
-        // Validasi data yang diterima dari request
-        $validatedData = $request->validate([
+        $validator = Validator::make($request->all(), [
             'idJenisStatus' => 'required|exists:jenis_statuses,id',
-            'namaStatus' => 'required|string|max:255',
+            'namaStatus' => 'required|string|max:255|unique:statuses,namaStatus',
             'keterangan' => 'nullable|string|max:255',
+        ], [
+            'idJenisStatus.required' => 'Jenis status wajib dipilih',
+            'idJenisStatus.exists' => 'Jenis status tidak valid',
+            'namaStatus.required' => 'Nama status wajib diisi',
+            'namaStatus.unique' => 'Nama status sudah digunakan',
+            'namaStatus.max' => 'Nama status maksimal 255 karakter',
+            'keterangan.max' => 'Keterangan maksimal 255 karakter',
         ]);
 
-        // Membuat data baru status di database
-        return Status::create($validatedData);
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            $status = Status::create($validator->validated());
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Status berhasil ditambahkan',
+                'data' => $status
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to create status: ' . $e->getMessage()
+            ], 500);
+        }
     }
-    public function show(Status $status)
+
+    public function show($id)
     {
-        // Menampilkan data status berdasarkan ID
-        return $status;
+        try {
+            $status = Status::with('jenisStatus')->findOrFail($id);
+            
+            return response()->json([
+                'status' => 'success',
+                'data' => $status
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Status tidak ditemukan'
+            ], 404);
+        }
     }
-    public function edit(Status $status)
+
+    public function update(Request $request, $id)
     {
-        //
-    }
-    public function update(Request $request, Status $status)
-    {
-        // Validasi data yang diterima dari request
-        $validatedData = $request->validate([
+        $validator = Validator::make($request->all(), [
             'idJenisStatus' => 'required|exists:jenis_statuses,id',
-            'namaStatus' => 'required|string|max:255',
+            'namaStatus' => 'required|string|max:255|unique:statuses,namaStatus,'.$id,
             'keterangan' => 'nullable|string|max:255',
+        ], [
+            'idJenisStatus.required' => 'Jenis status wajib dipilih',
+            'idJenisStatus.exists' => 'Jenis status tidak valid',
+            'namaStatus.required' => 'Nama status wajib diisi',
+            'namaStatus.unique' => 'Nama status sudah digunakan',
+            'namaStatus.max' => 'Nama status maksimal 255 karakter',
+            'keterangan.max' => 'Keterangan maksimal 255 karakter',
         ]);
 
-        // Mengupdate data status di database
-        $status->update($validatedData);
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
 
-        return $status;
+        try {
+            $status = Status::findOrFail($id);
+            $status->update($validator->validated());
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Status berhasil diperbarui',
+                'data' => $status
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to update status: ' . $e->getMessage()
+            ], 500);
+        }
     }
-    public function destroy(Status $status)
-    {
-        // Menghapus data status dari database
-        $status->delete();
 
-        return response()->json(['message' => 'Status deleted successfully']);
+    public function destroy($id)
+    {
+        try {
+            $status = Status::findOrFail($id);
+            $status->delete();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Status berhasil dihapus'
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to delete status: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

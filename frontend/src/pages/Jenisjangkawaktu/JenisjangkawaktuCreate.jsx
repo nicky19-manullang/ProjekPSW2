@@ -1,81 +1,200 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import Swal from "sweetalert2";
 
 const Api_URL = "http://127.0.0.1:8000/api/v1/jenis-jangka-waktu";
 
-function JenisJangkaWaktuCreate() {
+function JenisjangkawaktuCreate() {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     jenisJangkaWaktu: "",
-    keterangan: ""
+    keterangan: "",
   });
-  const navigate = useNavigate();
+  const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    // Clear error when user types
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: null
+      }));
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
+
     try {
-      const formDataToSend = new FormData();
-      for (const key in formData) {
-        formDataToSend.append(key, formData[key]);
-      }
-      await axios.post(Api_URL, formDataToSend);
-      alert("Data berhasil ditambahkan!");
-      navigate("/Jenisjangkawaktu-index");
+      const response = await axios.post(Api_URL, formData);
+      Swal.fire({
+        icon: 'success',
+        title: 'Berhasil!',
+        text: 'Data jenis jangka waktu berhasil ditambahkan',
+      }).then(() => {
+        navigate("/Jenisjangkawaktu-index");
+      });
     } catch (error) {
-      console.error('Error:', error.response?.data);
-      alert(`Gagal: ${error.response?.data?.message || error.message}`);
+      if (error.response && error.response.status === 422) {
+        setErrors(error.response.data.errors);
+        Swal.fire({
+          icon: 'error',
+          title: 'Validasi Gagal',
+          text: 'Terdapat kesalahan pada input Anda',
+        });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Gagal menambahkan data: ' + (error.response?.data?.message || error.message),
+        });
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div style={{ fontFamily: "'Poppins', sans-serif", padding: "40px", backgroundColor: "#f8fafc", minHeight: "100vh" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "30px" }}>
-        <h1 style={{ fontSize: "24px", fontWeight: "600", color: "#1e293b" }}>Tambah Jenis Jangka Waktu</h1>
-      </div>
+    <div style={{ 
+      fontFamily: "'Poppins', sans-serif", 
+      padding: "20px", 
+      backgroundColor: "#f8fafc", 
+      minHeight: "100vh" 
+    }}>
+      <div style={{ 
+        backgroundColor: "white", 
+        borderRadius: "10px", 
+        boxShadow: "0 2px 10px rgba(0,0,0,0.05)", 
+        padding: "20px",
+        maxWidth: "800px",
+        margin: "0 auto"
+      }}>
+        <div style={{ 
+          display: "flex", 
+          justifyContent: "space-between", 
+          alignItems: "center", 
+          marginBottom: "20px",
+          borderBottom: "1px solid #e2e8f0",
+          paddingBottom: "15px"
+        }}>
+          <h1 style={{ fontSize: "24px", fontWeight: "600", color: "#1e293b" }}>Tambah Jenis Jangka Waktu</h1>
+          <button 
+            onClick={() => navigate("/Jenisjangkawaktu-index")}
+            style={{ 
+              backgroundColor: "#e2e8f0", 
+              color: "#64748b", 
+              padding: "8px 16px", 
+              borderRadius: "6px", 
+              border: "none", 
+              cursor: "pointer", 
+              fontWeight: "500"
+            }}
+          >
+            Kembali
+          </button>
+        </div>
 
-      <div style={{ backgroundColor: "white", borderRadius: "12px", boxShadow: "0 4px 15px rgba(0,0,0,0.08)", padding: "35px", maxWidth: "800px", margin: "0 auto" }}>
         <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: "25px" }}>
-            <label style={{ display: "block", marginBottom: "10px", fontWeight: "500", color: "#334155", fontSize: "16px" }}>Jenis Jangka Waktu</label>
+          <div style={{ marginBottom: "20px" }}>
+            <label style={{ 
+              display: "block", 
+              marginBottom: "8px", 
+              fontWeight: "500", 
+              color: "#334155" 
+            }}>
+              Jenis Jangka Waktu <span style={{ color: "#ef4444" }}>*</span>
+            </label>
             <input
               type="text"
               name="jenisJangkaWaktu"
               value={formData.jenisJangkaWaktu}
               onChange={handleChange}
-              required
-              style={{ width: "100%", padding: "12px 18px", border: "1px solid #e2e8f0", borderRadius: "8px", fontSize: "16px" }}
+              style={{
+                width: "100%",
+                padding: "10px 15px",
+                borderRadius: "6px",
+                border: errors.jenisJangkaWaktu ? "1px solid #ef4444" : "1px solid #e2e8f0",
+                fontSize: "14px"
+              }}
+              placeholder="Masukkan jenis jangka waktu"
             />
+            {errors.jenisJangkaWaktu && (
+              <div style={{ color: "#ef4444", fontSize: "12px", marginTop: "5px" }}>
+                {errors.jenisJangkaWaktu[0]}
+              </div>
+            )}
           </div>
 
-          <div style={{ marginBottom: "25px" }}>
-            <label style={{ display: "block", marginBottom: "10px", fontWeight: "500", color: "#334155", fontSize: "16px" }}>Keterangan</label>
+          <div style={{ marginBottom: "20px" }}>
+            <label style={{ 
+              display: "block", 
+              marginBottom: "8px", 
+              fontWeight: "500", 
+              color: "#334155" 
+            }}>
+              Keterangan
+            </label>
             <textarea
               name="keterangan"
               value={formData.keterangan}
               onChange={handleChange}
-              required
-              style={{ width: "100%", padding: "12px 18px", border: "1px solid #e2e8f0", borderRadius: "8px", fontSize: "16px" }}
+              style={{
+                width: "100%",
+                padding: "10px 15px",
+                borderRadius: "6px",
+                border: errors.keterangan ? "1px solid #ef4444" : "1px solid #e2e8f0",
+                fontSize: "14px",
+                minHeight: "100px",
+                resize: "vertical"
+              }}
+              placeholder="Masukkan keterangan (opsional)"
             />
+            {errors.keterangan && (
+              <div style={{ color: "#ef4444", fontSize: "12px", marginTop: "5px" }}>
+                {errors.keterangan[0]}
+              </div>
+            )}
           </div>
 
-          <div style={{ display: "flex", justifyContent: "flex-end", gap: "20px" }}>
+          <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
             <button
               type="button"
-              onClick={() => navigate("/jenis-jangka-waktu")}
-              style={{ padding: "12px 24px", backgroundColor: "#f1f5f9", color: "#64748b", border: "none", borderRadius: "8px", cursor: "pointer", fontWeight: "500", fontSize: "16px" }}
+              onClick={() => navigate("/Jenisjangkawaktu-index")}
+              style={{ 
+                backgroundColor: "#e2e8f0", 
+                color: "#64748b", 
+                padding: "10px 20px", 
+                borderRadius: "6px", 
+                border: "none", 
+                cursor: "pointer", 
+                fontWeight: "500"
+              }}
             >
               Batal
             </button>
             <button
               type="submit"
-              style={{ padding: "12px 24px", backgroundColor: "#4361ee", color: "white", border: "none", borderRadius: "8px", cursor: "pointer", fontWeight: "500", fontSize: "16px" }}
+              disabled={isSubmitting}
+              style={{ 
+                backgroundColor: "#4361ee", 
+                color: "white", 
+                padding: "10px 20px", 
+                borderRadius: "6px", 
+                border: "none", 
+                cursor: "pointer", 
+                fontWeight: "500",
+                opacity: isSubmitting ? 0.7 : 1
+              }}
             >
-              Simpan
+              {isSubmitting ? "Menyimpan..." : "Simpan"}
             </button>
           </div>
         </form>
@@ -84,4 +203,4 @@ function JenisJangkaWaktuCreate() {
   );
 }
 
-export default JenisJangkaWaktuCreate;
+export default JenisjangkawaktuCreate;

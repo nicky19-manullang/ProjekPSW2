@@ -5,13 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\JenisJangkaWaktu;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Validator;
 
 class JenisJangkaWaktuController extends Controller
 {
     public function index()
     {
         try {
-            $data = JenisJangkaWaktu::all();
+            $data = JenisJangkaWaktu::orderBy('created_at', 'desc')->get();
             return response()->json([
                 'status' => 'success',
                 'data' => $data
@@ -19,46 +20,42 @@ class JenisJangkaWaktuController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => $e->getMessage()
+                'message' => 'Failed to retrieve data: ' . $e->getMessage()
             ], 500);
         }
     }
 
-    public function create()
-    {
-        //
-    }
-
     public function store(Request $request)
     {
-        try {
-            $validatedData = $request->validate([
-                'jenisJangkaWaktu' => 'required|string|max:255',
-                'keterangan' => 'nullable|string|max:255',
-            ]);
+        $validator = Validator::make($request->all(), [
+            'jenisJangkaWaktu' => 'required|string|max:255|unique:jenis_jangka_waktus',
+            'keterangan' => 'nullable|string|max:255',
+        ], [
+            'jenisJangkaWaktu.required' => 'Jenis jangka waktu wajib diisi',
+            'jenisJangkaWaktu.unique' => 'Jenis jangka waktu sudah ada',
+            'jenisJangkaWaktu.max' => 'Jenis jangka waktu maksimal 255 karakter',
+        ]);
 
-            $data = JenisJangkaWaktu::create($validatedData);
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            $data = JenisJangkaWaktu::create($validator->validated());
 
             return response()->json([
                 'status' => 'success',
                 'message' => 'Data berhasil ditambahkan',
                 'data' => $data
             ], 201);
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Data tidak ditemukan!'
-            ], 404);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Validasi gagal',
-                'errors' => $e->errors()
-            ], 422);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+                'message' => 'Failed to create data: ' . $e->getMessage()
             ], 500);
         }
     }
@@ -79,63 +76,56 @@ class JenisJangkaWaktuController extends Controller
         }
     }
 
-    public function edit(JenisJangkaWaktu $jenisJangkaWaktu)
+    public function update(Request $request, $id)
     {
-        //
-    }
+        $validator = Validator::make($request->all(), [
+            'jenisJangkaWaktu' => 'required|string|max:255|unique:jenis_jangka_waktus,jenisJangkaWaktu,'.$id,
+            'keterangan' => 'nullable|string|max:255',
+        ], [
+            'jenisJangkaWaktu.required' => 'Jenis jangka waktu wajib diisi',
+            'jenisJangkaWaktu.unique' => 'Jenis jangka waktu sudah ada',
+            'jenisJangkaWaktu.max' => 'Jenis jangka waktu maksimal 255 karakter',
+        ]);
 
-    public function update(Request $request, JenisJangkaWaktu $jenisJangkaWaktu)
-    {
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
         try {
-            $validatedData = $request->validate([
-                'jenisJangkaWaktu' => 'required|string|max:255',
-                'keterangan' => 'nullable|string|max:255',
-            ]);
-
-            $jenisJangkaWaktu->update($validatedData);
+            $jenisJangkaWaktu = JenisJangkaWaktu::findOrFail($id);
+            $jenisJangkaWaktu->update($validator->validated());
 
             return response()->json([
                 'status' => 'success',
-                'message' => 'Data berhasil diupdate!',
+                'message' => 'Data berhasil diupdate',
                 'data' => $jenisJangkaWaktu
             ], 200);
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Data tidak ditemukan!'
-            ], 404);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Validasi gagal',
-                'errors' => $e->errors()
-            ], 422);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+                'message' => 'Failed to update data: ' . $e->getMessage()
             ], 500);
         }
     }
 
-    public function destroy(JenisJangkaWaktu $jenisJangkaWaktu)
+    public function destroy($id)
     {
         try {
+            $jenisJangkaWaktu = JenisJangkaWaktu::findOrFail($id);
             $jenisJangkaWaktu->delete();
 
             return response()->json([
                 'status' => 'success',
                 'message' => 'Data berhasil dihapus'
             ], 200);
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Data tidak ditemukan'
-            ], 404);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+                'message' => 'Failed to delete data: ' . $e->getMessage()
             ], 500);
         }
     }

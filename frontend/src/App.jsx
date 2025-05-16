@@ -122,7 +122,7 @@ function App() {
       <Route path="/lokasi-objek-retribusi" element={isLoggedIn ? <AdminLayout><LokasiobjekIndex /></AdminLayout> : <Navigate to="/login" replace />} />
       <Route path="/lokasi-objek-retribusi-create" element={isLoggedIn ? <AdminLayout><LokasiobjekCreate /></AdminLayout> : <Navigate to="/login" replace />} />
       <Route path="/lokasi-objek-retribusi-edit/:id" element={isLoggedIn ? <AdminLayout><LokasiobjekEdit /></AdminLayout> : <Navigate to="/login" replace />} />
-      // Jenisstatus Routes
+      {/* // Jenisstatus Routes */}
 <Route path="/Jenisstatus-index" element={isLoggedIn ? <AdminLayout><JenisstatusIndex /></AdminLayout> : <Navigate to="/login" replace />} />
 <Route path="/Jenisstatus-create" element={isLoggedIn ? <AdminLayout><JenisstatusCreate /></AdminLayout> : <Navigate to="/login" replace />} />
 <Route path="/Jenisstatus-edit/:id" element={isLoggedIn ? <AdminLayout><JenisstatusEdit /></AdminLayout> : <Navigate to="/login" replace />} />

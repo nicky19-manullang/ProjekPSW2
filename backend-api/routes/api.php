@@ -15,7 +15,13 @@ use App\Http\Controllers\ObjekRetribusiController;
 use App\Http\Controllers\LokasiObjekRetribusiController;
 
 
-Route::apiResource('jenis-status', JenisStatusController::class);
+Route::prefix('v1')->group(function () {
+    Route::get('/jenis-status', [JenisStatusController::class, 'index']);
+    Route::post('/jenis-status', [JenisStatusController::class, 'store']);
+    Route::get('/jenis-status/{id}', [JenisStatusController::class, 'show']);
+    Route::put('/jenis-status/{id}', [JenisStatusController::class, 'update']);
+    Route::delete('/jenis-status/{id}', [JenisStatusController::class, 'destroy']);
+});
 Route::prefix('v1')->group(function () {
     Route::get('/jenis-permohonan', [JenisPermohonanController::class, 'index']);
     Route::post('/jenis-permohonan', [JenisPermohonanController::class, 'store']);

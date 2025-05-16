@@ -1,71 +1,249 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
+import Swal from "sweetalert2";
 
-const Api_URL = "http://127.0.0.1:8000/api/jenis-status";
+const Api_URL = "http://127.0.0.1:8000/api/v1/jenis-status";
 
 function JenisstatusEdit() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [jenisStatus, setJenisStatus] = useState("");
-  const [keterangan, setKeterangan] = useState("");
+  const [formData, setFormData] = useState({
+    jenis_status: "",
+    keterangan: "",
+  });
+  const [errors, setErrors] = useState({});
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(`${Api_URL}/${id}`);
+        setFormData({
+          jenis_status: response.data.data.jenis_status,
+          keterangan: response.data.data.keterangan || "",
+        });
+        setIsLoading(false);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        setIsLoading(false);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Gagal memuat data jenis status',
+        }).then(() => {
+          navigate("/Jenisstatus-index");
+        });
+      }
+    };
 
-  const fetchData = async () => {
-    try {
-      const response = await axios.get(`${Api_URL}/${id}`);
-      const data = response.data;
-      setJenisStatus(data.jenis_status);
-      setKeterangan(data.keterangan);
-    } catch (error) {
-      console.error("Gagal mengambil data:", error);
+    fetchData();
+  }, [id, navigate]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    // Clear error when user types
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: null
+      }));
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
+
     try {
-      await axios.put(`${Api_URL}/${id}`, {
-        jenis_status: jenisStatus,
-        keterangan: keterangan,
+      const response = await axios.put(`${Api_URL}/${id}`, formData);
+      Swal.fire({
+        icon: 'success',
+        title: 'Berhasil!',
+        text: 'Data jenis status berhasil diperbarui',
+      }).then(() => {
+        navigate("/Jenisstatus-index");
       });
-      navigate("/jenis-status");
     } catch (error) {
-      console.error("Gagal mengupdate data:", error);
+      if (error.response && error.response.status === 422) {
+        setErrors(error.response.data.errors);
+        Swal.fire({
+          icon: 'error',
+          title: 'Validasi Gagal',
+          text: 'Terdapat kesalahan pada input Anda',
+        });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Gagal memperbarui data: ' + (error.response?.data?.message || error.message),
+        });
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
+  if (isLoading) {
+    return (
+      <div style={{ 
+        fontFamily: "'Poppins', sans-serif", 
+        padding: "20px", 
+        backgroundColor: "#f8fafc", 
+        minHeight: "100vh",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center"
+      }}>
+        <div style={{ textAlign: "center" }}>
+          <div style={{ marginBottom: "15px" }}>Memuat data...</div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div style={{ padding: "20px", fontFamily: "Poppins, sans-serif" }}>
-      <h2 style={{ fontSize: "24px", marginBottom: "20px" }}>Edit Jenis Status</h2>
-      <form onSubmit={handleSubmit} style={{ maxWidth: "500px" }}>
-        <div style={{ marginBottom: "15px" }}>
-          <label>Jenis Status</label>
-          <input
-            type="text"
-            value={jenisStatus}
-            onChange={(e) => setJenisStatus(e.target.value)}
-            required
-            style={{ width: "100%", padding: "8px", marginTop: "5px" }}
-          />
+    <div style={{ 
+      fontFamily: "'Poppins', sans-serif", 
+      padding: "20px", 
+      backgroundColor: "#f8fafc", 
+      minHeight: "100vh" 
+    }}>
+      <div style={{ 
+        backgroundColor: "white", 
+        borderRadius: "10px", 
+        boxShadow: "0 2px 10px rgba(0,0,0,0.05)", 
+        padding: "20px",
+        maxWidth: "800px",
+        margin: "0 auto"
+      }}>
+        <div style={{ 
+          display: "flex", 
+          justifyContent: "space-between", 
+          alignItems: "center", 
+          marginBottom: "20px",
+          borderBottom: "1px solid #e2e8f0",
+          paddingBottom: "15px"
+        }}>
+          <h1 style={{ fontSize: "24px", fontWeight: "600", color: "#1e293b" }}>Edit Jenis Status</h1>
+          <button 
+            onClick={() => navigate("/Jenisstatus-index")}
+            style={{ 
+              backgroundColor: "#e2e8f0", 
+              color: "#64748b", 
+              padding: "8px 16px", 
+              borderRadius: "6px", 
+              border: "none", 
+              cursor: "pointer", 
+              fontWeight: "500"
+            }}
+          >
+            Kembali
+          </button>
         </div>
-        <div style={{ marginBottom: "15px" }}>
-          <label>Keterangan</label>
-          <input
-            type="text"
-            value={keterangan}
-            onChange={(e) => setKeterangan(e.target.value)}
-            required
-            style={{ width: "100%", padding: "8px", marginTop: "5px" }}
-          />
-        </div>
-        <button type="submit" style={{ backgroundColor: "#f59e0b", color: "white", padding: "10px 20px", border: "none", borderRadius: "5px" }}>
-          Update
-        </button>
-      </form>
+
+        <form onSubmit={handleSubmit}>
+          <div style={{ marginBottom: "20px" }}>
+            <label style={{ 
+              display: "block", 
+              marginBottom: "8px", 
+              fontWeight: "500", 
+              color: "#334155" 
+            }}>
+              Jenis Status <span style={{ color: "#ef4444" }}>*</span>
+            </label>
+            <input
+              type="text"
+              name="jenis_status"
+              value={formData.jenis_status}
+              onChange={handleChange}
+              style={{
+                width: "100%",
+                padding: "10px 15px",
+                borderRadius: "6px",
+                border: errors.jenis_status ? "1px solid #ef4444" : "1px solid #e2e8f0",
+                fontSize: "14px"
+              }}
+              placeholder="Masukkan jenis status"
+            />
+            {errors.jenis_status && (
+              <div style={{ color: "#ef4444", fontSize: "12px", marginTop: "5px" }}>
+                {errors.jenis_status[0]}
+              </div>
+            )}
+          </div>
+
+          <div style={{ marginBottom: "20px" }}>
+            <label style={{ 
+              display: "block", 
+              marginBottom: "8px", 
+              fontWeight: "500", 
+              color: "#334155" 
+            }}>
+              Keterangan
+            </label>
+            <textarea
+              name="keterangan"
+              value={formData.keterangan}
+              onChange={handleChange}
+              style={{
+                width: "100%",
+                padding: "10px 15px",
+                borderRadius: "6px",
+                border: errors.keterangan ? "1px solid #ef4444" : "1px solid #e2e8f0",
+                fontSize: "14px",
+                minHeight: "100px",
+                resize: "vertical"
+              }}
+              placeholder="Masukkan keterangan (opsional)"
+            />
+            {errors.keterangan && (
+              <div style={{ color: "#ef4444", fontSize: "12px", marginTop: "5px" }}>
+                {errors.keterangan[0]}
+              </div>
+            )}
+          </div>
+
+          <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
+            <button
+              type="button"
+              onClick={() => navigate("/Jenisstatus-index")}
+              style={{ 
+                backgroundColor: "#e2e8f0", 
+                color: "#64748b", 
+                padding: "10px 20px", 
+                borderRadius: "6px", 
+                border: "none", 
+                cursor: "pointer", 
+                fontWeight: "500"
+              }}
+            >
+              Batal
+            </button>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              style={{ 
+                backgroundColor: "#4361ee", 
+                color: "white", 
+                padding: "10px 20px", 
+                borderRadius: "6px", 
+                border: "none", 
+                cursor: "pointer", 
+                fontWeight: "500",
+                opacity: isSubmitting ? 0.7 : 1
+              }}
+            >
+              {isSubmitting ? "Memperbarui..." : "Perbarui"}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }
