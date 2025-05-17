@@ -85,13 +85,13 @@ function App() {
 
       {/* Jenispermohonan Routes */}
       <Route path="/Jenispermohonan-index" element={isLoggedIn ? <AdminLayout><JenispermohonanIndex /></AdminLayout> : <Navigate to="/login" replace />} />
-      <Route path="/Jenispermohonan-create" element={isLoggedIn ? <AdminLayout><JenispermohonanCreate /></AdminLayout> : <Navigate to="/login" replace />} />
-      <Route path="/Jenispermohonan-edit/:id" element={isLoggedIn ? <AdminLayout><JenispermohonanEdit /></AdminLayout> : <Navigate to="/login" replace />} />
+      <Route path="/Jenis-permohonan/create" element={isLoggedIn ? <AdminLayout><JenispermohonanCreate /></AdminLayout> : <Navigate to="/login" replace />} />
+      <Route path="/Jenis-permohonan/edit/:id" element={isLoggedIn ? <AdminLayout><JenispermohonanEdit /></AdminLayout> : <Navigate to="/login" replace />} />
 
       {/* Peruntukansewa Routes */}
       <Route path="/Peruntukansewa-index" element={isLoggedIn ? <AdminLayout><PeruntukansewaIndex /></AdminLayout> : <Navigate to="/login" replace />} />
-      <Route path="/Peruntukansewa-create" element={isLoggedIn ? <AdminLayout><PeruntukansewaCreate /></AdminLayout> : <Navigate to="/login" replace />} />
-      <Route path="/Peruntukansewa-edit/:id" element={isLoggedIn ? <AdminLayout><PeruntukansewaEdit /></AdminLayout> : <Navigate to="/login" replace />} />
+      <Route path="/Peruntukansewa/create" element={isLoggedIn ? <AdminLayout><PeruntukansewaCreate /></AdminLayout> : <Navigate to="/login" replace />} />
+      <Route path="/Peruntukansewa/edit/:id" element={isLoggedIn ? <AdminLayout><PeruntukansewaEdit /></AdminLayout> : <Navigate to="/login" replace />} />
 
       {/* Permohonansewa Routes */}
       <Route path="/Permohonansewa-index" element={isLoggedIn ? <AdminLayout><PermohonansewaIndex /></AdminLayout> : <Navigate to="/login" replace />} />

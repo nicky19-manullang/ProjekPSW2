@@ -22,7 +22,6 @@ function JenispermohonanEdit() {
   const fetchDataById = async () => {
     try {
       const res = await axios.get(Api_URL);
-      // res.data adalah array semua jenis permohonan
       const dataItem = res.data.find(item => item.id === parseInt(id));
       if (dataItem) {
         setFormData({
@@ -33,11 +32,11 @@ function JenispermohonanEdit() {
         });
       } else {
         alert("Data dengan ID tersebut tidak ditemukan.");
-        navigate("/jenis-permohonan");
+        navigate("/Jenispermohonan-index");
       }
     } catch (error) {
-      console.error("Error fetching data:", error);
       alert("Gagal mengambil data untuk diedit.");
+      navigate("/Jenispermohonan-index");
     } finally {
       setLoading(false);
     }
@@ -51,153 +50,161 @@ function JenispermohonanEdit() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`${Api_URL}/${id}`, formData, {
-        headers: {
-          "Content-Type": "application/json"
-        }
+      const dataToSend = {
+        jenis_permohonan: formData.jenis_permohonan,
+        parent_id: formData.parent_id ? parseInt(formData.parent_id) : null,
+        keterangan: formData.keterangan,
+      };
+      await axios.put(`${Api_URL}/${id}`, dataToSend, {
+        headers: { "Content-Type": "application/json" },
       });
       alert("Data berhasil diperbarui!");
-      navigate("/jenis-permohonan");
+      navigate("/Jenispermohonan-index");
     } catch (error) {
-      console.error("Error updating data:", error.response?.data);
       alert(`Gagal memperbarui data! ${error.response?.data?.message || ""}`);
     }
   };
 
   if (loading) {
-    return <p>Memuat data...</p>;
+    return <p className="loading">Memuat data...</p>;
   }
 
   return (
-    <div style={{ fontFamily: "'Poppins', sans-serif", padding: 40, backgroundColor: "#f8fafc", minHeight: "100vh" }}>
-      <h1 style={{ fontSize: 24, fontWeight: 600, color: "#1e293b", marginBottom: 30 }}>
-        Edit Jenis Permohonan
-      </h1>
+    <div className="edit-container">
+      <h1 className="edit-title">Edit Jenis Permohonan</h1>
+      <form onSubmit={handleSubmit} className="edit-form">
+        <label>ID</label>
+        <input type="text" name="id" value={formData.id} readOnly />
 
-      <div style={{ backgroundColor: "white", borderRadius: 12, boxShadow: "0 4px 15px rgba(0,0,0,0.08)", padding: 35, maxWidth: 800, margin: "0 auto" }}>
-        <form onSubmit={handleSubmit}>
-          {/* ID (readonly karena biasanya primary key) */}
-          <div style={{ marginBottom: 25 }}>
-            <label style={{ display: "block", marginBottom: 10, fontWeight: 500, color: "#334155", fontSize: 16 }}>
-              ID
-            </label>
-            <input
-              type="text"
-              name="id"
-              value={formData.id}
-              readOnly
-              style={{
-                width: "100%",
-                padding: "12px 18px",
-                border: "1px solid #e2e8f0",
-                borderRadius: 8,
-                fontSize: 16,
-                backgroundColor: "#f1f5f9"
-              }}
-            />
-          </div>
+        <label>Jenis Permohonan</label>
+        <input
+          type="text"
+          name="jenis_permohonan"
+          value={formData.jenis_permohonan}
+          onChange={handleChange}
+          placeholder="Masukkan jenis permohonan"
+          required
+        />
 
-          {/* Jenis Permohonan */}
-          <div style={{ marginBottom: 25 }}>
-            <label style={{ display: "block", marginBottom: 10, fontWeight: 500, color: "#334155", fontSize: 16 }}>
-              Jenis Permohonan
-            </label>
-            <input
-              type="text"
-              name="jenis_permohonan"
-              value={formData.jenis_permohonan}
-              onChange={handleChange}
-              required
-              placeholder="Masukkan jenis permohonan"
-              style={{
-                width: "100%",
-                padding: "12px 18px",
-                border: "1px solid #e2e8f0",
-                borderRadius: 8,
-                fontSize: 16
-              }}
-            />
-          </div>
+        <label>Parent ID</label>
+        <input
+          type="text"
+          name="parent_id"
+          value={formData.parent_id}
+          onChange={handleChange}
+          placeholder="Masukkan parent ID (opsional)"
+        />
 
-          {/* Parent ID */}
-          <div style={{ marginBottom: 25 }}>
-            <label style={{ display: "block", marginBottom: 10, fontWeight: 500, color: "#334155", fontSize: 16 }}>
-              Parent ID
-            </label>
-            <input
-              type="text"
-              name="parent_id"
-              value={formData.parent_id}
-              onChange={handleChange}
-              placeholder="Masukkan parent ID (opsional)"
-              style={{
-                width: "100%",
-                padding: "12px 18px",
-                border: "1px solid #e2e8f0",
-                borderRadius: 8,
-                fontSize: 16
-              }}
-            />
-          </div>
+        <label>Keterangan</label>
+        <textarea
+          name="keterangan"
+          value={formData.keterangan}
+          onChange={handleChange}
+          placeholder="Masukkan keterangan"
+          rows={5}
+        />
 
-          {/* Keterangan */}
-          <div style={{ marginBottom: 30 }}>
-            <label style={{ display: "block", marginBottom: 10, fontWeight: 500, color: "#334155", fontSize: 16 }}>
-              Keterangan
-            </label>
-            <textarea
-              name="keterangan"
-              value={formData.keterangan}
-              onChange={handleChange}
-              placeholder="Masukkan keterangan"
-              style={{
-                width: "100%",
-                padding: "12px 18px",
-                border: "1px solid #e2e8f0",
-                borderRadius: 8,
-                fontSize: 16,
-                minHeight: 120,
-                resize: "vertical"
-              }}
-            />
-          </div>
+        <div className="button-group">
+          <button
+            type="button"
+            className="btn-cancel"
+            onClick={() => navigate("/Jenispermohonan-index")}
+          >
+            Batal
+          </button>
+          <button type="submit" className="btn-save">
+            Simpan Perubahan
+          </button>
+        </div>
+      </form>
 
-          {/* Buttons */}
-          <div style={{ display: "flex", justifyContent: "flex-end", gap: 20 }}>
-            <button
-              type="button"
-              onClick={() => navigate("/jenis-permohonan")}
-              style={{
-                padding: "12px 24px",
-                backgroundColor: "#f1f5f9",
-                color: "#64748b",
-                border: "none",
-                borderRadius: 8,
-                cursor: "pointer",
-                fontWeight: 500,
-                fontSize: 16
-              }}
-            >
-              Batal
-            </button>
-            <button
-              type="submit"
-              style={{
-                padding: "12px 24px",
-                backgroundColor: "#16a34a",
-                color: "white",
-                border: "none",
-                borderRadius: 8,
-                cursor: "pointer",
-                fontWeight: 500,
-                fontSize: 16
-              }}
-            >
-              Simpan Perubahan
-            </button>
-          </div>
-        </form>
-      </div>
+      <style>{`
+        .edit-container {
+          max-width: 720px;
+          margin: 48px auto;
+          padding: 24px 32px;
+          background: #fff;
+          border-radius: 12px;
+          box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+          font-family: 'Poppins', sans-serif;
+          color: #334155;
+        }
+        .edit-title {
+          font-size: 28px;
+          font-weight: 700;
+          margin-bottom: 32px;
+          text-align: center;
+          color: #1e293b;
+        }
+        .edit-form label {
+          display: block;
+          margin-bottom: 8px;
+          font-weight: 600;
+          font-size: 15px;
+          color: #475569;
+          margin-top: 20px;
+        }
+        .edit-form input[type="text"],
+        .edit-form textarea {
+          width: 100%;
+          padding: 12px 16px;
+          font-size: 15px;
+          border: 1.5px solid #cbd5e1;
+          border-radius: 8px;
+          color: #334155;
+          outline-offset: 2px;
+          transition: border-color 0.3s ease;
+        }
+        .edit-form input[type="text"]:focus,
+        .edit-form textarea:focus {
+          border-color: #2563eb;
+          outline: none;
+        }
+        textarea {
+          resize: vertical;
+        }
+        .button-group {
+          margin-top: 32px;
+          display: flex;
+          justify-content: flex-end;
+          gap: 16px;
+        }
+        .btn-cancel {
+          background: #e2e8f0;
+          border: none;
+          padding: 12px 28px;
+          font-size: 15px;
+          font-weight: 600;
+          color: #64748b;
+          border-radius: 8px;
+          cursor: pointer;
+          transition: background-color 0.3s ease;
+        }
+        .btn-cancel:hover {
+          background: #cbd5e1;
+        }
+        .btn-save {
+          background: #2563eb;
+          border: none;
+          padding: 12px 28px;
+          font-size: 15px;
+          font-weight: 600;
+          color: white;
+          border-radius: 8px;
+          cursor: pointer;
+          transition: background-color 0.3s ease;
+        }
+        .btn-save:hover {
+          background: #1d4ed8;
+        }
+        .loading {
+          font-family: 'Poppins', sans-serif;
+          font-size: 18px;
+          text-align: center;
+          margin-top: 80px;
+          color: #64748b;
+        }
+      `}</style>
     </div>
   );
 }

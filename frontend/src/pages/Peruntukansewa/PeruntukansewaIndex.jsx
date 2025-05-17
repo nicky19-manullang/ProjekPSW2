@@ -38,7 +38,7 @@ function PeruntukansewaIndex() {
     <div style={{ padding: 20, fontFamily: "'Poppins', sans-serif" }}>
       <h1>Data Peruntukan Sewa</h1>
       <Link
-        to="/peruntukansewa/create"
+        to="/Peruntukansewa/create"
         style={{
           display: "inline-block",
           marginBottom: 20,
