@@ -19,4 +19,3 @@ class WajibRetribusi extends Model
         'filePhoto'
     ];
 }
-
