@@ -1,144 +1,274 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { FaEdit, FaTrash, FaChevronLeft, FaChevronRight, FaPlus, FaSearch } from "react-icons/fa";
+import Swal from "sweetalert2";
 
-const API_URL = "http://127.0.0.1:8000/api/v1/permohonan-sewa";
+const Api_URL = "http://127.0.0.1:8000/api/v1/permohonan-sewa";
 
-const PermohonansewaIndex = () => {
-  const [permohonanSewa, setPermohonanSewa] = useState([]);
+function PermohonansewaIndex() {
+  const [data, setData] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const itemsPerPage = 10;
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchPermohonanSewa();
+    fetchData();
   }, []);
 
-  const fetchPermohonanSewa = async () => {
+  const fetchData = async () => {
     try {
-      const response = await axios.get(API_URL);
-      setPermohonanSewa(response.data);
+      setIsLoading(true);
+      const response = await axios.get(Api_URL);
+      setData(response.data.data);
+      setIsLoading(false);
     } catch (error) {
-      alert("Gagal mengambil data permohonan sewa");
-      console.error(error);
+      console.error('Error fetching data:', error);
+      setIsLoading(false);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Gagal memuat data permohonan sewa',
+      });
     }
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm("Apakah Anda yakin ingin menghapus data ini?")) {
-      try {
-        await axios.delete(`${API_URL}/${id}`);
-        alert("Data berhasil dihapus");
-        fetchPermohonanSewa();
-      } catch (error) {
-        alert("Gagal menghapus data");
-        console.error(error);
+    Swal.fire({
+      title: 'Apakah Anda yakin?',
+      text: "Data yang dihapus tidak dapat dikembalikan!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Ya, hapus!',
+      cancelButtonText: 'Batal'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await axios.delete(`${Api_URL}/${id}`);
+          Swal.fire(
+            'Deleted!',
+            'Data berhasil dihapus.',
+            'success'
+          );
+          fetchData();
+        } catch (error) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Gagal menghapus data',
+          });
+        }
       }
-    }
+    });
   };
 
-  const renderValue = (value) => (value === null || value === undefined || value === "" ? "-" : value);
+  // Filter data based on search term
+  const filteredData = data.filter(item =>
+    item.nomorSuratPermohonan.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (item.wajibRetribusi && item.wajibRetribusi.nama.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (item.objekRetribusi && item.objekRetribusi.nama.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
+
+  // Pagination logic
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredData.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
 
   return (
-    <div style={{ padding: "20px", fontFamily: "'Poppins', sans-serif" }}>
-      <h2>Data Permohonan Sewa</h2>
-      <button
-        onClick={() => navigate("/Permohonansewa-create")}
-        style={{
-          backgroundColor: "#4361ee",
-          color: "white",
-          padding: "10px 20px",
-          borderRadius: "6px",
-          border: "none",
-          cursor: "pointer",
-          fontWeight: "600",
-          marginBottom: "15px",
-        }}
-      >
-        Tambah Data
-      </button>
+    <div style={{ fontFamily: "'Poppins', sans-serif", padding: "20px", backgroundColor: "#f8fafc", minHeight: "100vh" }}>
+      {/* Header */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+        <h1 style={{ fontSize: "24px", fontWeight: "600", color: "#1e293b" }}>Daftar Permohonan Sewa</h1>
+        <button 
+          onClick={() => navigate("/Permohonansewa-create")}
+          style={{ 
+            backgroundColor: "#4361ee", 
+            color: "white", 
+            padding: "8px 16px", 
+            borderRadius: "6px", 
+            border: "none", 
+            cursor: "pointer", 
+            fontWeight: "500",
+            display: "flex",
+            alignItems: "center",
+            gap: "8px"
+          }}
+        >
+          <FaPlus /> Tambah Data
+        </button>
+      </div>
 
-      <table
-        style={{
-          width: "100%",
-          borderCollapse: "collapse",
-          textAlign: "left",
-          fontSize: "16px",
-        }}
-      >
-        <thead>
-          <tr style={{ backgroundColor: "#4361ee", color: "white" }}>
-            <th style={{ padding: "10px", border: "1px solid #ddd" }}>ID</th>
-            <th style={{ padding: "10px", border: "1px solid #ddd" }}>ID Jenis Permohonan</th>
-            <th style={{ padding: "10px", border: "1px solid #ddd" }}>Nomor Surat Permohonan</th>
-            <th style={{ padding: "10px", border: "1px solid #ddd" }}>Tanggal Pengajuan</th>
-            <th style={{ padding: "10px", border: "1px solid #ddd" }}>ID Wajib Retribusi</th>
-            <th style={{ padding: "10px", border: "1px solid #ddd" }}>ID Objek Retribusi</th>
-            <th style={{ padding: "10px", border: "1px solid #ddd" }}>ID Jenis Jangka Waktu</th>
-            <th style={{ padding: "10px", border: "1px solid #ddd" }}>Lama Sewa</th>
-            <th style={{ padding: "10px", border: "1px solid #ddd" }}>ID Peruntukan Sewa</th>
-            <th style={{ padding: "10px", border: "1px solid #ddd" }}>ID Status</th>
-            <th style={{ padding: "10px", border: "1px solid #ddd" }}>Created At</th>
-            <th style={{ padding: "10px", border: "1px solid #ddd" }}>Updated At</th>
-            <th style={{ padding: "10px", border: "1px solid #ddd" }}>Aksi</th>
-          </tr>
-        </thead>
-        <tbody>
-          {permohonanSewa.length === 0 ? (
-            <tr>
-              <td colSpan="13" style={{ padding: "10px", textAlign: "center" }}>
-                Data tidak ditemukan
-              </td>
-            </tr>
-          ) : (
-            permohonanSewa.map((item) => (
-              <tr key={item.id} style={{ borderBottom: "1px solid #ddd" }}>
-                <td style={{ padding: "10px", border: "1px solid #ddd" }}>{renderValue(item.id)}</td>
-                <td style={{ padding: "10px", border: "1px solid #ddd" }}>{renderValue(item.idJenisPermohonan)}</td>
-                <td style={{ padding: "10px", border: "1px solid #ddd" }}>{renderValue(item.nomorSuratPermohonan)}</td>
-                <td style={{ padding: "10px", border: "1px solid #ddd" }}>{renderValue(item.tanggalPengajuan)}</td>
-                <td style={{ padding: "10px", border: "1px solid #ddd" }}>{renderValue(item.idWajibRetribusi)}</td>
-                <td style={{ padding: "10px", border: "1px solid #ddd" }}>{renderValue(item.idObjekRetribusi)}</td>
-                <td style={{ padding: "10px", border: "1px solid #ddd" }}>{renderValue(item.idJenisJangkaWaktu)}</td>
-                <td style={{ padding: "10px", border: "1px solid #ddd" }}>{renderValue(item.lamaSewa)}</td>
-                <td style={{ padding: "10px", border: "1px solid #ddd" }}>{renderValue(item.idPeruntukanSewa)}</td>
-                <td style={{ padding: "10px", border: "1px solid #ddd" }}>{renderValue(item.idStatus)}</td>
-                <td style={{ padding: "10px", border: "1px solid #ddd" }}>{renderValue(item.created_at)}</td>
-                <td style={{ padding: "10px", border: "1px solid #ddd" }}>{renderValue(item.updated_at)}</td>
-                <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                  <button
-                    onClick={() => navigate(`/Permohonansewa-edit/${item.id}`)}
-                    style={{
-                      backgroundColor: "#4361ee",
-                      color: "white",
-                      border: "none",
-                      padding: "5px 10px",
-                      borderRadius: "4px",
-                      cursor: "pointer",
-                      marginRight: "5px",
-                    }}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(item.id)}
-                    style={{
-                      backgroundColor: "#f44336",
-                      color: "white",
-                      border: "none",
-                      padding: "5px 10px",
-                      borderRadius: "4px",
-                      cursor: "pointer",
-                    }}
-                  >
-                    Hapus
-                  </button>
-                </td>
-              </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+      {/* Search Bar */}
+      <div style={{ 
+        marginBottom: "20px",
+        position: "relative"
+      }}>
+        <FaSearch style={{
+          position: "absolute",
+          left: "15px",
+          top: "50%",
+          transform: "translateY(-50%)",
+          color: "#64748b"
+        }} />
+        <input
+          type="text"
+          placeholder="Cari nomor surat, wajib retribusi, atau objek retribusi..."
+          style={{
+            width: "100%",
+            padding: "10px 15px 10px 40px",
+            borderRadius: "6px",
+            border: "1px solid #e2e8f0",
+            fontSize: "14px"
+          }}
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
+
+      {/* Table */}
+      <div style={{ backgroundColor: "white", borderRadius: "10px", boxShadow: "0 2px 10px rgba(0,0,0,0.05)", overflow: "hidden" }}>
+        {/* Table Header */}
+        <div style={{ 
+          display: "grid", 
+          gridTemplateColumns: "50px 1fr 1fr 1fr 1fr 100px", 
+          padding: "15px 20px", 
+          backgroundColor: "#4361ee", 
+          color: "white", 
+          fontWeight: "500",
+          alignItems: "center"
+        }}>
+          <div>No</div>
+          <div>Nomor Surat</div>
+          <div>Tanggal Pengajuan</div>
+          <div>Wajib Retribusi</div>
+          <div>Objek Retribusi</div>
+          <div style={{ textAlign: "center" }}>Aksi</div>
+        </div>
+
+        {/* Loading State */}
+        {isLoading && (
+          <div style={{ padding: "20px", textAlign: "center", color: "#64748b" }}>
+            Memuat data...
+          </div>
+        )}
+
+        {/* Empty State */}
+        {!isLoading && currentItems.length === 0 && (
+          <div style={{ padding: "20px", textAlign: "center", color: "#64748b" }}>
+            {searchTerm ? "Tidak ada hasil pencarian" : "Tidak ada data"}
+          </div>
+        )}
+
+        {/* Table Body */}
+        {!isLoading && currentItems.length > 0 && currentItems.map((item, index) => (
+          <div 
+            key={item.idPermohonanSewa}
+            style={{
+              display: "grid",
+              gridTemplateColumns: "50px 1fr 1fr 1fr 1fr 100px",
+              padding: "12px 20px",
+              borderBottom: "1px solid #e2e8f0",
+              alignItems: "center",
+              backgroundColor: index % 2 === 0 ? "#ffffff" : "#f8fafc"
+            }}
+          >
+            <div>{indexOfFirstItem + index + 1}</div>
+            <div>{item.nomorSuratPermohonan}</div>
+            <div>{new Date(item.tanggalPengajuan).toLocaleDateString('id-ID')}</div>
+            <div>{item.wajibRetribusi?.nama || "-"}</div>
+            <div>{item.objekRetribusi?.nama || "-"}</div>
+            <div style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
+              <button 
+                onClick={() => navigate(`/Permohonansewa-edit/${item.idPermohonanSewa}`)}
+                style={{ 
+                  color: "#3b82f6", 
+                  background: "none", 
+                  border: "none", 
+                  cursor: "pointer",
+                  fontSize: "16px"
+                }}
+                title="Edit"
+              >
+                <FaEdit />
+              </button>
+              <button 
+                onClick={() => handleDelete(item.idPermohonanSewa)}
+                style={{ 
+                  color: "#ef4444", 
+                  background: "none", 
+                  border: "none", 
+                  cursor: "pointer",
+                  fontSize: "16px"
+                }}
+                title="Hapus"
+              >
+                <FaTrash />
+              </button>
+            </div>
+          </div>
+        ))}
+
+        {/* Pagination */}
+        {!isLoading && filteredData.length > 0 && (
+          <div style={{ 
+            display: "flex", 
+            justifyContent: "space-between", 
+            alignItems: "center", 
+            padding: "15px 20px", 
+            borderTop: "1px solid #e2e8f0",
+            flexWrap: "wrap",
+            gap: "10px"
+          }}>
+            <div style={{ color: "#64748b" }}>
+              Menampilkan {Math.min(indexOfFirstItem + 1, filteredData.length)}-{Math.min(indexOfLastItem, filteredData.length)} dari {filteredData.length} data
+            </div>
+            <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+              <button 
+                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                style={{ 
+                  padding: "5px 10px", 
+                  border: "1px solid #e2e8f0", 
+                  borderRadius: "4px", 
+                  cursor: "pointer", 
+                  backgroundColor: currentPage === 1 ? "#f1f5f9" : "white",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "5px"
+                }}
+              >
+                <FaChevronLeft /> Prev
+              </button>
+              <span style={{ padding: "5px 10px" }}>
+                Halaman {currentPage} dari {totalPages}
+              </span>
+              <button 
+                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages}
+                style={{ 
+                  padding: "5px 10px", 
+                  border: "1px solid #e2e8f0", 
+                  borderRadius: "4px", 
+                  cursor: "pointer", 
+                  backgroundColor: currentPage === totalPages ? "#f1f5f9" : "white",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "5px"
+                }}
+              >
+                Next <FaChevronRight />
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
-};
+}
 
 export default PermohonansewaIndex;

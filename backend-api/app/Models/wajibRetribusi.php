@@ -7,16 +7,17 @@ use Illuminate\Database\Eloquent\Model;
 class WajibRetribusi extends Model
 {
     protected $fillable = [
-        'idJenisWajibRetribusi',
-        'NIK',
-        'namaWajibRetribusi',
-        'Pekerjaan',
-        'alamat',
-        'nomorPosel',
-        'nomorWhatsapp',
+      'id_jenis_retribusi',
+        'nama',  // Diubah dari nama_pekerjaan
+        'pekerjaan',  // Field baru
         'email',
-        'idJenisRetribusi',
-        'filePhoto'
+        'no_hp',
+        'no_wa',
+        'nik',
+        'alamat',
+        'file_foto',
+        'id_wajib_retribusi'
+
     ];
 }
 

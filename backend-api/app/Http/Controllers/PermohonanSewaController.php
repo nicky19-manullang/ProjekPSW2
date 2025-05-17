@@ -1,68 +1,152 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Models\PermohonanSewa; 
+
+use App\Models\PermohonanSewa;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class PermohonanSewaController extends Controller
 {
     public function index()
     {
-        return PermohonanSewa::all();
+        try {
+            $permohonanSewa = PermohonanSewa::with([
+                'wajibRetribusi',
+                'objekRetribusi',
+                'jenisJangkaWaktu',
+                'peruntukanSewa',
+                'status'
+            ])->get();
+
+            return response()->json([
+                'success' => true,
+                'data' => $permohonanSewa
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch data',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
-    public function create()
-    {
-        //
-    }
+
     public function store(Request $request)
     {
-        // Validasi data yang diterima dari request
-        $validatedData = $request->validate([
-            'nomorSuratPermohonan' => 'required|string|max:255',
+        $validator = Validator::make($request->all(), [
+            'nomorSuratPermohonan' => 'required|string|max:255|unique:permohonan_sewa',
             'tanggalPengajuan' => 'required|date',
-            'idWajibRetribusi' => 'nullable|integer',
-            'idObjekRetribusi' => 'nullable|integer',
-            'idJenisJangkaWaktu' => 'nullable|integer',
-            'lamaSewa' => 'nullable|string|max:255',
-            'idPeruntukanSewa' => 'nullable|integer',
-            'idStatus' => 'nullable|integer',
+            'idWajibRetribusi' => 'required|exists:wajib_retribusi,idWajibRetribusi',
+            'idObjekRetribusi' => 'required|exists:objek_retribusi,idObjekRetribusi',
+            'idJenisJangkaWaktu' => 'required|exists:jenis_jangka_waktu,idJenisJangkaWaktu',
+            'lamaSewa' => 'required|string|max:255',
+            'idPeruntukanSewa' => 'required|exists:peruntukan_sewa,idPeruntukanSewa',
+            'idStatus' => 'required|exists:status,idStatus',
         ]);
 
-        // Membuat data baru PermohonanSewa di database
-        return PermohonanSewa::create($validatedData);
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            $permohonanSewa = PermohonanSewa::create($request->all());
+
+            return response()->json([
+                'success' => true,
+                'data' => $permohonanSewa,
+                'message' => 'Permohonan Sewa created successfully'
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to create Permohonan Sewa',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
-    public function show(PermohonanSewa $permohonanSewa)
+
+    public function show($id)
     {
-        // Menampilkan data PermohonanSewa berdasarkan ID
-        return $permohonanSewa;
+        try {
+            $permohonanSewa = PermohonanSewa::with([
+                'wajibRetribusi',
+                'objekRetribusi',
+                'jenisJangkaWaktu',
+                'peruntukanSewa',
+                'status'
+            ])->findOrFail($id);
+
+            return response()->json([
+                'success' => true,
+                'data' => $permohonanSewa
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Permohonan Sewa not found',
+                'error' => $e->getMessage()
+            ], 404);
+        }
     }
-    public function edit(PermohonanSewa $permohonanSewa)
+
+    public function update(Request $request, $id)
     {
-        //
-    }
-    public function update(Request $request, PermohonanSewa $permohonanSewa)
-    {
-        // Validasi data yang diterima dari request
-        $validatedData = $request->validate([
-            'nomorSuratPermohonan' => 'required|string|max:255',
+        $validator = Validator::make($request->all(), [
+            'nomorSuratPermohonan' => 'required|string|max:255|unique:permohonan_sewa,nomorSuratPermohonan,'.$id.',idPermohonanSewa',
             'tanggalPengajuan' => 'required|date',
-            'idWajibRetribusi' => 'nullable|integer',
-            'idObjekRetribusi' => 'nullable|integer',
-            'idJenisJangkaWaktu' => 'nullable|integer',
-            'lamaSewa' => 'nullable|string|max:255',
-            'idPeruntukanSewa' => 'nullable|integer',
-            'idStatus' => 'nullable|integer',
+            'idWajibRetribusi' => 'required|exists:wajib_retribusi,idWajibRetribusi',
+            'idObjekRetribusi' => 'required|exists:objek_retribusi,idObjekRetribusi',
+            'idJenisJangkaWaktu' => 'required|exists:jenis_jangka_waktu,idJenisJangkaWaktu',
+            'lamaSewa' => 'required|string|max:255',
+            'idPeruntukanSewa' => 'required|exists:peruntukan_sewa,idPeruntukanSewa',
+            'idStatus' => 'required|exists:status,idStatus',
         ]);
 
-        // Mengupdate data PermohonanSewa di database
-        $permohonanSewa->update($validatedData);
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors()
+            ], 422);
+        }
 
-        return $permohonanSewa;
+        try {
+            $permohonanSewa = PermohonanSewa::findOrFail($id);
+            $permohonanSewa->update($request->all());
+
+            return response()->json([
+                'success' => true,
+                'data' => $permohonanSewa,
+                'message' => 'Permohonan Sewa updated successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update Permohonan Sewa',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
-    public function destroy(PermohonanSewa $permohonanSewa)
+
+    public function destroy($id)
     {
-        // Menghapus data PermohonanSewa dari database
-        $permohonanSewa->delete();
-        return response()->json(['message' => 'Permohonan Sewa deleted successfully']);
+        try {
+            $permohonanSewa = PermohonanSewa::findOrFail($id);
+            $permohonanSewa->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Permohonan Sewa deleted successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete Permohonan Sewa',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import Swal from 'sweetalert2';
 
 const Api_URL = "http://127.0.0.1:8000/api/v1/users";
 
@@ -28,13 +29,30 @@ function UserCreate() {
     try {
       const response = await axios.post(Api_URL, formData);
       if (response.data.status === 'success') {
-        navigate('/users-index');
+        Swal.fire({
+          icon: 'success',
+          title: 'Success!',
+          text: 'User has been created successfully',
+          timer: 1500
+        }).then(() => {
+          navigate('/users-index');
+        });
       }
     } catch (error) {
       if (error.response && error.response.status === 422) {
         setErrors(error.response.data.errors);
+        Swal.fire({
+          icon: 'error',
+          title: 'Validation Error',
+          text: 'Please check your input and try again'
+        });
       } else {
         console.error('Error creating user:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error!',
+          text: 'Something went wrong while creating the user'
+        });
       }
     }
   };

@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-const Api_URL = "http://127.0.0.1:8000/api/v1/tarif-objek-retribusi";
+const API_URL = "http://127.0.0.1:8000/api/v1/tarif-objek-retribusi";
 
 function TarifobjekCreate() {
   const navigate = useNavigate();
@@ -18,24 +18,28 @@ function TarifobjekCreate() {
   const [errors, setErrors] = useState({});
   const [objekOptions, setObjekOptions] = useState([]);
   const [jangkaWaktuOptions, setJangkaWaktuOptions] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    // Fetch options for dropdowns
-    const fetchOptions = async () => {
-      try {
-        const [objekRes, jangkaRes] = await Promise.all([
-          axios.get("http://127.0.0.1:8000/api/v1/objek-retribusi"),
-          axios.get("http://127.0.0.1:8000/api/v1/jenis-jangka-waktu")
-        ]);
-        setObjekOptions(objekRes.data.data);
-        setJangkaWaktuOptions(jangkaRes.data.data);
-      } catch (error) {
-        console.error('Error fetching options:', error);
-      }
-    };
-
     fetchOptions();
   }, []);
+
+  const fetchOptions = async () => {
+    try {
+      setIsLoading(true);
+      const [objekRes, jangkaRes] = await Promise.all([
+        axios.get("http://127.0.0.1:8000/api/v1/objek-retribusi"),
+        axios.get("http://127.0.0.1:8000/api/v1/jenis-jangka-waktu")
+      ]);
+      setObjekOptions(objekRes.data.data);
+      setJangkaWaktuOptions(jangkaRes.data.data);
+    } catch (error) {
+      console.error('Error fetching options:', error);
+      alert('Gagal mengambil data opsi: ' + error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -43,24 +47,56 @@ function TarifobjekCreate() {
       ...prev,
       [name]: value
     }));
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: null
+      }));
+    }
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+    if (!formData.idObjekRetribusi) newErrors.idObjekRetribusi = ['Objek Retribusi harus diisi'];
+    if (!formData.idJenisJangkaWaktu) newErrors.idJenisJangkaWaktu = ['Jenis Jangka Waktu harus diisi'];
+    if (!formData.tanggalDinilai) newErrors.tanggalDinilai = ['Tanggal Dinilai harus diisi'];
+    if (!formData.namaPenilai) newErrors.namaPenilai = ['Nama Penilai harus diisi'];
+    if (!formData.nominalTarif) newErrors.nominalTarif = ['Nominal Tarif harus diisi'];
+    return newErrors;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    const validationErrors = validateForm();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
     try {
-      const response = await axios.post(Api_URL, formData);
+      setIsLoading(true);
+      const response = await axios.post(API_URL, formData);
       if (response.data.status === 'success') {
+        alert('Data berhasil disimpan!');
         navigate('/Tarifobjek-index');
       }
     } catch (error) {
-      if (error.response && error.response.status === 422) {
+      if (error.response?.status === 422) {
         setErrors(error.response.data.errors);
       } else {
         console.error('Error creating data:', error);
         alert('Gagal membuat data: ' + (error.response?.data?.message || error.message));
       }
+    } finally {
+      setIsLoading(false);
     }
   };
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div style={{ fontFamily: "'Poppins', sans-serif", padding: "20px", backgroundColor: "#f8fafc", minHeight: "100vh" }}>
@@ -230,9 +266,19 @@ function TarifobjekCreate() {
 
           <button 
             type="submit"
-            style={{ width: "100%", backgroundColor: "#4361ee", color: "white", padding: "12px", borderRadius: "6px", border: "none", cursor: "pointer", fontWeight: "500" }}
+            disabled={isLoading}
+            style={{ 
+              width: "100%", 
+              backgroundColor: isLoading ? "#93c5fd" : "#4361ee", 
+              color: "white", 
+              padding: "12px", 
+              borderRadius: "6px", 
+              border: "none", 
+              cursor: isLoading ? "not-allowed" : "pointer", 
+              fontWeight: "500" 
+            }}
           >
-            Simpan
+            {isLoading ? "Menyimpan..." : "Simpan"}
           </button>
         </form>
       </div>

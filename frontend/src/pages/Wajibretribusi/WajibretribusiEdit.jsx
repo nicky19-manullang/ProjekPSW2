@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { FaChevronLeft } from "react-icons/fa";
+import Swal from 'sweetalert2';
 
 const Api_URL = "http://127.0.0.1:8000/api/v1/wajib-retribusi";
 
@@ -52,11 +53,19 @@ function WajibretribusiEdit() {
         }
       }
       await axios.put(`${Api_URL}/${id}`, formDataToSend);
-      alert("Data berhasil diupdate!");
+      Swal.fire({
+        icon: 'success',
+        title: 'Berhasil!',
+        text: 'Data berhasil diupdate!',
+      });
       navigate("/wajib-retribusi-index");
     } catch (error) {
       console.error('Error:', error.response?.data);
-      alert(`Gagal: ${error.response?.data?.message || error.message}`);
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: error.response?.data?.message || error.message,
+      });
     }
   };
 

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import Swal from 'sweetalert2';
 
 const Api_URL = "http://127.0.0.1:8000/api/v1/wajib-retribusi";
 
@@ -36,11 +37,21 @@ function WajibretribusiCreate() {
         formDataToSend.append(key, formData[key]);
       }
       await axios.post(Api_URL, formDataToSend);
-      alert("Data berhasil ditambahkan!");
+      Swal.fire({
+        icon: 'success',
+        title: 'Berhasil!',
+        text: 'Data berhasil ditambahkan!',
+        confirmButtonColor: '#4361ee'
+      });
       navigate("/wajib-retribusi-index");
     } catch (error) {
       console.error('Error:', error.response?.data);
-      alert(`Gagal: ${error.response?.data?.message || error.message}`);
+      Swal.fire({
+        icon: 'error',
+        title: 'Gagal!',
+        text: error.response?.data?.message || error.message,
+        confirmButtonColor: '#4361ee'
+      });
     }
   };
 

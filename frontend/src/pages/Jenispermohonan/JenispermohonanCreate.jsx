@@ -1,201 +1,269 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import Swal from "sweetalert2";
 
 const Api_URL = "http://127.0.0.1:8000/api/v1/jenis-permohonan";
 
 function JenispermohonanCreate() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    jenis_permohonan: "",
     parent_id: "",
-    keterangan: ""
+    jenis_permohonan: "",
+    keterangan: "",
   });
-  const [modal, setModal] = useState({ show: false, type: "", message: "" });
+  const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [parentOptions, setParentOptions] = useState([]);
+  const [isLoadingOptions, setIsLoadingOptions] = useState(true);
 
-  const showModal = (type, message, callback) => {
-    setModal({ show: true, type, message });
-    setTimeout(() => {
-      setModal({ show: false, type: "", message: "" });
-      if (callback) callback();
-    }, 3000);
-  };
+  useEffect(() => {
+    const fetchParentOptions = async () => {
+      try {
+        const response = await axios.get(`${Api_URL}?is_parent=true`);
+        setParentOptions(response.data.data);
+        setIsLoadingOptions(false);
+      } catch (error) {
+        console.error('Error fetching parent options:', error);
+        setIsLoadingOptions(false);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Gagal memuat data parent permohonan',
+        });
+      }
+    };
+
+    fetchParentOptions();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    // Clear error when user types
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: null
+      }));
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
+
     try {
-      await axios.post(Api_URL, formData, {
-        headers: {
-          "Content-Type": "application/json"
-        }
-      });
-      showModal("success", "Data berhasil ditambahkan!", () => {
+      const response = await axios.post(Api_URL, formData);
+      Swal.fire({
+        icon: 'success',
+        title: 'Berhasil!',
+        text: 'Data jenis permohonan berhasil ditambahkan',
+      }).then(() => {
         navigate("/Jenispermohonan-index");
       });
     } catch (error) {
-      const message = error.response?.data?.message || "Gagal menambahkan data!";
-      showModal("error", message);
+      if (error.response && error.response.status === 422) {
+        setErrors(error.response.data.errors);
+        Swal.fire({
+          icon: 'error',
+          title: 'Validasi Gagal',
+          text: 'Terdapat kesalahan pada input Anda',
+        });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Gagal menambahkan data: ' + (error.response?.data?.message || error.message),
+        });
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div style={{ fontFamily: "'Poppins', sans-serif", padding: 40, backgroundColor: "#f8fafc", minHeight: "100vh" }}>
-      <h1 style={{ fontSize: 24, fontWeight: 600, color: "#1e293b", marginBottom: 30 }}>
-        Tambah Jenis Permohonan Baru
-      </h1>
+    <div style={{ 
+      fontFamily: "'Poppins', sans-serif", 
+      padding: "20px", 
+      backgroundColor: "#f8fafc", 
+      minHeight: "100vh" 
+    }}>
+      <div style={{ 
+        backgroundColor: "white", 
+        borderRadius: "10px", 
+        boxShadow: "0 2px 10px rgba(0,0,0,0.05)", 
+        padding: "20px",
+        maxWidth: "800px",
+        margin: "0 auto"
+      }}>
+        <div style={{ 
+          display: "flex", 
+          justifyContent: "space-between", 
+          alignItems: "center", 
+          marginBottom: "20px",
+          borderBottom: "1px solid #e2e8f0",
+          paddingBottom: "15px"
+        }}>
+          <h1 style={{ fontSize: "24px", fontWeight: "600", color: "#1e293b" }}>Tambah Jenis Permohonan</h1>
+          <button 
+            onClick={() => navigate("/Jenispermohonan-index")}
+            style={{ 
+              backgroundColor: "#e2e8f0", 
+              color: "#64748b", 
+              padding: "8px 16px", 
+              borderRadius: "6px", 
+              border: "none", 
+              cursor: "pointer", 
+              fontWeight: "500"
+            }}
+          >
+            Kembali
+          </button>
+        </div>
 
-      <div style={{ backgroundColor: "white", borderRadius: 12, boxShadow: "0 4px 15px rgba(0,0,0,0.08)", padding: 35, maxWidth: 800, margin: "0 auto" }}>
         <form onSubmit={handleSubmit}>
-          {/* Jenis Permohonan */}
-          <div style={{ marginBottom: 25 }}>
-            <label style={{ display: "block", marginBottom: 10, fontWeight: 500, color: "#334155", fontSize: 16 }}>
-              Jenis Permohonan
+          <div style={{ marginBottom: "20px" }}>
+            <label style={{ 
+              display: "block", 
+              marginBottom: "8px", 
+              fontWeight: "500", 
+              color: "#334155" 
+            }}>
+              Parent Permohonan
+            </label>
+            {isLoadingOptions ? (
+              <div style={{ padding: "10px", textAlign: "center", color: "#64748b" }}>
+                Memuat data parent permohonan...
+              </div>
+            ) : (
+              <select
+                name="parent_id"
+                value={formData.parent_id}
+                onChange={handleChange}
+                style={{
+                  width: "100%",
+                  padding: "10px 15px",
+                  borderRadius: "6px",
+                  border: errors.parent_id ? "1px solid #ef4444" : "1px solid #e2e8f0",
+                  fontSize: "14px",
+                  backgroundColor: "white"
+                }}
+              >
+                <option value="">Pilih Parent Permohonan (Opsional)</option>
+                {parentOptions.map(option => (
+                  <option key={option.id} value={option.id}>
+                    {option.jenis_permohonan}
+                  </option>
+                ))}
+              </select>
+            )}
+            {errors.parent_id && (
+              <div style={{ color: "#ef4444", fontSize: "12px", marginTop: "5px" }}>
+                {errors.parent_id[0]}
+              </div>
+            )}
+          </div>
+
+          <div style={{ marginBottom: "20px" }}>
+            <label style={{ 
+              display: "block", 
+              marginBottom: "8px", 
+              fontWeight: "500", 
+              color: "#334155" 
+            }}>
+              Jenis Permohonan <span style={{ color: "#ef4444" }}>*</span>
             </label>
             <input
               type="text"
               name="jenis_permohonan"
               value={formData.jenis_permohonan}
               onChange={handleChange}
-              required
+              style={{
+                width: "100%",
+                padding: "10px 15px",
+                borderRadius: "6px",
+                border: errors.jenis_permohonan ? "1px solid #ef4444" : "1px solid #e2e8f0",
+                fontSize: "14px"
+              }}
               placeholder="Masukkan jenis permohonan"
-              style={{
-                width: "100%",
-                padding: "12px 18px",
-                border: "1px solid #e2e8f0",
-                borderRadius: 8,
-                fontSize: 16
-              }}
             />
+            {errors.jenis_permohonan && (
+              <div style={{ color: "#ef4444", fontSize: "12px", marginTop: "5px" }}>
+                {errors.jenis_permohonan[0]}
+              </div>
+            )}
           </div>
 
-          {/* Parent ID */}
-          <div style={{ marginBottom: 25 }}>
-            <label style={{ display: "block", marginBottom: 10, fontWeight: 500, color: "#334155", fontSize: 16 }}>
-              Parent ID
-            </label>
-            <input
-              type="number"
-              name="parent_id"
-              value={formData.parent_id}
-              onChange={handleChange}
-              placeholder="Masukkan parent ID (opsional)"
-              style={{
-                width: "100%",
-                padding: "12px 18px",
-                border: "1px solid #e2e8f0",
-                borderRadius: 8,
-                fontSize: 16
-              }}
-            />
-          </div>
-
-          {/* Keterangan */}
-          <div style={{ marginBottom: 30 }}>
-            <label style={{ display: "block", marginBottom: 10, fontWeight: 500, color: "#334155", fontSize: 16 }}>
+          <div style={{ marginBottom: "20px" }}>
+            <label style={{ 
+              display: "block", 
+              marginBottom: "8px", 
+              fontWeight: "500", 
+              color: "#334155" 
+            }}>
               Keterangan
             </label>
             <textarea
               name="keterangan"
               value={formData.keterangan}
               onChange={handleChange}
-              placeholder="Masukkan keterangan"
               style={{
                 width: "100%",
-                padding: "12px 18px",
-                border: "1px solid #e2e8f0",
-                borderRadius: 8,
-                fontSize: 16,
-                minHeight: 120,
+                padding: "10px 15px",
+                borderRadius: "6px",
+                border: errors.keterangan ? "1px solid #ef4444" : "1px solid #e2e8f0",
+                fontSize: "14px",
+                minHeight: "100px",
                 resize: "vertical"
               }}
+              placeholder="Masukkan keterangan (opsional)"
             />
+            {errors.keterangan && (
+              <div style={{ color: "#ef4444", fontSize: "12px", marginTop: "5px" }}>
+                {errors.keterangan[0]}
+              </div>
+            )}
           </div>
 
-          {/* Buttons */}
-          <div style={{ display: "flex", justifyContent: "flex-end", gap: 20 }}>
+          <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
             <button
               type="button"
               onClick={() => navigate("/Jenispermohonan-index")}
-              style={{
-                padding: "12px 24px",
-                backgroundColor: "#f1f5f9",
-                color: "#64748b",
-                border: "none",
-                borderRadius: 8,
-                cursor: "pointer",
-                fontWeight: 500,
-                fontSize: 16
+              style={{ 
+                backgroundColor: "#e2e8f0", 
+                color: "#64748b", 
+                padding: "10px 20px", 
+                borderRadius: "6px", 
+                border: "none", 
+                cursor: "pointer", 
+                fontWeight: "500"
               }}
             >
               Batal
             </button>
             <button
               type="submit"
-              style={{
-                padding: "12px 24px",
-                backgroundColor: "#4361ee",
-                color: "white",
-                border: "none",
-                borderRadius: 8,
-                cursor: "pointer",
-                fontWeight: 500,
-                fontSize: 16
+              disabled={isSubmitting || isLoadingOptions}
+              style={{ 
+                backgroundColor: "#4361ee", 
+                color: "white", 
+                padding: "10px 20px", 
+                borderRadius: "6px", 
+                border: "none", 
+                cursor: "pointer", 
+                fontWeight: "500",
+                opacity: isSubmitting || isLoadingOptions ? 0.7 : 1
               }}
             >
-              Simpan
+              {isSubmitting ? "Menyimpan..." : "Simpan"}
             </button>
           </div>
         </form>
       </div>
-
-      {/* Pop-up Modal */}
-      {modal.show && (
-        <div style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          width: "100vw",
-          height: "100vh",
-          backgroundColor: "rgba(0,0,0,0.5)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          zIndex: 9999
-        }}>
-          <div style={{
-            backgroundColor: "white",
-            padding: 30,
-            borderRadius: 10,
-            textAlign: "center",
-            maxWidth: 400
-          }}>
-            <div style={{ fontSize: 50, color: modal.type === "success" ? "#16a34a" : "#dc2626" }}>
-              {modal.type === "success" ? "✔️" : "❌"}
-            </div>
-            <h2 style={{ color: "#1f2937", marginBottom: 10 }}>{modal.type === "success" ? "Sukses" : "Error"}</h2>
-            <p style={{ color: "#4b5563", marginBottom: 20 }}>{modal.message}</p>
-            <button
-              onClick={() => setModal({ show: false, type: "", message: "" })}
-              style={{
-                padding: "10px 20px",
-                backgroundColor: "#6366f1",
-                color: "white",
-                border: "none",
-                borderRadius: 6,
-                fontWeight: 600,
-                cursor: "pointer"
-              }}
-            >
-              OK
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

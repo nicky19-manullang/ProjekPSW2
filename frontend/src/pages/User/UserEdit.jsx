@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
+import Swal from 'sweetalert2';
 
 const Api_URL = "http://127.0.0.1:8000/api/v1/users";
 
@@ -29,7 +30,11 @@ function UserEdit() {
           keterangan: userData.keterangan || ""
         });
       } catch (error) {
-        console.error('Error fetching user:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Error fetching user data',
+        });
       }
     };
 
@@ -54,13 +59,28 @@ function UserEdit() {
       
       const response = await axios.put(`${Api_URL}/${id}`, dataToSend);
       if (response.data.status === 'success') {
-        navigate('/users-index');
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: 'User updated successfully',
+        }).then(() => {
+          navigate('/users-index');
+        });
       }
     } catch (error) {
       if (error.response && error.response.status === 422) {
         setErrors(error.response.data.errors);
+        Swal.fire({
+          icon: 'error',
+          title: 'Validation Error',
+          text: 'Please check your input',
+        });
       } else {
-        console.error('Error updating user:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Error updating user',
+        });
       }
     }
   };

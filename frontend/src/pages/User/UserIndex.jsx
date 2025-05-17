@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { FaEdit, FaTrash, FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import Swal from 'sweetalert2';
 
 const Api_URL = "http://127.0.0.1:8000/api/v1/users";
 
@@ -21,18 +22,43 @@ function UserIndex() {
       setData(response.data.data);
     } catch (error) {
       console.error('Error fetching data:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: 'Failed to fetch data'
+      });
     }
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm("Delete this user?")) {
-      try {
-        await axios.delete(`${Api_URL}/${id}`);
-        fetchData();
-      } catch (error) {
-        console.error('Error deleting data:', error);
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await axios.delete(`${Api_URL}/${id}`);
+          Swal.fire(
+            'Deleted!',
+            'User has been deleted.',
+            'success'
+          );
+          fetchData();
+        } catch (error) {
+          console.error('Error deleting data:', error);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: 'Failed to delete user'
+          });
+        }
       }
-    }
+    });
   };
 
   // Pagination logic

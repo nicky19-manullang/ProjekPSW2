@@ -1,161 +1,278 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { FaEdit, FaTrash, FaChevronLeft, FaChevronRight, FaPlus, FaSearch } from "react-icons/fa";
+import Swal from "sweetalert2";
 
 const Api_URL = "http://127.0.0.1:8000/api/v1/jenis-permohonan";
 
 function JenispermohonanIndex() {
-  const navigate = useNavigate();
   const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [modal, setModal] = useState({ show: false, type: "", message: "" });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const itemsPerPage = 10;
+  const navigate = useNavigate();
 
   useEffect(() => {
-    fetchAllData();
-  }, []);
+    fetchData();
+  }, [currentPage]); // Add currentPage as dependency
 
-  const showModal = (type, message) => {
-    setModal({ show: true, type, message });
-    setTimeout(() => setModal({ show: false, type: "", message: "" }), 3000);
-  };
-
-  const fetchAllData = async () => {
+  const fetchData = async () => {
     try {
-      const res = await axios.get(Api_URL);
-      setData(res.data);
+      setIsLoading(true);
+      const response = await axios.get(`${Api_URL}?page=${currentPage}&per_page=${itemsPerPage}`);
+      if (response.data && response.data.data) {
+        setData(response.data.data);
+      } else {
+        throw new Error('Data format is invalid');
+      }
+      setIsLoading(false);
     } catch (error) {
-      showModal("error", "Gagal memuat data status");
-    } finally {
-      setLoading(false);
+      console.error('Error fetching data:', error);
+      setIsLoading(false);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Gagal memuat data jenis permohonan. Silakan coba lagi.',
+      });
     }
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm("Yakin ingin menghapus data ini?")) {
-      try {
-        await axios.delete(`${Api_URL}/${id}`);
-        showModal("success", "Data berhasil dihapus.");
-        fetchAllData();
-      } catch (error) {
-        showModal("error", "Gagal menghapus data!");
+    Swal.fire({
+      title: 'Apakah Anda yakin?',
+      text: "Data yang dihapus tidak dapat dikembalikan!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Ya, hapus!',
+      cancelButtonText: 'Batal'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await axios.delete(`${Api_URL}/${id}`);
+          Swal.fire(
+            'Deleted!',
+            'Data berhasil dihapus.',
+            'success'
+          );
+          fetchData();
+        } catch (error) {
+          let errorMessage = 'Gagal menghapus data';
+          if (error.response && error.response.data && error.response.data.message) {
+            errorMessage = error.response.data.message;
+          }
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: errorMessage,
+          });
+        }
       }
-    }
+    });
   };
 
-  if (loading) return <p>Loading...</p>;
+  // Filter data based on search term
+  const filteredData = data.filter(item =>
+    item.jenis_permohonan?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (item.keterangan && item.keterangan.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (item.parent && item.parent.jenis_permohonan.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
+
+  // Pagination logic
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredData.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
 
   return (
-    <div style={{ fontFamily: "'Poppins', sans-serif", padding: 40, backgroundColor: "#f8fafc", minHeight: "100vh" }}>
-      <h1 style={{ fontSize: 24, fontWeight: 600, color: "#1e293b", marginBottom: 30 }}>
-        Daftar Jenis Permohonan
-      </h1>
+    <div style={{ fontFamily: "'Poppins', sans-serif", padding: "20px", backgroundColor: "#f8fafc", minHeight: "100vh" }}>
+      {/* Header */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+        <h1 style={{ fontSize: "24px", fontWeight: "600", color: "#1e293b" }}>Daftar Jenis Permohonan</h1>
+        <button 
+          onClick={() => navigate("/Jenis-permohonan/create")}
+          style={{ 
+            backgroundColor: "#4361ee", 
+            color: "white", 
+            padding: "8px 16px", 
+            borderRadius: "6px", 
+            border: "none", 
+            cursor: "pointer", 
+            fontWeight: "500",
+            display: "flex",
+            alignItems: "center",
+            gap: "8px"
+          }}
+        >
+          <FaPlus /> Tambah Data
+        </button>
+      </div>
 
-      <button
-        onClick={() => navigate("/jenis-permohonan/create")}
-        style={{
-          padding: "12px 20px",
-          backgroundColor: "#1d4ed8",
-          color: "white",
-          border: "none",
-          borderRadius: 8,
-          cursor: "pointer",
-          fontWeight: 600,
-          fontSize: 16,
-          marginBottom: 20
-        }}
-      >
-        + Tambah Baru
-      </button>
+      {/* Search Bar */}
+      <div style={{ 
+        marginBottom: "20px",
+        position: "relative"
+      }}>
+        <FaSearch style={{
+          position: "absolute",
+          left: "15px",
+          top: "50%",
+          transform: "translateY(-50%)",
+          color: "#64748b"
+        }} />
+        <input
+          type="text"
+          placeholder="Cari jenis permohonan, keterangan, atau parent..."
+          style={{
+            width: "100%",
+            padding: "10px 15px 10px 40px",
+            borderRadius: "6px",
+            border: "1px solid #e2e8f0",
+            fontSize: "14px"
+          }}
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
 
-      <table style={{ width: "100%", borderCollapse: "collapse", backgroundColor: "white", borderRadius: 12, overflow: "hidden" }}>
-        <thead style={{ backgroundColor: "#1d4ed8", color: "white" }}>
-          <tr>
-            <th style={{ padding: 12, textAlign: "left" }}>ID</th>
-            <th style={{ padding: 12, textAlign: "left" }}>Jenis Permohonan</th>
-            <th style={{ padding: 12, textAlign: "left" }}>Parent ID</th>
-            <th style={{ padding: 12, textAlign: "left" }}>Keterangan</th>
-            <th style={{ padding: 12, textAlign: "center" }}>Aksi</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.length === 0 ? (
-            <tr>
-              <td colSpan={5} style={{ textAlign: "center", padding: 20 }}>
-                Data tidak ditemukan
-              </td>
-            </tr>
-          ) : (
-            data.map(item => (
-              <tr key={item.id} style={{ borderBottom: "1px solid #e2e8f0" }}>
-                <td style={{ padding: 12 }}>{item.id}</td>
-                <td style={{ padding: 12 }}>{item.jenis_permohonan}</td>
-                <td style={{ padding: 12 }}>{item.parent_id || "-"}</td>
-                <td style={{ padding: 12 }}>{item.keterangan || "-"}</td>
-                <td style={{ padding: 12, textAlign: "center" }}>
-                  <Link to={`/jenis-permohonan/edit/${item.id}`} style={{ marginRight: 10, color: "#2563eb", fontWeight: 600, cursor: "pointer" }}>
-                    Edit
-                  </Link>
-                  <button
-                    onClick={() => handleDelete(item.id)}
-                    style={{
-                      backgroundColor: "transparent",
-                      border: "none",
-                      color: "#dc2626",
-                      cursor: "pointer",
-                      fontWeight: 600
-                    }}
-                  >
-                    Hapus
-                  </button>
-                </td>
-              </tr>
-            ))
-          )}
-        </tbody>
-      </table>
-
-      {modal.show && (
-        <div style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          width: "100vw",
-          height: "100vh",
-          backgroundColor: "rgba(0,0,0,0.5)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          zIndex: 9999
+      {/* Table */}
+      <div style={{ backgroundColor: "white", borderRadius: "10px", boxShadow: "0 2px 10px rgba(0,0,0,0.05)", overflow: "hidden" }}>
+        {/* Table Header */}
+        <div style={{ 
+          display: "grid", 
+          gridTemplateColumns: "50px 1fr 1fr 1fr 100px", 
+          padding: "15px 20px", 
+          backgroundColor: "#4361ee", 
+          color: "white", 
+          fontWeight: "500",
+          alignItems: "center"
         }}>
-          <div style={{
-            backgroundColor: "white",
-            padding: 30,
-            borderRadius: 10,
-            textAlign: "center",
-            maxWidth: 400
-          }}>
-            <div style={{ fontSize: 50, color: modal.type === "success" ? "#16a34a" : "#dc2626" }}>
-              {modal.type === "success" ? "✔️" : "❌"}
-            </div>
-            <h2 style={{ color: "#1f2937", marginBottom: 10 }}>{modal.type === "success" ? "Sukses" : "Error"}</h2>
-            <p style={{ color: "#4b5563", marginBottom: 20 }}>{modal.message}</p>
-            <button
-              onClick={() => setModal({ show: false, type: "", message: "" })}
-              style={{
-                padding: "10px 20px",
-                backgroundColor: "#6366f1",
-                color: "white",
-                border: "none",
-                borderRadius: 6,
-                fontWeight: 600,
-                cursor: "pointer"
-              }}
-            >
-              OK
-            </button>
-          </div>
+          <div>No</div>
+          <div>Parent</div>
+          <div>Jenis Permohonan</div>
+          <div>Keterangan</div>
+          <div style={{ textAlign: "center" }}>Aksi</div>
         </div>
-      )}
+
+        {/* Loading State */}
+        {isLoading && (
+          <div style={{ padding: "20px", textAlign: "center", color: "#64748b" }}>
+            Memuat data...
+          </div>
+        )}
+
+        {/* Empty State */}
+        {!isLoading && currentItems.length === 0 && (
+          <div style={{ padding: "20px", textAlign: "center", color: "#64748b" }}>
+            {searchTerm ? "Tidak ada hasil pencarian" : "Tidak ada data"}
+          </div>
+        )}
+
+        {/* Table Body */}
+        {!isLoading && currentItems.length > 0 && currentItems.map((item, index) => (
+          <div 
+            key={item.id}
+            style={{
+              display: "grid",
+              gridTemplateColumns: "50px 1fr 1fr 1fr 100px",
+              padding: "12px 20px",
+              borderBottom: "1px solid #e2e8f0",
+              alignItems: "center",
+              backgroundColor: index % 2 === 0 ? "#ffffff" : "#f8fafc"
+            }}
+          >
+            <div>{indexOfFirstItem + index + 1}</div>
+            <div>{item.parent?.jenis_permohonan || "-"}</div>
+            <div>{item.jenis_permohonan}</div>
+            <div>{item.keterangan || "-"}</div>
+            <div style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
+              <button 
+                onClick={() => navigate(`/Jenis-permohonan/edit/${item.id}`)}
+                style={{ 
+                  color: "#3b82f6", 
+                  background: "none", 
+                  border: "none", 
+                  cursor: "pointer",
+                  fontSize: "16px"
+                }}
+                title="Edit"
+              >
+                <FaEdit />
+              </button>
+              <button 
+                onClick={() => handleDelete(item.id)}
+                style={{ 
+                  color: "#ef4444", 
+                  background: "none", 
+                  border: "none", 
+                  cursor: "pointer",
+                  fontSize: "16px"
+                }}
+                title="Hapus"
+              >
+                <FaTrash />
+              </button>
+            </div>
+          </div>
+        ))}
+
+        {/* Pagination */}
+        {!isLoading && filteredData.length > 0 && (
+          <div style={{ 
+            display: "flex", 
+            justifyContent: "space-between", 
+            alignItems: "center", 
+            padding: "15px 20px", 
+            borderTop: "1px solid #e2e8f0",
+            flexWrap: "wrap",
+            gap: "10px"
+          }}>
+            <div style={{ color: "#64748b" }}>
+              Menampilkan {Math.min(indexOfFirstItem + 1, filteredData.length)}-{Math.min(indexOfLastItem, filteredData.length)} dari {filteredData.length} data
+            </div>
+            <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+              <button 
+                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                style={{ 
+                  padding: "5px 10px", 
+                  border: "1px solid #e2e8f0", 
+                  borderRadius: "4px", 
+                  cursor: "pointer", 
+                  backgroundColor: currentPage === 1 ? "#f1f5f9" : "white",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "5px"
+                }}
+              >
+                <FaChevronLeft /> Prev
+              </button>
+              <span style={{ padding: "5px 10px" }}>
+                Halaman {currentPage} dari {totalPages}
+              </span>
+              <button 
+                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages}
+                style={{ 
+                  padding: "5px 10px", 
+                  border: "1px solid #e2e8f0", 
+                  borderRadius: "4px", 
+                  cursor: "pointer", 
+                  backgroundColor: currentPage === totalPages ? "#f1f5f9" : "white",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "5px"
+                }}
+              >
+                Next <FaChevronRight />
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

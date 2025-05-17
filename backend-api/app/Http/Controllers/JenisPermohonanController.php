@@ -5,129 +5,148 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\JenisPermohonan;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Validator;
 
 class JenisPermohonanController extends Controller
 {
-    public function index()
+    public function index(): JsonResponse
     {
-        return JenisPermohonan::all();
+        try {
+            $data = JenisPermohonan::with('parent')
+                ->orderBy('created_at', 'desc')
+                ->get();
+                
+            return response()->json([
+                'status' => 'success',
+                'data' => $data
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to retrieve data: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
-    public function create()
-    {
-        //
-    }
-
-    // public function store(Request $request)
-    // {
-    //     $validatedData = $request->validate([
-    //         'parent_id' => 'required|string|max:255',
-    //         'jenis_permohonan' => 'required|string|max:255',
-    //         'keterangan' => 'nullable|string|max:255',
-    //     ]);
-
-    //     return JenisPermohonan::create($validatedData);
-
-    // }
     public function store(Request $request): JsonResponse
-{
-    try {
-        $validatedData = $request->validate([
-                'parent_id' => 'required|string|max:255',
-                'jenis_permohonan' => 'required|string|max:255',
-                'keterangan' => 'nullable|string|max:255',
+    {
+        $validator = Validator::make($request->all(), [
+            'parent_id' => 'nullable|exists:jenis_permohonans,id',
+            'jenis_permohonan' => 'required|string|max:255|unique:jenis_permohonans',
+            'keterangan' => 'nullable|string|max:255',
+        ], [
+            'parent_id.exists' => 'Parent ID tidak valid',
+            'jenis_permohonan.required' => 'Jenis permohonan wajib diisi',
+            'jenis_permohonan.unique' => 'Jenis permohonan sudah ada',
+            'jenis_permohonan.max' => 'Jenis permohonan maksimal 255 karakter',
+            'keterangan.max' => 'Keterangan maksimal 255 karakter',
         ]);
 
-        $data = JenisPermohonan::create($validatedData);
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Data berhasil ditambahkan',
-            'data' => $data
-        ], 201);
+        try {
+            $data = JenisPermohonan::create($validator->validated());
 
-    } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-        return response()->json([
-            'status' => 'error',
-            'message' => 'Data tidak ditemukan!'
-        ], 404);
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        return response()->json([
-            'status' => 'error',
-            'message' => 'Validasi gagal',
-            'errors' => $e->errors()
-        ], 422);
-    } catch (\Exception $e) {
-        return response()->json([
-            'status' => 'error',
-            'message' => 'Terjadi kesalahan: ' . $e->getMessage()
-        ], 500);
-    }
-}
-
-   public function show($id)
-{
-    // Sesuaikan pencarian ke kolom id_jenis_permohonan
-    $data = JenisPermohonan::where('id_jenis_permohonan', $id)->first();
-
-    if (!$data) {
-        return response()->json(['message' => 'Data tidak ditemukan'], 404);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Data berhasil ditambahkan',
+                'data' => $data
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to create data: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
-    return response()->json(['data' => $data]);
-}
-
-
-    public function edit(JenisPermohonan $jenisPermohonan)
+    public function show($id): JsonResponse
     {
-        //
+        try {
+            $jenisPermohonan = JenisPermohonan::with('parent', 'children')
+                ->findOrFail($id);
+                
+            return response()->json([
+                'status' => 'success',
+                'data' => $jenisPermohonan
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Data tidak ditemukan'
+            ], 404);
+        }
     }
 
     public function update(Request $request, $id): JsonResponse
-{
-    try {
-        // Cari data yang akan diupdate
-        $jenisPermohonan = JenisPermohonan::findOrFail($id);
-
-        // Validasi input
-        $validatedData = $request->validate([
-                'parent_id' => 'required|string|max:255',
-                'jenis_permohonan' => 'required|string|max:255',
-                'keterangan' => 'nullable|string|max:255',
+    {
+        $validator = Validator::make($request->all(), [
+            'parent_id' => 'nullable|exists:jenis_permohonans,id',
+            'jenis_permohonan' => 'required|string|max:255|unique:jenis_permohonans,jenis_permohonan,'.$id,
+            'keterangan' => 'nullable|string|max:255',
+        ], [
+            'parent_id.exists' => 'Parent ID tidak valid',
+            'jenis_permohonan.required' => 'Jenis permohonan wajib diisi',
+            'jenis_permohonan.unique' => 'Jenis permohonan sudah ada',
+            'jenis_permohonan.max' => 'Jenis permohonan maksimal 255 karakter',
+            'keterangan.max' => 'Keterangan maksimal 255 karakter',
         ]);
 
-        // Update data
-        $jenisPermohonan->update($validatedData);
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Data berhasil diupdate!',
-            'data' => $jenisPermohonan
-        ], 200);
+        try {
+            $jenisPermohonan = JenisPermohonan::findOrFail($id);
+            $jenisPermohonan->update($validator->validated());
 
-    } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-        return response()->json([
-            'status' => 'error',
-            'message' => 'Data tidak ditemukan!'
-        ], 404);
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        return response()->json([
-            'status' => 'error',
-            'message' => 'Validasi gagal',
-            'errors' => $e->errors()
-        ], 422);
-    } catch (\Exception $e) {
-        return response()->json([
-            'status' => 'error',
-            'message' => 'Terjadi kesalahan: ' . $e->getMessage()
-        ], 500);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Data berhasil diupdate',
+                'data' => $jenisPermohonan
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to update data: ' . $e->getMessage()
+            ], 500);
+        }
     }
-}
 
-    public function destroy(JenisPermohonan $jenisPermohonan)
+    public function destroy($id): JsonResponse
     {
-        $jenisPermohonan->delete();
+        try {
+            $jenisPermohonan = JenisPermohonan::findOrFail($id);
+            
+            // Check if this jenis permohonan has children
+            if ($jenisPermohonan->children()->count() > 0) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Tidak dapat menghapus karena memiliki sub-jenis permohonan'
+                ], 400);
+            }
+            
+            $jenisPermohonan->delete();
 
-        return response()->json(['message' => 'Data deleted successfully']);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Data berhasil dihapus'
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to delete data: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

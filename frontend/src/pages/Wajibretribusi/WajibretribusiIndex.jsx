@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { FaEdit, FaTrash, FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import Swal from 'sweetalert2';
 
 const Api_URL = "http://127.0.0.1:8000/api/v1/wajib-retribusi";
 
@@ -25,14 +26,35 @@ function WajibretribusiIndex() {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm("Hapus data ini?")) {
-      try {
-        await axios.delete(`${Api_URL}/${id}`);
-        fetchData();
-      } catch (error) {
-        console.error('Error deleting data:', error);
+    Swal.fire({
+      title: 'Apakah anda yakin?',
+      text: "Data yang dihapus tidak dapat dikembalikan!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Ya, hapus!',
+      cancelButtonText: 'Batal'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await axios.delete(`${Api_URL}/${id}`);
+          Swal.fire(
+            'Terhapus!',
+            'Data berhasil dihapus.',
+            'success'
+          );
+          fetchData();
+        } catch (error) {
+          Swal.fire(
+            'Error!',
+            'Terjadi kesalahan saat menghapus data.',
+            'error'
+          );
+          console.error('Error deleting data:', error);
+        }
       }
-    }
+    });
   };
 
   // Pagination logic
