@@ -20,4 +20,3 @@ class WajibRetribusi extends Model
 
     ];
 }
-
