@@ -2,9 +2,10 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-const Api_URL = "http://127.0.0.1:8000/api/v1/permohonan-sewa";
+const API_URL = "http://127.0.0.1:8000/api/v1/permohonan-sewa";
 
-function PermohonanSewaCreate() {
+const PermohonansewaCreate = () => {
+  const navigate = useNavigate();
   const [form, setForm] = useState({
     idJenisPermohonan: "",
     nomorSuratPermohonan: "",
@@ -17,8 +18,6 @@ function PermohonanSewaCreate() {
     idStatus: "",
   });
 
-  const navigate = useNavigate();
-
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
@@ -26,9 +25,9 @@ function PermohonanSewaCreate() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post(Api_URL, form);
+      await axios.post(API_URL, form);
       alert("Data berhasil ditambahkan");
-      navigate("/permohonan-sewa-index");
+      navigate("/Permohonansewa-index");
     } catch (error) {
       alert("Gagal menambahkan data");
       console.error(error);
@@ -37,19 +36,15 @@ function PermohonanSewaCreate() {
 
   return (
     <div style={{ padding: "20px", fontFamily: "'Poppins', sans-serif" }}>
-      <h2>Tambah Data Permohonan Sewa</h2>
+      <h2>Tambah Permohonan Sewa</h2>
       <form onSubmit={handleSubmit} style={{ maxWidth: "600px" }}>
         {Object.keys(form).map((key) => (
           <div key={key} style={{ marginBottom: "15px" }}>
-            <label
-              htmlFor={key}
-              style={{ display: "block", marginBottom: "5px", fontWeight: "600" }}
-            >
-              {key}
+            <label style={{ display: "block", marginBottom: "5px", fontWeight: "600" }}>
+              {key.replace(/([A-Z])/g, " $1")}
             </label>
             <input
               type={key === "tanggalPengajuan" ? "date" : "text"}
-              id={key}
               name={key}
               value={form[key]}
               onChange={handleChange}
@@ -57,7 +52,7 @@ function PermohonanSewaCreate() {
               style={{
                 width: "100%",
                 padding: "8px",
-                borderRadius: "5px",
+                borderRadius: "4px",
                 border: "1px solid #ccc",
               }}
             />
@@ -77,10 +72,25 @@ function PermohonanSewaCreate() {
         >
           Simpan
         </button>
+        <button
+          type="button"
+          onClick={() => navigate("/Permohonansewa-index")}
+          style={{
+            marginLeft: "10px",
+            padding: "10px 20px",
+            borderRadius: "6px",
+            border: "1px solid #4361ee",
+            backgroundColor: "white",
+            color: "#4361ee",
+            cursor: "pointer",
+            fontWeight: "600",
+          }}
+        >
+          Batal
+        </button>
       </form>
     </div>
   );
-}
+};
 
-export default PermohonanSewaCreate;
- 
+export default PermohonansewaCreate;

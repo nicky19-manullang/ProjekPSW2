@@ -4,7 +4,7 @@ import axios from "axios";
 
 const API_URL = "http://127.0.0.1:8000/api/v1/permohonan-sewa";
 
-const PermohonanSewaIndex = () => {
+const PermohonansewaIndex = () => {
   const [permohonanSewa, setPermohonanSewa] = useState([]);
   const navigate = useNavigate();
 
@@ -35,13 +35,15 @@ const PermohonanSewaIndex = () => {
     }
   };
 
+  const renderValue = (value) => (value === null || value === undefined || value === "" ? "-" : value);
+
   return (
     <div style={{ padding: "20px", fontFamily: "'Poppins', sans-serif" }}>
       <h2>Data Permohonan Sewa</h2>
       <button
-        onClick={() => navigate("/permohonan-sewa-create")}
+        onClick={() => navigate("/Permohonansewa-create")}
         style={{
-          backgroundColor: "#4caf50",
+          backgroundColor: "#4361ee",
           color: "white",
           padding: "10px 20px",
           borderRadius: "6px",
@@ -59,10 +61,11 @@ const PermohonanSewaIndex = () => {
           width: "100%",
           borderCollapse: "collapse",
           textAlign: "left",
+          fontSize: "16px",
         }}
       >
         <thead>
-          <tr style={{ backgroundColor: "#f2f2f2" }}>
+          <tr style={{ backgroundColor: "#4361ee", color: "white" }}>
             <th style={{ padding: "10px", border: "1px solid #ddd" }}>ID</th>
             <th style={{ padding: "10px", border: "1px solid #ddd" }}>ID Jenis Permohonan</th>
             <th style={{ padding: "10px", border: "1px solid #ddd" }}>Nomor Surat Permohonan</th>
@@ -88,23 +91,23 @@ const PermohonanSewaIndex = () => {
           ) : (
             permohonanSewa.map((item) => (
               <tr key={item.id} style={{ borderBottom: "1px solid #ddd" }}>
-                <td style={{ padding: "10px", border: "1px solid #ddd" }}>{item.id}</td>
-                <td style={{ padding: "10px", border: "1px solid #ddd" }}>{item.idJenisPermohonan ?? "-"}</td>
-                <td style={{ padding: "10px", border: "1px solid #ddd" }}>{item.nomorSuratPermohonan ?? "-"}</td>
-                <td style={{ padding: "10px", border: "1px solid #ddd" }}>{item.tanggalPengajuan ?? "-"}</td>
-                <td style={{ padding: "10px", border: "1px solid #ddd" }}>{item.idWajibRetribusi ?? "-"}</td>
-                <td style={{ padding: "10px", border: "1px solid #ddd" }}>{item.idObjekRetribusi ?? "-"}</td>
-                <td style={{ padding: "10px", border: "1px solid #ddd" }}>{item.idJenisJangkaWaktu ?? "-"}</td>
-                <td style={{ padding: "10px", border: "1px solid #ddd" }}>{item.lamaSewa ?? "-"}</td>
-                <td style={{ padding: "10px", border: "1px solid #ddd" }}>{item.idPeruntukanSewa ?? "-"}</td>
-                <td style={{ padding: "10px", border: "1px solid #ddd" }}>{item.idStatus ?? "-"}</td>
-                <td style={{ padding: "10px", border: "1px solid #ddd" }}>{item.created_at ?? "-"}</td>
-                <td style={{ padding: "10px", border: "1px solid #ddd" }}>{item.updated_at ?? "-"}</td>
+                <td style={{ padding: "10px", border: "1px solid #ddd" }}>{renderValue(item.id)}</td>
+                <td style={{ padding: "10px", border: "1px solid #ddd" }}>{renderValue(item.idJenisPermohonan)}</td>
+                <td style={{ padding: "10px", border: "1px solid #ddd" }}>{renderValue(item.nomorSuratPermohonan)}</td>
+                <td style={{ padding: "10px", border: "1px solid #ddd" }}>{renderValue(item.tanggalPengajuan)}</td>
+                <td style={{ padding: "10px", border: "1px solid #ddd" }}>{renderValue(item.idWajibRetribusi)}</td>
+                <td style={{ padding: "10px", border: "1px solid #ddd" }}>{renderValue(item.idObjekRetribusi)}</td>
+                <td style={{ padding: "10px", border: "1px solid #ddd" }}>{renderValue(item.idJenisJangkaWaktu)}</td>
+                <td style={{ padding: "10px", border: "1px solid #ddd" }}>{renderValue(item.lamaSewa)}</td>
+                <td style={{ padding: "10px", border: "1px solid #ddd" }}>{renderValue(item.idPeruntukanSewa)}</td>
+                <td style={{ padding: "10px", border: "1px solid #ddd" }}>{renderValue(item.idStatus)}</td>
+                <td style={{ padding: "10px", border: "1px solid #ddd" }}>{renderValue(item.created_at)}</td>
+                <td style={{ padding: "10px", border: "1px solid #ddd" }}>{renderValue(item.updated_at)}</td>
                 <td style={{ padding: "10px", border: "1px solid #ddd" }}>
                   <button
-                    onClick={() => navigate(`/permohonan-sewa-edit/${item.id}`)}
+                    onClick={() => navigate(`/Permohonansewa-edit/${item.id}`)}
                     style={{
-                      backgroundColor: "#2196f3",
+                      backgroundColor: "#4361ee",
                       color: "white",
                       border: "none",
                       padding: "5px 10px",
@@ -138,4 +141,4 @@ const PermohonanSewaIndex = () => {
   );
 };
 
-export default PermohonanSewaIndex;
+export default PermohonansewaIndex;

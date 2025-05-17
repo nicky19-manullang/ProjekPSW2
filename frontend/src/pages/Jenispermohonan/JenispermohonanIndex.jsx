@@ -8,18 +8,23 @@ function JenispermohonanIndex() {
   const navigate = useNavigate();
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [modal, setModal] = useState({ show: false, type: "", message: "" });
 
   useEffect(() => {
     fetchAllData();
   }, []);
+
+  const showModal = (type, message) => {
+    setModal({ show: true, type, message });
+    setTimeout(() => setModal({ show: false, type: "", message: "" }), 3000);
+  };
 
   const fetchAllData = async () => {
     try {
       const res = await axios.get(Api_URL);
       setData(res.data);
     } catch (error) {
-      alert("Gagal memuat data!");
-      console.error(error);
+      showModal("error", "Gagal memuat data status");
     } finally {
       setLoading(false);
     }
@@ -29,11 +34,10 @@ function JenispermohonanIndex() {
     if (window.confirm("Yakin ingin menghapus data ini?")) {
       try {
         await axios.delete(`${Api_URL}/${id}`);
-        alert("Data berhasil dihapus.");
+        showModal("success", "Data berhasil dihapus.");
         fetchAllData();
       } catch (error) {
-        alert("Gagal menghapus data!");
-        console.error(error);
+        showModal("error", "Gagal menghapus data!");
       }
     }
   };
@@ -50,7 +54,7 @@ function JenispermohonanIndex() {
         onClick={() => navigate("/jenis-permohonan/create")}
         style={{
           padding: "12px 20px",
-          backgroundColor: "#16a34a",
+          backgroundColor: "#1d4ed8",
           color: "white",
           border: "none",
           borderRadius: 8,
@@ -64,7 +68,7 @@ function JenispermohonanIndex() {
       </button>
 
       <table style={{ width: "100%", borderCollapse: "collapse", backgroundColor: "white", borderRadius: 12, overflow: "hidden" }}>
-        <thead style={{ backgroundColor: "#22c55e", color: "white" }}>
+        <thead style={{ backgroundColor: "#1d4ed8", color: "white" }}>
           <tr>
             <th style={{ padding: 12, textAlign: "left" }}>ID</th>
             <th style={{ padding: 12, textAlign: "left" }}>Jenis Permohonan</th>
@@ -109,6 +113,49 @@ function JenispermohonanIndex() {
           )}
         </tbody>
       </table>
+
+      {modal.show && (
+        <div style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100vw",
+          height: "100vh",
+          backgroundColor: "rgba(0,0,0,0.5)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          zIndex: 9999
+        }}>
+          <div style={{
+            backgroundColor: "white",
+            padding: 30,
+            borderRadius: 10,
+            textAlign: "center",
+            maxWidth: 400
+          }}>
+            <div style={{ fontSize: 50, color: modal.type === "success" ? "#16a34a" : "#dc2626" }}>
+              {modal.type === "success" ? "✔️" : "❌"}
+            </div>
+            <h2 style={{ color: "#1f2937", marginBottom: 10 }}>{modal.type === "success" ? "Sukses" : "Error"}</h2>
+            <p style={{ color: "#4b5563", marginBottom: 20 }}>{modal.message}</p>
+            <button
+              onClick={() => setModal({ show: false, type: "", message: "" })}
+              style={{
+                padding: "10px 20px",
+                backgroundColor: "#6366f1",
+                color: "white",
+                border: "none",
+                borderRadius: 6,
+                fontWeight: 600,
+                cursor: "pointer"
+              }}
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

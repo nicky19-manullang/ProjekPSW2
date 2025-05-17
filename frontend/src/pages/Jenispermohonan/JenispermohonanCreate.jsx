@@ -11,6 +11,15 @@ function JenispermohonanCreate() {
     parent_id: "",
     keterangan: ""
   });
+  const [modal, setModal] = useState({ show: false, type: "", message: "" });
+
+  const showModal = (type, message, callback) => {
+    setModal({ show: true, type, message });
+    setTimeout(() => {
+      setModal({ show: false, type: "", message: "" });
+      if (callback) callback();
+    }, 3000);
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -25,11 +34,12 @@ function JenispermohonanCreate() {
           "Content-Type": "application/json"
         }
       });
-      alert("Data berhasil ditambahkan!");
-      navigate("/jenis-permohonan");
+      showModal("success", "Data berhasil ditambahkan!", () => {
+        navigate("/Jenispermohonan-index");
+      });
     } catch (error) {
-      console.error("Error creating data:", error.response?.data);
-      alert(`Gagal menambahkan data! ${error.response?.data?.message || ""}`);
+      const message = error.response?.data?.message || "Gagal menambahkan data!";
+      showModal("error", message);
     }
   };
 
@@ -110,7 +120,7 @@ function JenispermohonanCreate() {
           <div style={{ display: "flex", justifyContent: "flex-end", gap: 20 }}>
             <button
               type="button"
-              onClick={() => navigate("/jenis-permohonan")}
+              onClick={() => navigate("/Jenispermohonan-index")}
               style={{
                 padding: "12px 24px",
                 backgroundColor: "#f1f5f9",
@@ -128,7 +138,7 @@ function JenispermohonanCreate() {
               type="submit"
               style={{
                 padding: "12px 24px",
-                backgroundColor: "#16a34a",
+                backgroundColor: "#4361ee",
                 color: "white",
                 border: "none",
                 borderRadius: 8,
@@ -142,6 +152,50 @@ function JenispermohonanCreate() {
           </div>
         </form>
       </div>
+
+      {/* Pop-up Modal */}
+      {modal.show && (
+        <div style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100vw",
+          height: "100vh",
+          backgroundColor: "rgba(0,0,0,0.5)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          zIndex: 9999
+        }}>
+          <div style={{
+            backgroundColor: "white",
+            padding: 30,
+            borderRadius: 10,
+            textAlign: "center",
+            maxWidth: 400
+          }}>
+            <div style={{ fontSize: 50, color: modal.type === "success" ? "#16a34a" : "#dc2626" }}>
+              {modal.type === "success" ? "✔️" : "❌"}
+            </div>
+            <h2 style={{ color: "#1f2937", marginBottom: 10 }}>{modal.type === "success" ? "Sukses" : "Error"}</h2>
+            <p style={{ color: "#4b5563", marginBottom: 20 }}>{modal.message}</p>
+            <button
+              onClick={() => setModal({ show: false, type: "", message: "" })}
+              style={{
+                padding: "10px 20px",
+                backgroundColor: "#6366f1",
+                color: "white",
+                border: "none",
+                borderRadius: 6,
+                fontWeight: 600,
+                cursor: "pointer"
+              }}
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
