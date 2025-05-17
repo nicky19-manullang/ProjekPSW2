@@ -68,7 +68,7 @@ function App() {
   return (
     <Routes>
       {/* Login page */}
-      <Route path="/login" element={<Login />} />
+      <Route path="/" element={<Login />} />
 
       {/* Dashboard page */}
       <Route path="/Dashboard" element={isLoggedIn ? <AdminLayout><Dashboard /></AdminLayout> : <Navigate to="/login" replace />} />
